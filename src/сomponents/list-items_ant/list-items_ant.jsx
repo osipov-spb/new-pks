@@ -1,5 +1,5 @@
 import React from 'react'
-import {Card, Table} from 'antd'
+import {Card, Table, Tag} from 'antd'
 
 class NewTable extends React.Component {
 
@@ -61,6 +61,32 @@ class NewTable extends React.Component {
                 title: 'Статус',
                 dataIndex: 'orderStatus',
                 key: 'orderStatus',
+                render: (_, { orderStatus }) => {
+                    let color = 'geekblue';
+                    if (orderStatus === 'Временной') {
+                        color = 'volcano';
+                    } else if (orderStatus === '1.Заказан') {
+                        color = 'volcano';
+                    } else if (orderStatus === '2.Кухня') {
+                        color = 'volcano';
+                    } else if (orderStatus === '2,5.Комплектация') {
+                        color = 'volcano';
+                    } else if (orderStatus === '3.Ожидает') {
+                        color = 'volcano';
+                    } else if (orderStatus === '4.В пути') {
+                        color = 'volcano';
+                    } else if (orderStatus === '5.Доставлен') {
+                        color = 'volcano';
+                    } else if (orderStatus === '6.Деньги сдал') {
+                        color = 'volcano';
+                    }
+                    return (
+                        <Tag color={color} key={orderStatus}>
+                            {orderStatus.toUpperCase()}
+                        </Tag>
+                    );
+                }
+
             },
             {
                 title: 'Упаковка',

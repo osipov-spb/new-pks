@@ -1,5 +1,5 @@
-import {Button, Col, Layout, Row, Space} from 'antd';
-import React, {useState} from 'react';
+import {Layout} from 'antd';
+import React from 'react';
 import NewTable from "./сomponents/list-items_ant/list-items_ant";
 import Header from "./сomponents/Header";
 
@@ -20,7 +20,7 @@ const App = () => {
     return (
         <Layout className="layout">
             <Header/>
-            <Divider/>
+            {/*<Divider/>*/}
 
             <Content
                 style={{
