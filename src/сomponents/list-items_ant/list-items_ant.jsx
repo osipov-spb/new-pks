@@ -51,6 +51,7 @@ class NewTable extends React.Component {
                     if (dataElement.orderNumber == orderNumber) {
                         dataElement[change.pName] = change.pValue
                     }
+
                 })
                 newData.push({
                     'orderDate':'orderDate', 'orderNumber':'orderDate', 'orderStatus':'orderDate', 'orderPackage':'orderDate',
