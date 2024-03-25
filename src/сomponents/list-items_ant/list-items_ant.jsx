@@ -41,26 +41,20 @@ class NewTable extends React.Component {
                 return {
                     dataSource: newData
                 }
-            });
+            }
+            );
         }
 
         window.EditItem = (orderNumber, change) => {
-            this.setState(({dataSource}) => {
-                const newData = [];
-                dataSource.forEach((dataElement) => {
-                    if (dataElement.orderNumber == orderNumber) {
-                        dataElement[change.pName] = change.pValue
-                    }
-
-                })
-                newData.push({
-                    'orderDate':'orderDate', 'orderNumber':'orderDate', 'orderStatus':'orderDate', 'orderPackage':'orderDate',
-                    'orderPaymentType':'orderDate', 'orderTotal':'orderDate', 'orderAddress':'orderDate', 'orderID':'orderDate',
-                })
-                return {
-                    dataSource: newData
+            const newData = [...this.state.dataSource];
+            const newData2 = []
+            newData.forEach((dataElement) => {
+                if (dataElement.orderNumber == orderNumber) {
+                    dataElement[change.pName] = change.pValue
                 }
-            });
+                newData2.push(dataElement)
+            })
+            this.setState(({dataSource: newData2}));
         }
     }
 
@@ -115,6 +109,9 @@ class NewTable extends React.Component {
                 dataIndex: 'orderPackage',
                 key: 'orderPackage',
                 sorter: (a, b) => a.orderPackage.localeCompare(b.orderPackage),
+                render: (_, {orderPackage}) => {
+                    return (<>{orderPackage}</>)
+            }
             },
             {
                 title: 'Тип оплаты',
