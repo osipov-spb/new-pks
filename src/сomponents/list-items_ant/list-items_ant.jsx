@@ -30,13 +30,31 @@ class NewTable extends React.Component {
                 }
             });
         }
-        window.RemoveItem = (orderID) => {
+        window.RemoveItem = (orderNumber) => {
             this.setState(({dataSource}) => {
                 const newData = [];
                 dataSource.forEach((dataElement) => {
-                    if (dataElement.orderID !== orderID) {
+                    if (dataElement.orderNumber !== orderNumber) {
                         newData.push(dataElement)
                     }
+                })
+                return {
+                    dataSource: newData
+                }
+            });
+        }
+
+        window.EditItem = (orderNumber, change) => {
+            this.setState(({dataSource}) => {
+                const newData = [];
+                dataSource.forEach((dataElement) => {
+                    if (dataElement.orderNumber == orderNumber) {
+                        dataElement[change.pName] = change.pValue
+                    }
+                })
+                newData.push({
+                    'orderDate':'orderDate', 'orderNumber':'orderDate', 'orderStatus':'orderDate', 'orderPackage':'orderDate',
+                    'orderPaymentType':'orderDate', 'orderTotal':'orderDate', 'orderAddress':'orderDate', 'orderID':'orderDate',
                 })
                 return {
                     dataSource: newData
