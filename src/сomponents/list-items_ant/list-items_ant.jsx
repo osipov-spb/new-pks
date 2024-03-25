@@ -1,27 +1,27 @@
 import React from 'react'
-import {Card, Table, Tag} from 'antd'
+import {Table, Tag} from 'antd'
 
 class NewTable extends React.Component {
 
     constructor(props) {
         super(props);
 
-        this.state = {
-
-        }
+        this.state = {}
     }
 
     componentDidMount() {
         const data = [];
 
         this.setState({
-            dataSource : data
+            dataSource: data
         })
 
         window.AddItem = (orderDate, orderNumber, orderStatus, orderPackage,
                           orderPaymentType, orderTotal, orderAddress, orderID) => {
-            const newItem = {orderDate, orderNumber, orderStatus, orderPackage,
-                orderPaymentType, orderTotal, orderAddress, orderID};
+            const newItem = {
+                orderDate, orderNumber, orderStatus, orderPackage,
+                orderPaymentType, orderTotal, orderAddress, orderID
+            };
 
             this.setState(({dataSource}) => {
                 const newData = [...dataSource, newItem];
@@ -33,8 +33,8 @@ class NewTable extends React.Component {
         window.RemoveItem = (orderID) => {
             this.setState(({dataSource}) => {
                 const newData = [];
-                dataSource.forEach((dataElement) =>{
-                    if (dataElement.orderID !== orderID){
+                dataSource.forEach((dataElement) => {
+                    if (dataElement.orderID !== orderID) {
                         newData.push(dataElement)
                     }
                 })
@@ -61,24 +61,27 @@ class NewTable extends React.Component {
                 title: 'Статус',
                 dataIndex: 'orderStatus',
                 key: 'orderStatus',
-                render: (_, { orderStatus }) => {
+                sorter: (a, b) => a.orderStatus.localeCompare(b.orderStatus),
+                render: (_, {orderStatus}) => {
                     let color = 'geekblue';
                     if (orderStatus === 'Временной') {
-                        color = 'volcano';
+                        color = '#fff1b8';
                     } else if (orderStatus === '1.Заказан') {
-                        color = 'volcano';
+                        color = '#d3adf7';
                     } else if (orderStatus === '2.Кухня') {
-                        color = 'volcano';
+                        color = '#ffa39e';
                     } else if (orderStatus === '2,5.Комплектация') {
-                        color = 'volcano';
+                        color = '#ffccc7';
                     } else if (orderStatus === '3.Ожидает') {
-                        color = 'volcano';
+                        color = '#bae7ff';
                     } else if (orderStatus === '4.В пути') {
-                        color = 'volcano';
+                        color = '#fffb8f';
                     } else if (orderStatus === '5.Доставлен') {
-                        color = 'volcano';
+                        color = '#d9f7be';
                     } else if (orderStatus === '6.Деньги сдал') {
-                        color = 'volcano';
+                        color = '#b7eb8f';
+                    } else if (orderStatus === '7.На удаление') {
+                        color = '#ad6800';
                     }
                     return (
                         <Tag color={color} key={orderStatus}>
@@ -92,21 +95,28 @@ class NewTable extends React.Component {
                 title: 'Упаковка',
                 dataIndex: 'orderPackage',
                 key: 'orderPackage',
+                sorter: (a, b) => a.orderPackage.localeCompare(b.orderPackage),
             },
             {
                 title: 'Тип оплаты',
                 dataIndex: 'orderPaymentType',
                 key: 'orderPaymentType',
+                sorter: (a, b) => a.orderPaymentType.localeCompare(b.orderPaymentType),
             },
             {
                 title: 'Сумма',
                 dataIndex: 'orderTotal',
                 key: 'orderTotal',
+                sorter: {
+                    compare: (a, b) => a.orderTotal - b.orderTotal,
+                    multiple: 2,
+                }
             },
             {
                 title: 'Адрес',
                 dataIndex: 'orderAddress',
                 key: 'orderAddress',
+                sorter: (a, b) => a.orderPaymentType.localeCompare(b.orderPaymentType)
             },
             {
                 title: 'ID заказа',

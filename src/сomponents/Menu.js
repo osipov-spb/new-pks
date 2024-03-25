@@ -7,7 +7,6 @@ import {
     SettingOutlined,
     StopOutlined
 } from "@ant-design/icons";
-import Divider from "./Divider";
 import React, {useState} from "react";
 
 const _Menu = () => {

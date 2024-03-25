@@ -1,8 +1,8 @@
-import { Divider } from 'antd';
+import {Divider} from 'antd';
 
 const _Divider = () => {
-    return(
-        <Divider />
+    return (
+        <Divider/>
     )
 }
 export default _Divider
