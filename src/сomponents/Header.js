@@ -1,4 +1,4 @@
-import {PageHeader} from 'antd';
+import {Card, PageHeader} from 'antd';
 import React from "react";
 
 import {Menu} from "antd";
@@ -9,12 +9,12 @@ import {Col, Divider, Row} from 'antd';
 const _Header = () => {
     return (
         <>
-            <PageHeader
-                className="site-page-header"
-                //onBack={() => null}
-                title="Заказы"
-                subTitle="Т55, Гостинный"
-            />
+                    <PageHeader
+                        className="site-page-header"
+                        //onBack={() => null}
+                        title="Заказы"
+                        subTitle="Т55, Гостинный"
+                    />
         </>
     )
 }

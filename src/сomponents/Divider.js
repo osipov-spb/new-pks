@@ -1,7 +1,9 @@
 import {Divider} from 'antd';
 
 const _Divider = () => {
+
     return (
+
         <Divider/>
     )
 }

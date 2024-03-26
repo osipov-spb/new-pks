@@ -8,28 +8,26 @@ import {
     StopOutlined
 } from "@ant-design/icons";
 import React, {useState} from "react";
+import _FunctionsButton from "./buttons/Functions";
 
 const _Menu = () => {
     const [size, setSize] = useState('large');
     return (<>
-            <Row>
+            <Row align="bottom">
                 <Col span={18}>
                     <Space size="small">
-                        <Button type="primary" icon={<PlusOutlined/>} size={size}>
+                        <Button type="primary" href="#" data-button-id="menu-create-order" icon={<PlusOutlined/>} size={size}>
                             Создать заказ
                         </Button>
                         <Button icon={<FilterOutlined/>} size={size}/>
-
-                        <Button icon={<SettingOutlined/>} size={size}>
-                            Функции
-                        </Button>
-                        <Button icon={<InfoCircleOutlined/>} size={size}>
+                        <_FunctionsButton/>
+                        <Button href="#" data-button-id="menu-info" icon={<InfoCircleOutlined/>} size={size}>
                             Инфо
                         </Button>
-                        <Button icon={<CompassOutlined/>} size={size}>
+                        <Button href="#" data-button-id="menu-maps" icon={<CompassOutlined/>} size={size}>
                             Карты
                         </Button>
-                        <Button icon={<StopOutlined/>} size={size} danger>
+                        <Button href="#" data-button-id="menu-stop" icon={<StopOutlined/>} size={size} danger>
                             Стоп
                         </Button>
                     </Space>

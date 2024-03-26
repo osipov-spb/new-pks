@@ -45,16 +45,18 @@ class NewTable extends React.Component {
             );
         }
 
-        window.EditItem = (orderNumber, change) => {
+        window.EditItem = (orderNumber, pName, pValue) => {
             const newData = [...this.state.dataSource];
             const newData2 = []
             newData.forEach((dataElement) => {
                 if (dataElement.orderNumber == orderNumber) {
-                    dataElement[change.pName] = change.pValue
+                    dataElement[pName] = pValue
                 }
                 newData2.push(dataElement)
             })
             this.setState(({dataSource: newData2}));
+
+            return true
         }
     }
 
@@ -109,15 +111,14 @@ class NewTable extends React.Component {
                 dataIndex: 'orderPackage',
                 key: 'orderPackage',
                 sorter: (a, b) => a.orderPackage.localeCompare(b.orderPackage),
-                render: (_, {orderPackage}) => {
-                    return (<>{orderPackage}</>)
-            }
+                render: (_, {orderPackage}) => {return (<>{orderPackage}</>)}
             },
             {
                 title: 'Тип оплаты',
                 dataIndex: 'orderPaymentType',
                 key: 'orderPaymentType',
                 sorter: (a, b) => a.orderPaymentType.localeCompare(b.orderPaymentType),
+                render: (_, {orderPaymentType}) => {return (<>{orderPaymentType}</>)}
             },
             {
                 title: 'Сумма',
@@ -126,13 +127,16 @@ class NewTable extends React.Component {
                 sorter: {
                     compare: (a, b) => a.orderTotal - b.orderTotal,
                     multiple: 2,
-                }
+                },
+                render: (_, {orderTotal}) => {return (<>{orderTotal}</>)}
+
             },
             {
                 title: 'Адрес',
                 dataIndex: 'orderAddress',
                 key: 'orderAddress',
-                sorter: (a, b) => a.orderPaymentType.localeCompare(b.orderPaymentType)
+                sorter: (a, b) => a.orderAddress.localeCompare(b.orderAddress),
+                render: (_, {orderAddress}) => {return (<>{orderAddress}</>)}
             },
             {
                 title: 'ID заказа',
