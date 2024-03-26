@@ -11,7 +11,6 @@ const {Content, Footer} = Layout;
 const App = () => {
     return (
         <Layout className="layout">
-            <Header/>
             <Content
                 style={{
                     padding: ' 10px 50px 50px',

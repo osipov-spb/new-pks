@@ -1,7 +1,9 @@
 import React from 'react'
-import {PageHeader} from 'antd'
+import {PageHeader, Space , Typography} from 'antd'
 
-class Header extends React.Component {
+const {Text, Title } = Typography;
+
+class _Header extends React.Component {
     constructor(props) {
         super(props);
         this.state = {}
@@ -22,14 +24,13 @@ class Header extends React.Component {
     render() {
         return (
             <div>
-                <PageHeader
-                    className="site-page-header"
-                    title="Заказы"
-                    subTitle={this.state.subtitle}
-                />
+                <Space direction="horizontal">
+                    <Title level={3}>Заказы</Title>
+                    <Text type="secondary">{this.state.subtitle}</Text>
+                </Space>
             </div>
         )
     }
 }
 
-export default Header;
+export default _Header;
