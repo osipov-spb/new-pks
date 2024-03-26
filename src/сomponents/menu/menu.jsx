@@ -1,10 +1,9 @@
-import {Button, Card, Col, Progress, Row, Space, Typography} from "antd";
+import {Button, Col, Row, Space, Typography} from "antd";
 import {
     CompassOutlined,
     FilterOutlined,
     InfoCircleOutlined,
     PlusOutlined,
-    SettingOutlined,
     StopOutlined
 } from "@ant-design/icons";
 import React, {useState} from "react";
@@ -46,7 +45,6 @@ const _Menu = () => {
             </Row>
         </>
     )
-
 }
 
 export default _Menu

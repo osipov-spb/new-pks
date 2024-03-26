@@ -1,10 +1,9 @@
 import {Layout} from 'antd';
 import React from 'react';
 import Table from "./сomponents/list-items_ant/list-items_ant";
-
 import Menu from "./сomponents/menu/menu";
 import Divider from "./сomponents/divider";
-import Header from "./сomponents/header";
+
 
 const {Content, Footer} = Layout;
 

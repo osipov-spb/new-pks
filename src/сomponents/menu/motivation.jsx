@@ -1,6 +1,5 @@
 import React from 'react'
 import {Card, Progress, Space, Typography } from 'antd'
-import Divider from "../divider";
 
 const { Text, Title } = Typography;
 class Motivation extends React.Component {
