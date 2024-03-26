@@ -1,11 +1,10 @@
 import {Layout} from 'antd';
 import React from 'react';
-import NewTable from "./сomponents/list-items_ant/list-items_ant";
-import Header from "./сomponents/Header";
+import Table from "./сomponents/list-items_ant/list-items_ant";
 
-
-import Menu from "./сomponents/menu/Menu";
-import Divider from "./сomponents/Divider";
+import Menu from "./сomponents/menu/menu";
+import Divider from "./сomponents/divider";
+import Header from "./сomponents/header";
 
 const {Content, Footer} = Layout;
 
@@ -20,9 +19,8 @@ const App = () => {
             >
                 <Menu/>
                 <Divider/>
-                <NewTable/>
+                <Table/>
             </Content>
-
             <Footer
                 style={{
                     textAlign: 'center',

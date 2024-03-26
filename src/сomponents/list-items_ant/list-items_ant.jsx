@@ -1,8 +1,7 @@
 import React from 'react'
 import {Table, Tag} from 'antd'
 
-class NewTable extends React.Component {
-
+class _Table extends React.Component {
     constructor(props) {
         super(props);
 
@@ -16,7 +15,7 @@ class NewTable extends React.Component {
             dataSource: data
         })
 
-        window.AddItem = (orderDate, orderNumber, orderStatus, orderPackage,
+        window.list_AddItem = (orderDate, orderNumber, orderStatus, orderPackage,
                           orderPaymentType, orderTotal, orderAddress, orderID) => {
             const newItem = {
                 orderDate, orderNumber, orderStatus, orderPackage,
@@ -30,7 +29,7 @@ class NewTable extends React.Component {
                 }
             });
         }
-        window.RemoveItem = (orderNumber) => {
+        window.list_RemoveItem = (orderNumber) => {
             this.setState(({dataSource}) => {
                 const newData = [];
                 dataSource.forEach((dataElement) => {
@@ -45,7 +44,7 @@ class NewTable extends React.Component {
             );
         }
 
-        window.EditItem = (orderNumber, pName, pValue) => {
+        window.list_EditItem = (orderNumber, pName, pValue) => {
             const newData = [...this.state.dataSource];
             const newData2 = []
             newData.forEach((dataElement) => {
@@ -145,14 +144,10 @@ class NewTable extends React.Component {
             },
         ];
 
-
         return (
-            <div>
-                <Table columns={columns} dataSource={this.state.dataSource} bordered>
-                </Table>
-            </div>
+            <Table columns={columns} dataSource={this.state.dataSource} bordered/>
         )
     }
 }
 
-export default NewTable;
+export default _Table;

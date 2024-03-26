@@ -1,8 +1,6 @@
-import { Button, Dropdown, Space } from 'antd';
+import {Button, Dropdown} from 'antd';
 import React, {useState} from 'react';
-import {PlusOutlined, SettingOutlined} from "@ant-design/icons";
-import { DownOutlined } from '@ant-design/icons';
-
+import {SettingOutlined} from "@ant-design/icons";
 
 const items = [
     {
@@ -15,11 +13,13 @@ const items = [
                 children: [
                     {
                         key: 'menu-functions-reports-orders-register-orders-register',
-                        label: <a data-button-id='menu-functions-reports-orders-register-orders-register'>Реестр заказов</a>
+                        label: <a data-button-id='menu-functions-reports-orders-register-orders-register'>Реестр
+                            заказов</a>
                     },
                     {
                         key: 'menu-functions-reports-orders-register-orders-register-canceled',
-                        label: <a data-button-id='menu-functions-reports-orders-register-orders-register-canceled'>Реестр отмененных заказов</a>
+                        label: <a data-button-id='menu-functions-reports-orders-register-orders-register-canceled'>Реестр
+                            отмененных заказов</a>
                     }
                 ]
             },
@@ -40,7 +40,7 @@ const items = [
                 label: <a data-button-id='menu-functions-reports-change'>Размены</a>
             },
 
-            ]
+        ]
     }
 ]
 
@@ -58,7 +58,6 @@ const _FunctionsButton = () => {
                 <Button icon={<SettingOutlined/>} size={size}>
                     Функции
                 </Button>
-
             </Dropdown>
         </>
     )

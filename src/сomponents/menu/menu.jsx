@@ -8,7 +8,7 @@ import {
     StopOutlined
 } from "@ant-design/icons";
 import React, {useState} from "react";
-import _FunctionsButton from "./buttons/Functions";
+import _FunctionsButton from "./buttons/functions";
 
 const _Menu = () => {
     const [size, setSize] = useState('large');
@@ -40,6 +40,7 @@ const _Menu = () => {
             </Row>
         </>
     )
+
 }
 
 export default _Menu
