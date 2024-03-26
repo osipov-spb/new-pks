@@ -79,23 +79,23 @@ class _Table extends React.Component {
                 render: (_, {orderStatus}) => {
                     let color = 'geekblue';
                     if (orderStatus === 'Временной') {
-                        color = '#fff1b8';
+                        color = 'lime';
                     } else if (orderStatus === '1.Заказан') {
-                        color = '#d3adf7';
+                        color = 'magenta';
                     } else if (orderStatus === '2.Кухня') {
-                        color = '#ffa39e';
+                        color = 'red';
                     } else if (orderStatus === '2,5.Комплектация') {
-                        color = '#ffccc7';
+                        color = 'volcano';
                     } else if (orderStatus === '3.Ожидает') {
-                        color = '#bae7ff';
+                        color = 'blue';
                     } else if (orderStatus === '4.В пути') {
-                        color = '#fffb8f';
+                        color = 'gold';
                     } else if (orderStatus === '5.Доставлен') {
-                        color = '#d9f7be';
+                        color = 'cyan';
                     } else if (orderStatus === '6.Деньги сдал') {
-                        color = '#b7eb8f';
+                        color = 'green';
                     } else if (orderStatus === '7.На удаление') {
-                        color = '#ad6800';
+                        color = 'orange';
                     }
                     return (
                         <Tag color={color} key={orderStatus}>
