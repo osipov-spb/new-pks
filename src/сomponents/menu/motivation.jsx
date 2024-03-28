@@ -1,5 +1,6 @@
 import React from 'react'
 import {Card, Progress, Space, Typography } from 'antd'
+import Divider from "../divider";
 
 const { Text, Title } = Typography;
 class Motivation extends React.Component {
@@ -34,9 +35,10 @@ class Motivation extends React.Component {
 
     render() {
         return (
-            <Card align='center' bordered={false}>
+            <Card align='left' bordered={false}>
                 <h4><Space size='middle'>Выполнение плана<Progress type="circle" percent={this.state.plan_completion}
                                                                   width={45}/></Space></h4>
+
                 <Space direction="vertical" size='xs'>
                     <Space direction="horizontal"><Text>Лидер продаж: <Text type="secondary">{this.state.leader}</Text></Text></Space>
                     <Space direction="horizontal"><Text>Ваше место: <Text type="secondary">{this.state.place}</Text></Text></Space>

@@ -12,7 +12,7 @@ const App = () => {
         <Layout className="layout">
             <Content
                 style={{
-                    padding: '40px',
+                    padding: '20px',
                 }}
             >
                 <Menu/>
