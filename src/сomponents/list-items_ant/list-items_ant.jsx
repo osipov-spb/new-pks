@@ -73,15 +73,17 @@ class _Table extends React.Component {
                 title: '№ заказа',
                 dataIndex: 'orderNumber',
                 key: 'orderNumber',
-                render: (_, {orderNumber, orderAddress}) => {
+                render: (_, {orderNumber, orderID}) => {
                     let tagName = 'list-open-order-' + orderNumber
-
                     return (
                         <div align='right'>
+
                             <Space size='small'>
+                                {/*{(orderID !== '') ? <GlobalOutlined style={{color: '#1890ff'}}/> : ''}*/}
                                 <a href='#' data-button-id={tagName}>
                                     {orderNumber.replace(/\s+/g, '').slice(-4)}
                                 </a>
+
                             </Space>
                         </div>)
                 }
@@ -179,16 +181,17 @@ class _Table extends React.Component {
                 title: '',
                 dataIndex: 'tags',
                 key: 'tags',
-                render: (_, {orderAddress, orderID}) => {
+                render: (_, {orderAddress, orderID, orderPackage}) => {
                     return (
                         <Space size='small'>
-                            <Popover content={
-
-
+                            {(orderPackage == 'Доставка') ? <Popover content={
                                 <div style={{ width: 130 }}>{orderAddress}</div>} title="Адрес" trigger="click">
-                                <HomeOutlined style={{color: '#1890ff', fontSize: '20px'}}/>
-                            </Popover>
-                            {(orderID !== '') ? <GlobalOutlined style={{color: '#1890ff', fontSize: '20px'}}/> : ''}
+                                <HomeOutlined style={{color: '#1890ff', fontSize: '25px'}}/>
+                            </Popover>: ''}
+                            {(orderID !== '') ? <Popover content={
+                                <div style={{ width: 130 }}>{orderID}</div>} title="№ онлайн заказа" trigger="click">
+                            <GlobalOutlined style={{color: '#1890ff', fontSize: '25px'}}/>
+                            </Popover>: ''}
                         </Space>
                     )
                 }
