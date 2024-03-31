@@ -52,7 +52,7 @@ const items = [
         children: [
             {
                 key: 'menu-functions-cash-cash-deposit',
-                label: <a data-button-id='menu-functions-working-shift-select-administrator'>Внесение наличных</a>
+                label: <a data-button-id='menu-functions-cash-cash-deposit'>Внесение наличных</a>
             },
             {
                 key: 'menu-functions-cash-cash-withdrawal',
