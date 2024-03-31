@@ -1,6 +1,14 @@
 import React from 'react'
-import {Space, Table, Tag, Typography, Popover} from 'antd'
-import {GlobalOutlined, HomeOutlined} from "@ant-design/icons";
+import {Space, Table, Tag, Typography, Popover, Empty, Button} from 'antd'
+import {
+    ClockCircleFilled,
+    FrownFilled,
+    GlobalOutlined,
+    HomeOutlined,
+    Loading3QuartersOutlined,
+    LoadingOutlined
+} from "@ant-design/icons";
+import Icon from "antd/es/icon";
 
 const {Text, Title} = Typography;
 
@@ -11,7 +19,13 @@ class _Table extends React.Component {
         this.state = {}
     }
 
+
+
     componentDidMount() {
+        const locale = {
+            emptyText: 'Abc',
+        }
+
         const data = [];
 
         this.setState({
@@ -199,7 +213,10 @@ class _Table extends React.Component {
         ];
 
         return (
-            <Table columns={columns} dataSource={this.state.dataSource} bordered/>
+            <Table locale={{
+                emptyText: (
+                    <div><Loading3QuartersOutlined spin /> Список заказов пуст</div>)
+            }} pagination={{ defaultPageSize: 9, showSizeChanger: false, position:['bottomRight']}} columns={columns} dataSource={this.state.dataSource} bordered/>
         )
     }
 }

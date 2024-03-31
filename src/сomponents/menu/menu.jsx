@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons";
 import React, {useState} from "react";
 import _FunctionsButton from "./buttons/functions";
-import Motivation from "./motivation";
+import Motivation from "./motivation/motivation";
 import _Header from "../header";
 
 
