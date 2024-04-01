@@ -1,16 +1,11 @@
 import React from 'react'
-import {Space, Table, Tag, Typography, Popover, Empty, Button} from 'antd'
+import {Space, Table, Tag, Typography, Popover} from 'antd'
 import {
-    ClockCircleFilled,
-    FrownFilled,
     GlobalOutlined,
     HomeOutlined,
-    Loading3QuartersOutlined,
-    LoadingOutlined
+    Loading3QuartersOutlined
 } from "@ant-design/icons";
-import Icon from "antd/es/icon";
 
-const {Text, Title} = Typography;
 
 class _Table extends React.Component {
     constructor(props) {
@@ -18,9 +13,6 @@ class _Table extends React.Component {
 
         this.state = {}
     }
-
-
-
     componentDidMount() {
         const locale = {
             emptyText: 'Abc',
@@ -91,13 +83,10 @@ class _Table extends React.Component {
                     let tagName = 'list-open-order-' + orderNumber
                     return (
                         <div align='right'>
-
                             <Space size='small'>
-                                {/*{(orderID !== '') ? <GlobalOutlined style={{color: '#1890ff'}}/> : ''}*/}
-                                <a href='#' data-button-id={tagName}>
+                                <a href='#' data-button-id={tagName} style={{color: '#096dd9'}}>
                                     {orderNumber.replace(/\s+/g, '').slice(-4)}
                                 </a>
-
                             </Space>
                         </div>)
                 }
@@ -211,12 +200,11 @@ class _Table extends React.Component {
                 }
             },
         ];
-
         return (
             <Table locale={{
                 emptyText: (
                     <div><Loading3QuartersOutlined spin /> Список заказов пуст</div>)
-            }} pagination={{ defaultPageSize: 9, showSizeChanger: false, position:['bottomRight']}} columns={columns} dataSource={this.state.dataSource} bordered/>
+            }} pagination={{ defaultPageSize: 8, showSizeChanger: false, position:['bottomRight']}} columns={columns} dataSource={this.state.dataSource} bordered/>
         )
     }
 }

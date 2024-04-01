@@ -1,11 +1,10 @@
 
 .carousel-slide {
-    /*border: 1px solid black;*/
     display: table-cell;
     vertical-align: middle;
     text-align: center;
-    line-height: 110px;
-    height: 110px;
+    line-height: 80px;
+    height: 80px;
     background-color: white;
     color: #fff;
 }
@@ -14,11 +13,11 @@
 .customCarousel .slick-slider,
 .customCarousel .slick-list,
 .customCarousel .slick-track {
-    height: 110px !important;
+    height: 80px !important;
     max-width: 100%;
 }
 
 .customCarousel .slick-slide > div:first-child {
-    height: 110px !important;
+    height: 80px !important;
     max-width: 100%;
 }

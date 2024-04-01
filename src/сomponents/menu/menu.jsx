@@ -12,13 +12,12 @@ import Motivation from "./motivation/motivation";
 import _Header from "../header";
 
 
-const {Text, Link} = Typography;
 const _Menu = () => {
     const [size, setSize] = useState('large');
     return (<>
             <Row align="bottom">
                 <Col span={18}>
-                    <Space direction="vertical" size="large">
+                    <Space direction="vertical" size="xs">
                         <_Header/>
                         <Space size="small">
                             <Button type="primary" href="#" data-button-id="menu-create-order" icon={<PlusOutlined/>}

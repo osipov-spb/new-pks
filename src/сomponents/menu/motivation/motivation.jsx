@@ -1,23 +1,9 @@
-import {Card, Progress, Space, Typography, Carousel, Radio, Row, Col} from 'antd'
-import React, {useState} from 'react';
-import Divider from "../../divider";
+import {Progress, Space, Typography, Carousel} from 'antd'
+import React from "react";
 
 import "./motivation.css"
 
 const {Text, Title} = Typography;
-
-const contentStyle = {
-    height: '100px', color: 'black', lineHeight: '100px', textAlign: 'center', background: 'white', width: '300px'
-};
-
-const wrapper_style = {
-    height: '50px', width: '100%', backgroundColor: 'white', textAlign: 'center',
-};
-
-const style = {
-    background: '#0092ff',
-    padding: '8px 0',
-};
 
 class Motivation extends React.Component {
     constructor(props) {
