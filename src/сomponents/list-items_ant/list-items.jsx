@@ -1,10 +1,12 @@
 import React from 'react'
-import {Space, Table, Tag, Typography, Popover} from 'antd'
+import {Space, Table, Tag, Typography, Popover, Button} from 'antd'
 import {
     GlobalOutlined,
     HomeOutlined,
     Loading3QuartersOutlined
 } from "@ant-design/icons";
+
+const {Text, Title} = Typography;
 
 
 class _Table extends React.Component {
@@ -18,11 +20,16 @@ class _Table extends React.Component {
             emptyText: 'Abc',
         }
 
+        // const [filteredInfo, setFilteredInfo] = {};
+        // const [sortedInfo, setSortedInfo] = {};
+
         const data = [];
 
         this.setState({
             dataSource: data
         })
+
+
 
         window.list_AddItem = (orderDate, orderNumber, orderStatus, orderPackage,
                                orderPaymentType, orderTotal, orderAddress, orderID) => {
@@ -71,22 +78,29 @@ class _Table extends React.Component {
     render() {
         const columns = [
             {
-                title: 'Дата и время',
+                title: 'Дата',
                 dataIndex: 'orderDate',
                 key: 'orderDate',
+                width: '10%',
             },
             {
-                title: '№ заказа',
+                title: '№',
                 dataIndex: 'orderNumber',
                 key: 'orderNumber',
+                width: '8%',
                 render: (_, {orderNumber, orderID}) => {
                     let tagName = 'list-open-order-' + orderNumber
                     return (
                         <div align='right'>
                             <Space size='small'>
-                                <a href='#' data-button-id={tagName} style={{color: '#096dd9'}}>
+                                <Button >
+                                    {/*style={{color: '#096dd9'}}*/}
+                                <a href='#' data-button-id={tagName}>
+
+
                                     {orderNumber.replace(/\s+/g, '').slice(-4)}
                                 </a>
+                                </Button>
                             </Space>
                         </div>)
                 }
@@ -95,41 +109,65 @@ class _Table extends React.Component {
                 title: 'Статус',
                 dataIndex: 'orderStatus',
                 key: 'orderStatus',
+                width: '17%',
+                filters: [
+                    {
+                        text: 'Выполненные заказы',
+                        value: ['6.Деньги сдал'],
+                    },
+                    {
+                        text: 'Временные заказы',
+                        value: ['Временной']
+                    },
+                ],
+
+                // filteredValue: this.state.filteredInfo.orderStatus || null,
+                onFilter: (value, record) => value.indexOf(record.orderStatus) != -1,
                 sorter: (a, b) => a.orderStatus.localeCompare(b.orderStatus),
                 render: (_, {orderStatus}) => {
                     let color = 'geekblue';
+                    let text_color = 'black'
                     let statusText = "●" + orderStatus;
                     if (orderStatus === 'Временной') {
-                        color = 'lime';
+                        color = '#FFEED8';
+                        text_color = '#FFAD41';
                         statusText = '● Временной';
                     } else if (orderStatus === '1.Заказан') {
-                        color = 'magenta';
+                        color = '#F4E1FB';
+                        text_color = '#AB72C2';
                         statusText = '● Заказан';
                     } else if (orderStatus === '2.Кухня') {
-                        color = 'red';
+                        color = '#FBDBD7';
+                        text_color = '#EF7365';
                         statusText = '● Кухня';
                     } else if (orderStatus === '2,5.Комплектация') {
-                        color = 'volcano';
+                        color = '#FFF0EF';
+                        text_color = '#FC867D';
                         statusText = '● Комплектация';
                     } else if (orderStatus === '3.Ожидает') {
-                        color = 'blue';
+                        color = '#DBF4FB';
+                        text_color = '#59B9D5';
                         statusText = '● Ожидает';
                     } else if (orderStatus === '4.В пути') {
-                        color = 'gold';
+                        color = '#FFFAC5';
+                        text_color = '#C3B01E';
                         statusText = '● В пути';
                     } else if (orderStatus === '5.Доставлен') {
-                        color = 'cyan';
+                        color = '#EEFCF1';
+                        text_color = '#63B875';
                         statusText = '● Доставлен';
                     } else if (orderStatus === '6.Деньги сдал') {
-                        color = 'green';
+                        color = '#D2F0D3';
+                        text_color = '#57B55D';
                         statusText = '● Деньги сдал';
                     } else if (orderStatus === '7.На удаление') {
-                        color = 'orange';
+                        color = '#F3E1D0';
+                        text_color = '#795C40';
                         statusText = '● На удаление';
                     }
                     return (
                         <div align='left'><Tag color={color} key={orderStatus}>
-                            {statusText.toUpperCase()}
+                            <div style={{color: text_color}}>{statusText.toUpperCase()}</div>
                         </Tag></div>
                     );
                 }
@@ -139,15 +177,17 @@ class _Table extends React.Component {
                 title: 'Упаковка',
                 dataIndex: 'orderPackage',
                 key: 'orderPackage',
+                width: '10%',
                 sorter: (a, b) => a.orderPackage.localeCompare(b.orderPackage),
                 render: (_, {orderPackage}) => {
                     return (<div align='right'>{orderPackage}</div>)
                 }
             },
             {
-                title: 'Тип оплаты',
+                title: 'Оплата',
                 dataIndex: 'orderPaymentType',
                 key: 'orderPaymentType',
+                width: '10%',
                 sorter: (a, b) => a.orderPaymentType.localeCompare(b.orderPaymentType),
                 render: (_, {orderPaymentType}) => {
                     return (<div align='right'>{orderPaymentType}</div>)
@@ -157,6 +197,7 @@ class _Table extends React.Component {
                 title: 'Сумма',
                 dataIndex: 'orderTotal',
                 key: 'orderTotal',
+                width: '10%',
                 sorter: {
                     compare: (a, b) => a.orderTotal - b.orderTotal,
                     multiple: 2,
@@ -166,14 +207,15 @@ class _Table extends React.Component {
                 }
 
             },
-            // {
-            //     title: 'Адрес',
-            //     dataIndex: 'orderAddress',
-            //     key: 'orderAddress',
-            //     sorter: (a, b) => a.orderAddress.localeCompare(b.orderAddress),
-            //     render: (_, {orderAddress}) => {return (<Text style={{ fontSize: '12' +
-            //             'px' }}>{orderAddress}</Text>)}
-            // },
+            {
+                title: 'Адрес',
+                dataIndex: 'orderAddress',
+                key: 'orderAddress',
+                width: '31%',
+                sorter: (a, b) => a.orderAddress.localeCompare(b.orderAddress),
+                render: (_, {orderAddress}) => {return (<Text style={{ fontSize: '12' +
+                        'px' }}>{orderAddress.substring(0, 27)}</Text>)}
+            },
             // {
             //     title: 'ID заказа',
             //     dataIndex: 'orderID',
@@ -184,6 +226,7 @@ class _Table extends React.Component {
                 title: '',
                 dataIndex: 'tags',
                 key: 'tags',
+                width: '6%',
                 render: (_, {orderAddress, orderID, orderPackage}) => {
                     return (
                         <Space size='small'>
@@ -191,17 +234,19 @@ class _Table extends React.Component {
                                 <div style={{ width: 130 }}>{orderAddress}</div>} title="Адрес" trigger="click">
                                 <HomeOutlined style={{color: '#1890ff', fontSize: '25px'}}/>
                             </Popover>: ''}
+
                             {(orderID !== '') ? <Popover content={
                                 <div style={{ width: 130 }}>{orderID}</div>} title="№ онлайн заказа" trigger="click">
-                            <GlobalOutlined style={{color: '#1890ff', fontSize: '25px'}}/>
+                                <GlobalOutlined style={{color: '#1890ff', fontSize: '25px'}}/>
                             </Popover>: ''}
+
                         </Space>
                     )
                 }
             },
         ];
         return (
-            <Table locale={{
+            <Table size='middle' locale={{
                 emptyText: (
                     <div><Loading3QuartersOutlined spin /> Список заказов пуст</div>)
             }} pagination={{ defaultPageSize: 8, showSizeChanger: false, position:['bottomRight']}} columns={columns} dataSource={this.state.dataSource} bordered/>

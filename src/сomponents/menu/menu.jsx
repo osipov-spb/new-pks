@@ -10,6 +10,7 @@ import React, {useState} from "react";
 import _FunctionsButton from "./buttons/functions";
 import Motivation from "./motivation/motivation";
 import _Header from "../header";
+import StopButton from "./buttons/stop-button";
 
 
 const _Menu = () => {
@@ -32,9 +33,10 @@ const _Menu = () => {
                             <Button href="#" data-button-id="menu-maps" icon={<CompassOutlined/>} size={size}>
                                 Карты
                             </Button>
-                            <Button href="#" data-button-id="menu-stop" icon={<StopOutlined/>} size={size} danger>
-                                Стоп
-                            </Button>
+                            <StopButton/>
+                            {/*<Button href="#" data-button-id="menu-stop" icon={<StopOutlined/>} size={size} danger>*/}
+                            {/*    Стоп*/}
+                            {/*</Button>*/}
                         </Space>
                     </Space>
                 </Col>
