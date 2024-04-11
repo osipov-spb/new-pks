@@ -19,22 +19,21 @@ class StopButton extends React.Component {
             isModalOpen: false
         })
 
-        window.stop_modal = (on_stop) => {
-
+        window.stop_modal_opener = (on_stop) => {
             this.setState(({
                 isModalOpen: on_stop
             }));
             return true
         }
 
-        this.stop_modal_new = (stop) => {
-            this.setState(({
-                isModalOpen: stop
-            }));
-        }
-
-
+        // window.stop_close_modal = () => {
+        //     this.setState(({
+        //         isModalOpen: false
+        //     }));
+        // }
     }
+
+
 
     render() {
         return (<div>
@@ -45,12 +44,10 @@ class StopButton extends React.Component {
                 open={this.state.isModalOpen}
                 title='Стоп'
                 footer={[
-                    <Button key="Да" >
-                        {/*// onClick={this.stop_modal(false)}*/}
+                    <Button key="Да" onClick={window.stop_modal_opener}>
                         Да
                     </Button>,
-                    <Button key="submit" type="primary" >
-                        {/*// onClick={this.stop_modal(false}*/}
+                    <Button key="submit" type="primary" onClick={window.stop_modal_opener}>
                         Отмена
                     </Button>
                 ]}
