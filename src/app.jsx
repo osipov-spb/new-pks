@@ -1,33 +1,14 @@
 import {Layout, Space} from 'antd';
 import React from 'react';
-import Table from "./сomponents/list-items_ant/list-items_ant";
-import Menu from "./сomponents/menu/menu";
-import Divider from "./сomponents/divider";
+import _ProductTable from "./сomponents/order/products_list";
+import OrdersList from "./сomponents/list/orders_list";
+import Order from "./сomponents/order/order";
+import Main from "./сomponents/main";
 
 
 const {Content, Footer} = Layout;
 
 const App = () => {
-    return (
-        <Layout className="layout">
-            <Content
-                style={{
-                    padding: '20px',
-                }}
-            >
-                <Space direction="vertical" size='small'>
-                <Menu/>
-                {/*<Divider/>*/}
-                <Table/>
-                    </Space>
-            </Content>
-            <Footer
-                style={{
-                    textAlign: 'center',
-                }}
-            >
-            </Footer>
-        </Layout>
-    );
+    return (<Main/>)
 }
 export default App

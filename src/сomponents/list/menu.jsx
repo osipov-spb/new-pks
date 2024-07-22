@@ -9,19 +9,23 @@ import {
 import React, {useState} from "react";
 import _FunctionsButton from "./buttons/functions";
 import Motivation from "./motivation/motivation";
-import _Header from "../header";
+import _Header from "./header";
 
 
 const {Text, Link} = Typography;
 const _Menu = () => {
     const [size, setSize] = useState('large');
+    const createOrderOnClick = () => {
+        window.show_page('order')
+        console.log(sessionStorage.getItem('base_path'))
+    };
     return (<>
             <Row align="bottom">
                 <Col span={18}>
                     <Space direction="vertical" size="large">
                         <_Header/>
                         <Space size="small">
-                            <Button type="primary" href="#" data-button-id="menu-create-order" icon={<PlusOutlined/>}
+                            <Button type="primary" onClick={createOrderOnClick} href="#" data-button-id="menu-create-order" icon={<PlusOutlined/>}
                                     size={size}>
                                 Создать заказ
                             </Button>

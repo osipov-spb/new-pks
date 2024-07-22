@@ -1,6 +1,6 @@
 import {Card, Progress, Space, Typography, Carousel, Radio, Row, Col} from 'antd'
 import React, {useState} from 'react';
-import Divider from "../../divider";
+import Divider from "../divider";
 
 import "./motivation.css"
 

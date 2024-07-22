@@ -1,12 +1,9 @@
 import React from 'react'
 import {Space, Table, Tag, Typography, Popover, Empty, Button} from 'antd'
 import {
-    ClockCircleFilled,
-    FrownFilled,
     GlobalOutlined,
     HomeOutlined,
-    Loading3QuartersOutlined,
-    LoadingOutlined
+    Loading3QuartersOutlined
 } from "@ant-design/icons";
 import Icon from "antd/es/icon";
 
