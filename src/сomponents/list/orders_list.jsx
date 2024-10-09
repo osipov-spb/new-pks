@@ -7,7 +7,14 @@ import _Menu from "./menu";
 const {Content, Footer} = Layout;
 
 const OrdersList = () => {
-        sessionStorage.clear()
+        // try{
+        //     localStorage.setItem("name", "value")
+        //     //sessionStorage.clear()
+        //     alert('nice')
+        // }catch (_except){
+        //     alert('Exception: ' + _except.toString())
+        // }
+
         return (
             <Layout className="layout">
                 <Content

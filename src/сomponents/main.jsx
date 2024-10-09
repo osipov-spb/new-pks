@@ -12,38 +12,40 @@ class Main extends React.Component {
 
     componentDidMount() {
         const page_type = 'list'
+        const order_str = ''
 
         this.setState({
             page_type: page_type
         })
 
-        window.show_page = (page_type) => {
+        window.show_page = (page_type, order_number) => {
             this.setState({
-                page_type: page_type
+                page_type: page_type,
+                order_number: order_number
             })
         }
 
-        window.setSessionData = (data) => {
-            this.setState({
-                page_type: page_type
-            })
+        window.current_page = () => {
+            return this.state.page_type;
         }
 
-        window.getSessionData = (data) => {
+        window.open_order = (order_str) => {
             this.setState({
-                page_type: page_type
+                page_type: 'order',
+                order_str: order_str
             })
         }
     }
 
+
     render() {
-        if (this.state.page_type=='list') {
+        if (this.state.page_type == 'list') {
             return (
                 <OrdersList/>
             );
-        }else if (this.state.page_type=='order'){
+        } else if (this.state.page_type == 'order') {
             return (
-                <Order/>
+                <Order order_str={this.state.order_str}/>
             )
         }
     }

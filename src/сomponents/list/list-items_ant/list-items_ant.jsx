@@ -10,6 +10,9 @@ const {Text, Title} = Typography;
 
 
 class _Table extends React.Component {
+    openOrder = (e) => {
+        window.show_page('order', e)
+    };
     constructor(props) {
         super(props);
 
@@ -29,7 +32,13 @@ class _Table extends React.Component {
             dataSource: data
         })
 
+        window.setLocalStorageKirill = (name, value) => {
+            window.localStorage.setItem(name, value)
+        }
 
+        window.getLocalStorageKirill = (name) => {
+            return window.localStorage.getItem(name)
+        }
 
         window.list_AddItem = (orderDate, orderNumber, orderStatus, orderPackage,
                                orderPaymentType, orderTotal, orderAddress, orderID) => {
@@ -89,15 +98,14 @@ class _Table extends React.Component {
                 key: 'orderNumber',
                 width: '8%',
                 render: (_, {orderNumber, orderID}) => {
-                    let tagName = 'list-open-order-' + orderNumber
+                    let tagName = 'open-order-' + orderNumber
                     return (
                         <div align='right'>
                             <Space size='small'>
                                 <Button >
+                                    {/*onClick={() => window.show_page('order', orderNumber)}*/}
                                     {/*style={{color: '#096dd9'}}*/}
                                 <a href='#' data-button-id={tagName}>
-
-
                                     {orderNumber.replace(/\s+/g, '').slice(-4)}
                                 </a>
                                 </Button>

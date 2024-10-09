@@ -8,6 +8,7 @@ import {
     Loading3QuartersOutlined,
     LoadingOutlined
 } from "@ant-design/icons";
+import './products_list.css'
 import Icon from "antd/es/icon";
 
 const {Text, Title} = Typography;
@@ -30,12 +31,15 @@ class _ProductTable extends React.Component {
             dataSource: data
         })
 
-        window.order_product_list_AddItem = (lineNumber, product, count, price,
+        window.order_product_list_AddItem = (product, count, price,
                                total) => {
+            // let current_count = this.state.dataSource.length;
+            let lineNumber = (this.state.dataSource.length + 1).toString()
             const newItem = {
                 lineNumber, product, count, price,
                 total
             };
+            console.log(newItem)
 
             this.setState(({dataSource}) => {
                 const newData = [...dataSource, newItem];
@@ -85,25 +89,23 @@ class _ProductTable extends React.Component {
                 title: 'Товары',
                 dataIndex: 'product',
                 key: 'product',
-                // render: (_, {orderNumber, orderID}) => {
-                //     let tagName = 'list-open-order-' + orderNumber
-                //     return (
-                //         <div align='right'>
-                //
-                //             <Space size='small'>
-                //                 {/*{(orderID !== '') ? <GlobalOutlined style={{color: '#1890ff'}}/> : ''}*/}
-                //                 <a href='#' data-button-id={tagName}>
-                //                     {orderNumber.replace(/\s+/g, '').slice(-4)}
-                //                 </a>
-                //
-                //             </Space>
-                //         </div>)
-                // }
+                render: (_, {product}) => {
+                    return (
+                        <div style={{fontSize: '11px'}}>
+                            {product}
+                        </div>)
+                }
             },
             {
                 title: 'Кол-во',
                 dataIndex: 'count',
                 key: 'count',
+                render: (_, {count}) => {
+                    return (
+                        <div style={{fontSize: '11px'}}>
+                            {count}
+                        </div>)
+                }
                 // sorter: (a, b) => a.orderStatus.localeCompare(b.orderStatus),
                 // render: (_, {orderStatus}) => {
                 //     let color = 'geekblue';
@@ -148,6 +150,11 @@ class _ProductTable extends React.Component {
                 title: 'Цена',
                 dataIndex: 'price',
                 key: 'price',
+                render: (_, {price}) => {
+                    return (
+                        <div style={{fontSize: '11px'}}>
+                            {price}
+                        </div>)}
                 // sorter: (a, b) => a.orderPackage.localeCompare(b.orderPackage),
                 // render: (_, {orderPackage}) => {
                 //     return (<div align='right'>{orderPackage}</div>)
@@ -157,6 +164,11 @@ class _ProductTable extends React.Component {
                 title: 'Сумма',
                 dataIndex: 'total',
                 key: 'total',
+                render: (_, {total}) => {
+                    return (
+                        <div style={{fontSize: '11px'}}>
+                            {total}
+                        </div>)}
                 // sorter: (a, b) => a.orderPaymentType.localeCompare(b.orderPaymentType),
                 // render: (_, {orderPaymentType}) => {
                 //     return (<div align='right'>{orderPaymentType}</div>)
@@ -165,10 +177,10 @@ class _ProductTable extends React.Component {
         ];
 
         return (
-            <Table locale={{
+            <div><Table size='small' locale={{
                 emptyText: (
                     <div><Loading3QuartersOutlined spin /> Пусто</div>)
-            }} pagination={{ defaultPageSize: 9, showSizeChanger: false, position:['bottomRight']}} columns={columns} dataSource={this.state.dataSource} bordered/>
+            }} pagination={{ defaultPageSize: 6, showSizeChanger: false, position:['bottomRight']}} columns={columns} dataSource={this.state.dataSource} bordered/></div>
         )
     }
 }

@@ -16,8 +16,7 @@ const {Text, Link} = Typography;
 const _Menu = () => {
     const [size, setSize] = useState('large');
     const createOrderOnClick = () => {
-        window.show_page('order')
-        console.log(sessionStorage.getItem('base_path'))
+        // window.show_page('order')
     };
     return (<>
             <Row align="bottom">
