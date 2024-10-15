@@ -1,20 +1,22 @@
 import React from 'react'
 import ItemButton from "./item_button";
-import {Breadcrumb} from 'antd';
+import {Breadcrumb, Input, Pagination, Row, Layout, Col} from 'antd';
 import MenuBreadcrumb from "./menu_breadcrumb";
 import FolderButton from "./folder_button";
-import { Pagination } from 'antd';
+
+const { Search } = Input;
 
 class _ProductsMenu extends React.Component {
     constructor(props) {
         super(props);
-        this.pageSize = 4
+        this.pageSize = 20
         this.menu = [
             {
                 title: 'Витаминный салат',
                 id: '1',
                 price: 2000,
                 discount: false,
+                stop: false,
                 folder: true
             },
             {
@@ -22,6 +24,7 @@ class _ProductsMenu extends React.Component {
                 id: '2',
                 price: 1500,
                 discount: true,
+                stop: false,
                 folder: false
             },
             {
@@ -29,6 +32,7 @@ class _ProductsMenu extends React.Component {
                 id: '3',
                 price: 370,
                 discount: false,
+                stop: false,
                 folder: false
             },
             {
@@ -36,6 +40,39 @@ class _ProductsMenu extends React.Component {
                 id: '4',
                 price: 560,
                 discount: false,
+                stop: false,
+                folder: false
+            },
+            {
+                title: 'Аляска ролл',
+                id: '5',
+                price: 2670,
+                discount: true,
+                stop: false,
+                folder: false
+            },
+            {
+                title: 'Чука салат',
+                id: '2',
+                price: 1500,
+                discount: true,
+                stop: false,
+                folder: false
+            },
+            {
+                title: 'Азиатский краб ролл',
+                id: '3',
+                price: 370,
+                discount: false,
+                stop: false,
+                folder: false
+            },
+            {
+                title: 'Азия чикен ролл',
+                id: '4',
+                price: 560,
+                discount: false,
+                stop: false,
                 folder: false
             },
             {
@@ -190,15 +227,22 @@ class _ProductsMenu extends React.Component {
         let num1 = Number(page)-1;
         let num2 = this.pageSize;
         let num3 = Number(num1*num2);
+
+        console.log('currentItems:');
+        console.log(this.state.currentItems)
+
+
         console.log('all items:');
         console.log(this.state.items)
+
         console.log('new items:');
         let newItems = this.state.items.slice(num3,Number(num3 + this.pageSize))
-
         console.log(newItems)
 
-        this.setState({currentItems: newItems});
+        // this.setState({currentItems: []})
+        this.setState({currentItems: newItems})
 
+        console.log('state items:');
         console.log(this.state.currentItems)
 
         this.setState({
@@ -215,20 +259,34 @@ class _ProductsMenu extends React.Component {
     render() {
         return (
             <div>
-                <Breadcrumb>
-                    {this.state.currentPath
-                        ? this.state.currentPath.map((item, index) => (
-                            <MenuBreadcrumb title={item.title} updatePath={this.updatePath} level={item.level}/>
-                        ))
-                        : null}
-                </Breadcrumb>
+                <Row>
+                    <Col span={15}>
+                        <Breadcrumb>
+                            {this.state.currentPath
+                                ? this.state.currentPath.map((item, index) => (
+                                    <MenuBreadcrumb title={item.title} updatePath={this.updatePath} level={item.level}/>
+                                ))
+                                : null}
+                        </Breadcrumb>
+                    </Col>
+                    <Col span={9}>
+                        <Search
+                            placeholder="Поиск по меню"
+                            // onSearch={onSearch}
+                            style={{
+                                width: 200,
+                            }}
+                        />
+                    </Col>
+
+                </Row>
 
                 <div className="style-btn-wrapper">
                     {this.state.currentItems
                         ? this.state.currentItems.map((item, index) => {
                             if (!item.folder) {
                                 return (
-                                    <div>
+                                    <div key={item.id}>
                                         <ItemButton data={{
                                             index: index,
                                             price: item.price,
@@ -239,7 +297,7 @@ class _ProductsMenu extends React.Component {
                                 )
                             } else {
                                 return (
-                                    <div>
+                                    <div key={item.id}>
                                     <FolderButton data={{
                                         index: index,
                                         price: item.price,

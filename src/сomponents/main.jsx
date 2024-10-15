@@ -12,7 +12,6 @@ class Main extends React.Component {
 
     componentDidMount() {
         const page_type = 'list'
-        const order_str = ''
 
         this.setState({
             page_type: page_type
@@ -21,7 +20,7 @@ class Main extends React.Component {
         window.show_page = (page_type, order_number) => {
             this.setState({
                 page_type: page_type,
-                order_number: order_number
+                order_number: order_number,
             })
         }
 
@@ -29,10 +28,11 @@ class Main extends React.Component {
             return this.state.page_type;
         }
 
-        window.open_order = (order_str) => {
+        window.open_order = (order_data, params) => {
             this.setState({
                 page_type: 'order',
-                order_str: order_str
+                order_data: order_data,
+                params : params
             })
         }
     }
@@ -45,7 +45,7 @@ class Main extends React.Component {
             );
         } else if (this.state.page_type == 'order') {
             return (
-                <Order order_str={this.state.order_str}/>
+                <Order order_str={this.state.order_data} params_str={this.state.params}/>
             )
         }
     }
