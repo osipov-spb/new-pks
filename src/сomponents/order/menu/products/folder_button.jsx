@@ -9,18 +9,20 @@ class FolderButton extends React.Component {
             this.state = {
                 data: {
                     index: 0,
-                    price: 0,
+                    // price: 0,
                     discount: false,
-                    title: 'Без названия'
+                    title: 'Без названия',
+                    openFolder: undefined
                 }
             }
         }else {
             this.state = {
                 data: {
-                    index: this.props.data.index,
-                    price: this.props.data.price,
+                    id: this.props.data.id,
+                    // price: this.props.data.price,
                     discount: this.props.data.discount,
-                    title: this.props.data.title
+                    title: this.props.data.title,
+                    openFolder: this.props.openFolder
                 }
             }
         }
@@ -67,7 +69,7 @@ class FolderButton extends React.Component {
             <Button
                 key={this.state.data.index}
                 className={"style-btn"}
-                onClick={() => window.order_product_list_AddItem(this.state.data.title, 1, this.state.data.price, this.state.data.price * 1)}
+                onClick={(e) => {this.state.data.openFolder(e, this.state.data.id)}}
             >
                 <div style={{
                     position: "absolute",

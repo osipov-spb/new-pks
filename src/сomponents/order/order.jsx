@@ -6,6 +6,7 @@ import _OrderData from "./order_data";
 import _ProductsMenu from "./menu/products/products_menu";
 import StatusButtons from "./buttons/status_buttons";
 import _PromoMenu from "./menu/promo/promo_menu";
+import OrderAdditionalInfo from "./orderAdditionalInfo";
 
 
 const { Content, Footer} = Layout;
@@ -18,19 +19,26 @@ class Order extends React.Component {
         if (this.props.order_str==undefined){ // Это условие для отладки из браузера, из 1С данные передаются всегда
             this.state = {
                 order_data: new _OrderData(),
-                params: undefined
+                additionalParams: new OrderAdditionalInfo(),
+                menuType: 'menu'
             }
         }else {
             this.state = {
                 order_data: new _OrderData(JSON.parse(this.props.order_str)),
-                params: JSON.parse(this.props.params_str)
+                additionalParams: new OrderAdditionalInfo(JSON.parse(this.props.additionalParams)),
+                menuType: 'menu'
             }
         }
     }
 
-    handleChange = (e) => {
+    handleCommentChange = (e) => {
         this.state.order_data.comment = e.target.value;
         console.log(this.state.order_data.comment)
+    }
+
+    setItemsList = (itemsList) => {
+        console.log(JSON.stringify(itemsList))
+        this.state.order_data.items = itemsList
     }
 
     componentDidMount() {
@@ -52,16 +60,16 @@ class Order extends React.Component {
                             <Row align="top">
 
                                 <Col style={{padding:'2px 0px 0px 0px'}}  span={10}>
-                                    <div style={{width: '400px'}}><_ProductTable /></div>
+                                    <div style={{width: '400px'}}><_ProductTable setItemsList={this.setItemsList}/></div>
                                     <br/>
                                     <Row align="bottom">
                                         <TextArea className="" id="textZone" placeholder="Введите примечание" defaultValue={this.state.order_data.comment}
-                                                  onChange={this.handleChange}></TextArea>
+                                                  onChange={this.handleCommentChange}></TextArea>
                                     </Row>
                                 </Col>
                                 <Col style={{padding:'0px 0px 0px 10px'}} span={14}>
-                                    <_ProductsMenu items = {this.state.params.menu}/>
-                                    {/*<_PromoMenu/>*/}
+                                    <_ProductsMenu items={this.state.additionalParams.menu}/>
+                                    <_PromoMenu/>
                                     <StatusButtons/>
                                 </Col>
 

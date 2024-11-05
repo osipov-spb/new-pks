@@ -20,6 +20,15 @@ body {
   width: 580px;
 }
 
+.style-btn-wrapper-promo {
+  /*display: flex;*/
+  /*flex-direction: row;*/
+  /*flex-wrap: wrap;*/
+  width: 580px;
+  height: 445px;
+  overflow: auto;
+}
+
 .style-btn {
   border: none;
   width: 135px;
@@ -61,6 +70,28 @@ body {
   line-height: 110%;
   opacity: 0.5;
   cursor: not-allowed;
+
+  /*word-wrap: break-word;*/
+  /*word-wrap: normal;*/
+}
+
+.style-btn-promo {
+  border: none;
+  width: 580px;
+  height: 105px;
+  /*padding: 0px 0px 0px 0px;*/
+  background-color: #fffffe;
+  color: #2b2c34;
+  margin: -9px 0px;
+  border-radius: 0px;
+  border: 0.1em solid #edeeef;
+  box-sizing: border-box;
+  /*font-family: "Jost", sans-serif;*/
+  font-size: 12px;
+  /*font-weight: 400;*/
+  /*text-align: center;*/
+  transition: all 0.2s;
+  line-height: 110%;
 
   /*word-wrap: break-word;*/
   /*word-wrap: normal;*/

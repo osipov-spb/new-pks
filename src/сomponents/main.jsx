@@ -28,12 +28,14 @@ class Main extends React.Component {
             return this.state.page_type;
         }
 
-        window.open_order = (order_data, params) => {
+        window.open_order = (order_data, additionalParams) => {
             this.setState({
                 page_type: 'order',
                 order_data: order_data,
-                params : params
+                additionalParams : additionalParams
             })
+
+            window.orderProductListLoadItems(JSON.parse(order_data).items)
         }
     }
 
@@ -45,7 +47,7 @@ class Main extends React.Component {
             );
         } else if (this.state.page_type == 'order') {
             return (
-                <Order order_str={this.state.order_data} params_str={this.state.params}/>
+                <Order order_str={this.state.order_data} additionalParams={this.state.additionalParams}/>
             )
         }
     }

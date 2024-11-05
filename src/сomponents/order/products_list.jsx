@@ -17,7 +17,9 @@ class _ProductTable extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {}
+        this.state = {
+            setItemsList: this.props.setItemsList
+        }
     }
 
     componentDidMount() {
@@ -31,23 +33,58 @@ class _ProductTable extends React.Component {
             dataSource: data
         })
 
-        window.order_product_list_AddItem = (product, count, price,
-                               total) => {
+        window.order_product_list_AddItem = (product_title, product_id, price) => {
             // let current_count = this.state.dataSource.length;
-            let lineNumber = (this.state.dataSource.length + 1).toString()
-            const newItem = {
-                lineNumber, product, count, price,
-                total
-            };
-            console.log(newItem)
+            console.log(product_title + product_id + price)
+            let added = false;
+            if (this.state.dataSource.length > 0) {
+                for (let i = 0; i < this.state.dataSource.length; ++i) {
+                    let dataElement = this.state.dataSource[i];
+                    console.log(this.state.dataSource)
+                    console.log(dataElement.product_id + ' ' + product_id)
+                    console.log(dataElement.price + ' ' + price)
+                    if (dataElement.product_id == product_id && dataElement.price == price) {
+                        console.log('1' + dataElement)
+                        const newData = [...this.state.dataSource];
+                        const newData2 = []
+                        newData.forEach((dataElement2) => {
+                            if (dataElement2.lineNumber == dataElement.lineNumber) {
+                                dataElement2.count = dataElement2.count + 1
+                                dataElement2.total = dataElement2.total + dataElement.price
+                            }
+                            newData2.push(dataElement2)
+                        })
 
-            this.setState(({dataSource}) => {
-                const newData = [...dataSource, newItem];
-                return {
-                    dataSource: newData
+                        this.setState(() => {
+                            return {
+                                dataSource: newData2
+                            }
+                        });
+                        added = true;
+                        break;
+                    }
                 }
-            });
+            }
+
+            if (this.state.dataSource.length == 0 || !added) {
+                console.log('2')
+                const lineNumber = (this.state.dataSource.length + 1).toString()
+                const count = 1
+                const total = price
+                const newItem = {
+                    lineNumber, product_title, count, price,
+                    total, product_id
+                };
+                this.setState(({dataSource}) => {
+                    const newData = [...dataSource, newItem];
+                    return {
+                        dataSource: newData
+                    }
+                });
+            }
+            this.state.setItemsList(this.state.dataSource)
         }
+
         window.order_product_list_RemoveItem = (lineNumber) => {
             this.setState(({dataSource}) => {
                     const newData = [];
@@ -61,6 +98,10 @@ class _ProductTable extends React.Component {
                     }
                 }
             );
+        }
+
+        window.orderProductListLoadItems = (items) => {
+            this.setState(({dataSource: items}));
         }
 
         window.order_product_list_EditItem = (lineNumber, pName, pValue) => {
@@ -87,12 +128,12 @@ class _ProductTable extends React.Component {
             },
             {
                 title: 'Товары',
-                dataIndex: 'product',
-                key: 'product',
-                render: (_, {product}) => {
+                dataIndex: 'product_title',
+                key: 'product_title',
+                render: (_, {product_title}) => {
                     return (
                         <div style={{fontSize: '11px'}}>
-                            {product}
+                            {product_title}
                         </div>)
                 }
             },
@@ -173,8 +214,19 @@ class _ProductTable extends React.Component {
                 // render: (_, {orderPaymentType}) => {
                 //     return (<div align='right'>{orderPaymentType}</div>)
                 // }
+            },
+            {
+                title: 'product_id',
+                dataIndex: 'product_id',
+                key: 'product_id',
+                hidden: true
+
+                // sorter: (a, b) => a.orderPaymentType.localeCompare(b.orderPaymentType),
+                // render: (_, {orderPaymentType}) => {
+                //     return (<div align='right'>{orderPaymentType}</div>)
+                // }
             }
-        ];
+        ].filter(item => !item.hidden);
 
         return (
             <div><Table size='small' locale={{

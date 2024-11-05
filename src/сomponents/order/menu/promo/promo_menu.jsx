@@ -1,124 +1,185 @@
 import React from 'react'
 import ItemButton from "../products/item_button";
-import {Breadcrumb, Input, Pagination, Row, Layout, Col} from 'antd';
+import {Breadcrumb, Input, Pagination, Row, Layout, Col, Button, Select, List, Divider, Typography } from 'antd';
 // import MenuBreadcrumb from "./menu_breadcrumb";
 import FolderButton from "../products/folder_button";
+import PromoItem from "./promoItem";
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 const { Search } = Input;
+const { Text } = Typography;
 
 class _PromoMenu extends React.Component {
     constructor(props) {
         super(props);
-        this.pageSize = 4
-        this.menu = [
+        this.pageSize = 5
+        this.promoList = [
             {
-                title: 'Акция 1',
+                title: 'Позиция за 100 рублей при заказе от 1000',
                 id: '1',
-                price: 2000,
-                discount: false,
-                stop: false
-            },
-            {
-                title: 'Акция 2',
-                id: '2',
-                price: 1500,
-                discount: true,
-                stop: false
+                available: 2,
+                info: 'Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции',
+                items:[
+                    {
+                        id: '1',
+                        price: 100,
+                        title: 'Филадельфия прайм с лососем'
+                    },
+                    {
+                        id: '2',
+                        price: 100,
+                        title: 'Позиция 2'
+                    },
+                    {
+                        id: '3',
+                        price: 100,
+                        title: 'Позиция 3'
+                    }
+                ]
             },
             {
                 title: 'Акция 3',
-                id: '3',
-                price: 370,
-                discount: false,
-                stop: false
-            },
-            {
-                title: 'Акция 4',
-                id: '4',
-                price: 560,
-                discount: false,
-                stop: false
-            },
-            {
-                title: 'Акция 5',
-                id: '5',
-                price: 2670,
-                discount: true,
-                stop: false
-            },
-            {
-                title: 'Акция 6',
                 id: '2',
-                price: 1500,
-                discount: true,
-                stop: false
+                available: 7,
+                info: 'Подробная информация об акции',
+                items:[
+                    {
+                        id: '1',
+                        price: 100,
+                        title: 'Филадельфия прайм с лососем'
+                    },
+                    {
+                        id: '2',
+                        price: 200,
+                        title: 'Позиция 2'
+                    },
+                    {
+                        id: '3',
+                        price: 300,
+                        title: 'Позиция 3'
+                    }
+                ]
             },
             {
-                title: 'Акция 7',
+                title: 'Акция 2',
                 id: '3',
-                price: 370,
-                discount: false,
-                stop: false
+                available: 3,
+                info: 'Подробная информация об акции',
+                items:[
+                    {
+                        id: '1',
+                        price: 100,
+                        title: 'Позиция 1'
+                    },
+                    {
+                        id: '2',
+                        price: 200,
+                        title: 'Позиция 2'
+                    },
+                    {
+                        id: '3',
+                        price: 300,
+                        title: 'Позиция 3'
+                    }
+                ]
             },
             {
-                title: 'Акция 8',
+                title: 'Акция 2',
                 id: '4',
-                price: 560,
-                discount: false,
-                stop: false
+                available: 3,
+                info: 'Подробная информация об акции',
+                items:[
+                    {
+                        id: '1',
+                        price: 100,
+                        title: 'Позиция 1'
+                    },
+                    {
+                        id: '2',
+                        price: 200,
+                        title: 'Позиция 2'
+                    },
+                    {
+                        id: '3',
+                        price: 300,
+                        title: 'Позиция 3'
+                    }
+                ]
             },
             {
-                title: 'Акция 9',
+                title: 'Акция 2',
                 id: '5',
-                price: 2670,
-                discount: true
+                available: 3,
+                info: 'Подробная информация об акции',
+                items:[
+                    {
+                        id: '1',
+                        price: 100,
+                        title: 'Позиция 1'
+                    },
+                    {
+                        id: '2',
+                        price: 200,
+                        title: 'Позиция 2'
+                    },
+                    {
+                        id: '3',
+                        price: 300,
+                        title: 'Позиция 3'
+                    }
+                ]
             },
             {
-                title: 'Акция 10',
+                title: 'Акция 2',
                 id: '6',
-                price: 950,
-                discount: true
+                available: 3,
+                info: 'Подробная информация об акции',
+                items:[
+                    {
+                        id: '1',
+                        price: 100,
+                        title: 'Позиция 1'
+                    },
+                    {
+                        id: '2',
+                        price: 200,
+                        title: 'Позиция 2'
+                    },
+                    {
+                        id: '3',
+                        price: 300,
+                        title: 'Позиция 3'
+                    }
+                ]
             },
             {
-                title: 'Акция 11',
+                title: 'Акция 2',
                 id: '7',
-                price: 1250,
-                discount: false
+                available: 3,
+                info: 'Подробная информация об акции',
+                items:[
+                    {
+                        id: '1',
+                        price: 100,
+                        title: 'Позиция 1'
+                    },
+                    {
+                        id: '2',
+                        price: 200,
+                        title: 'Позиция 2'
+                    },
+                    {
+                        id: '3',
+                        price: 300,
+                        title: 'Позиция 3'
+                    }
+                ]
             },
-            {
-                title: 'Акция 12',
-                id: '8',
-                price: 150,
-                discount: false
-            },
-            {
-                title: 'Акция 13',
-                id: '9',
-                price: 250,
-                discount: false
-            }
         ];
         this.state = {
-            currentPath: [
-                {
-                    level: 0,
-                    id: 0,
-                    title: 'Меню'
-                },
-                {
-                    level: 1,
-                    id: 1,
-                    title: 'Меню 2'
-                },
-                {
-                    level: 2,
-                    id: 2,
-                    title: 'Меню 3'
-                }
-            ],
-            items: this.menu,
+            items: this.promoList,
             currentPage: 1,
-            currentItems: this.menu.slice(0,this.pageSize)
+            currentItems: this.promoList.slice(0,this.pageSize)
         }
     }
 
@@ -167,39 +228,65 @@ class _PromoMenu extends React.Component {
     }
 
     render() {
-        return (
-            <div>
+        let promoItems = []
+        this.promoList.forEach((item) => {
+            promoItems.push(
+                <PromoItem data={{
+                    title: item.title,
+                    id: item.id,
+                    available: item.available,
+                    info: item.info,
+                    items: item.items
+                }}/>
+            )
+        })
 
-                <div className="style-btn-wrapper">
-                    {this.state.currentItems
-                        ? this.state.currentItems.map((item, index) => {
-                            if (!item.folder) {
-                                return (
-                                    <div key={item.id}>
-                                        <ItemButton data={{
-                                            index: index,
-                                            price: item.price,
-                                            discount: item.discount,
-                                            title: item.title
-                                        }}/>
-                                    </div>
-                                )
-                            } else {
-                                return (
-                                    <div key={item.id}>
-                                    <FolderButton data={{
-                                        index: index,
-                                        price: item.price,
-                                        discount: item.discount,
-                                        title: item.title
-                                    }}/>
-                                </div>)
-                            }
-                        })
-                        : null}
-                </div>
-                <Pagination current={this.state.currentPage} onChange={this.changePage} total={this.state.items.length} pageSize = {this.pageSize} />
+        return (
+            // <div>
+            //     <div className="style-btn-wrapper">
+            //         {/*{promoItems}*/}
+            //         <List
+            //             header={<div>Список доступных акций</div>}
+            //             footer={<div><Button> Сохранить </Button></div>}
+            //             dataSource={promoItems}
+            //             renderItem={(item) => (
+            //                 <List.Item>
+            //                     {item}
+            //                 </List.Item>
+            //             )}
+            //         />
+            //     </div>
+            //
+            // </div>
+            <div>
+            <div
+                id="scrollableDiv"
+                className="style-btn-wrapper-promo"
+            >
+                <InfiniteScroll
+                    dataLength={promoItems.length}
+                    // next={loadMoreData}
+                    hasMore={promoItems.length < 50}
+                    // loader={<Skeleton avatar paragraph={{rows: 1}} active/>}
+                    // endMessage={<Divider plain>It is all, nothing more 🤐</Divider>}
+                    scrollableTarget="scrollableDiv"
+                >
+                    <List
+                        dataSource={promoItems}
+                        // boarded = false
+                        renderItem={item => (
+                            <List.Item key={item.id}>
+                                <div>{item}</div>
+                            </List.Item>
+                        )}
+                    />
+                </InfiniteScroll>
+
             </div>
+                <Button> Сохранить </Button>
+            </div>
+
+
         )
     }
 }

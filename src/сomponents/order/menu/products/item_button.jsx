@@ -9,6 +9,7 @@ class ItemButton extends React.Component {
             this.state = {
                 data: {
                     index: 0,
+                    id: 0,
                     price: 0,
                     discount: false,
                     title: 'Без названия'
@@ -18,6 +19,7 @@ class ItemButton extends React.Component {
             this.state = {
                 data: {
                     index: this.props.data.index,
+                    id: this.props.data.id,
                     price: this.props.data.price,
                     discount: this.props.data.discount,
                     title: this.props.data.title
@@ -35,7 +37,8 @@ class ItemButton extends React.Component {
             var secondPart2 = replacedSpace.substring(8);
             var  replacedSpace2 = secondPart2.replace( " ",  " \n");
             if (replacedSpace2.length > 24){
-                return firstPart + firstPart2 + replacedSpace2.substring(0,24) + '...'
+
+                return firstPart + firstPart2 + replacedSpace2.substring(0,21) + '...'
             }
             else{
                 return firstPart + firstPart2 + replacedSpace2;}
@@ -67,7 +70,7 @@ class ItemButton extends React.Component {
             <Button
                 key={this.state.data.index}
                 className={"style-btn"}
-                onClick={() => window.order_product_list_AddItem(this.state.data.title, 1, this.state.data.price, this.state.data.price * 1)}
+                onClick={() => window.order_product_list_AddItem(this.state.data.title, this.state.data.id, this.state.data.price)}
             >
                 <div style={{
                     position: "absolute",
@@ -78,7 +81,10 @@ class ItemButton extends React.Component {
                 }}>
                     <Row align="top">
                         <Col span={24}>
-                            <Tag color="#ffa940" ><div >{this.state.data.price} Р</div></Tag><Tag color="red"><PercentageOutlined /></Tag>
+                            <Tag color="#ffa940" ><div >{this.state.data.price} Р</div></Tag>
+                               {this.state.data.discount ? (
+                                   <Tag color="red"><PercentageOutlined /></Tag>
+                               ) : null}
                         </Col>
 
                     </Row>

@@ -19,7 +19,7 @@ class StatusButtons extends React.Component {
             <Button
                 key='close-order-button'
                 // className={"close-order-button"}
-                onClick={() => {}}
+                onClick={() => {window.show_page('list')}}
             >
                 <div style={{
                     // position: "absolute",
@@ -39,9 +39,11 @@ class StatusButtons extends React.Component {
             Закрыть
             </Button>
         <Button
-            key='close-order-button'
+            key='save-order-button'
             // className={"close-order-button"}
-            onClick={() => {}}
+            // onClick={() => {}}
+            href="#"
+            data-button-id="save-order"
         >
             <div style={{
                 // position: "absolute",

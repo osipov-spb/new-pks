@@ -8,13 +8,17 @@ class MenuBreadcrumb extends React.Component {
             this.state = {
                 title: 'Неопределено',
                 level: 0,
-                updatePath: undefined
+                itemIndex: 0,
+                updatePath: undefined,
+                openFolder: undefined
                 }
         }else {
             this.state = {
                 title: this.props.title,
                 level: this.props.level,
-                updatePath: this.props.updatePath
+                itemIndex: this.props.itemIndex,
+                updatePath: this.props.updatePath,
+                openFolder: this.props.openFolder
             }
         }
     }
@@ -22,7 +26,10 @@ class MenuBreadcrumb extends React.Component {
 
     render() {
         return (
-            <Breadcrumb.Item><a onClick={(e) => {this.state.updatePath(e, this.state.level)}}>{this.state.title}</a></Breadcrumb.Item>
+            <Breadcrumb.Item><a onClick={(e) => {
+                this.state.updatePath(e, this.state.level, this.state.itemIndex)
+                this.state.openFolder(e,0,true,this.state.itemIndex)
+            }}>{this.state.title}</a></Breadcrumb.Item>
         )
     };
 }
