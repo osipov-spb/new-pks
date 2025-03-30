@@ -20,13 +20,13 @@ class Order extends React.Component {
             this.state = {
                 order_data: new _OrderData(),
                 additionalParams: new OrderAdditionalInfo(),
-                menuType: 'menu'
+                menuType: 'products'
             }
         }else {
             this.state = {
                 order_data: new _OrderData(JSON.parse(this.props.order_str)),
                 additionalParams: new OrderAdditionalInfo(JSON.parse(this.props.additionalParams)),
-                menuType: 'menu'
+                menuType: 'products'
             }
         }
     }
@@ -38,6 +38,7 @@ class Order extends React.Component {
 
     setItemsList = (itemsList) => {
         console.log(JSON.stringify(itemsList))
+        console.log('eto ono ' + JSON.stringify(itemsList))
         this.state.order_data.items = itemsList
     }
 
@@ -45,8 +46,28 @@ class Order extends React.Component {
         window.get_order_data = () => {
             return JSON.stringify(this.state.order_data)
         }
+
+        window.setPromoList = (promoList) => {
+            this.state.additionalParams.promoList = JSON.parse(promoList)
+        }
+
+        window.changeMenuType = (menuType) =>{
+            this.setState({
+                menuType: menuType
+            })
+        }
+
+        window.updateAdditionalInfo = (key, value) => {
+            this.state.additionalParams[key] = JSON.parse(value);
+        }
     }
     render() {
+        let menuComponent;
+        if (this.state.menuType == 'products'){
+            menuComponent = <_ProductsMenu items={this.state.additionalParams.menu}/>
+        }else if(this.state.menuType == 'promo'){
+            menuComponent = <_PromoMenu items={this.state.additionalParams.promoList} />
+        }
         return (
             <form id="form" >
                 <Layout className="layout">
@@ -68,8 +89,7 @@ class Order extends React.Component {
                                     </Row>
                                 </Col>
                                 <Col style={{padding:'0px 0px 0px 10px'}} span={14}>
-                                    <_ProductsMenu items={this.state.additionalParams.menu}/>
-                                    <_PromoMenu/>
+                                    {menuComponent}
                                     <StatusButtons/>
                                 </Col>
 

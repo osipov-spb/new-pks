@@ -45,11 +45,13 @@ class PromoItem extends React.Component {
                             title: 'Позиция 3'
                         }
                     ]
-                }
+                },
+                selectedItems: []
             }
         }else {
             this.state = {
-                data: this.props.data
+                data: this.props.data,
+                selectedItems: this.props.selectedItems
             }
         }
     }
@@ -92,14 +94,6 @@ class PromoItem extends React.Component {
     }
 
     render() {
-        // let optionsElem = [];
-        // for (let i = 1; i <= this.state.data.available; i++) {
-        //     optionsElem.push(
-        //             <Col span={8}>
-        //                 <ItemSelector items={this.state.data.items} count={this.state.data.available}></ItemSelector>
-        //             </Col>)
-        // }
-
         return (
             <div
                 key={this.state.data.index}
@@ -115,13 +109,13 @@ class PromoItem extends React.Component {
                     padding: "5px 10px 10px 10px"
                 }}>
                     <Row align='middle' justify='center'>
-                        <Col span={2}>
-                            <Checkbox style={{ padding: "0px 0px 0px 5px"}}/>
-                        </Col>
-                        <Col span={1}><Divider style={{
-                            height: '60px'
-                        }} type="vertical"/></Col>
-                        <Col span={5}>
+                        {/*<Col span={2}>*/}
+                        {/*    <Checkbox style={{ padding: "0px 0px 0px 5px"}}/>*/}
+                        {/*</Col>*/}
+                        {/*<Col span={1}><Divider style={{*/}
+                        {/*    height: '60px'*/}
+                        {/*}} type="vertical"/></Col>*/}
+                        <Col span={7}>
                             <Popover content={this.state.data.info} title={this.state.data.title} trigger="hover">
                                 <Text>{this.state.data.title} </Text>
                                 <InfoCircleOutlined/>
@@ -136,7 +130,7 @@ class PromoItem extends React.Component {
                             <Row align='middle' justify='center' style={{
                                 padding: "0px 0px 0px 15px"
                             }}>
-                                <ItemSelector items={this.state.data.items} count={this.state.data.available} />
+                                <ItemSelector items={this.state.data.items} count={this.state.data.available} selectedItems={this.state.selectedItems}/>
                             </Row>
                         </Col>
 
@@ -156,7 +150,6 @@ class PromoItem extends React.Component {
                 {/*        </Col>*/}
                 {/*    </Row>*/}
                 {/*</div>*/}
-
             </div>
         )
     };

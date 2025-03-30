@@ -1,20 +1,20 @@
 class _OrderData {
     constructor(
         ord_data = {
+            id: '',
             order_number: '',
-            package_type: 'Зал',
+            package: 'Зал',
             scheduled: false,
-            bso: false,
             client: '',
             items: [],
             comment: ''
         }
     )
     {
+        this.id = ord_data.id;
         this.order_number = ord_data.order_number;
-        this.package_type = ord_data.package_type;
+        this.package = ord_data.package;
         this.scheduled = ord_data.scheduled;
-        this.bso = ord_data.bso;
         this.client = ord_data.client;
         this.items = ord_data.items;
         this.comment = ord_data.comment;

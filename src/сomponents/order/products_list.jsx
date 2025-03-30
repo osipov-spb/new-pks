@@ -24,7 +24,7 @@ class _ProductTable extends React.Component {
 
     componentDidMount() {
         const locale = {
-            emptyText: 'Abc',
+            emptyText: 'Abc'
         }
 
         const data = [];
@@ -35,7 +35,7 @@ class _ProductTable extends React.Component {
 
         window.order_product_list_AddItem = (product_title, product_id, price) => {
             // let current_count = this.state.dataSource.length;
-            console.log(product_title + product_id + price)
+
             let added = false;
             if (this.state.dataSource.length > 0) {
                 for (let i = 0; i < this.state.dataSource.length; ++i) {
@@ -44,7 +44,6 @@ class _ProductTable extends React.Component {
                     console.log(dataElement.product_id + ' ' + product_id)
                     console.log(dataElement.price + ' ' + price)
                     if (dataElement.product_id == product_id && dataElement.price == price) {
-                        console.log('1' + dataElement)
                         const newData = [...this.state.dataSource];
                         const newData2 = []
                         newData.forEach((dataElement2) => {
@@ -67,14 +66,18 @@ class _ProductTable extends React.Component {
             }
 
             if (this.state.dataSource.length == 0 || !added) {
-                console.log('2')
                 const lineNumber = (this.state.dataSource.length + 1).toString()
                 const count = 1
                 const total = price
+                const promo_id = null
                 const newItem = {
                     lineNumber, product_title, count, price,
-                    total, product_id
+                    total, product_id, promo_id
                 };
+                console.log('newItem')
+                console.log(newItem)
+                console.log('this.state')
+                console.log(this.state)
                 this.setState(({dataSource}) => {
                     const newData = [...dataSource, newItem];
                     return {
@@ -82,7 +85,7 @@ class _ProductTable extends React.Component {
                     }
                 });
             }
-            this.state.setItemsList(this.state.dataSource)
+            this.state.setItemsList(this.state.dataSource);
         }
 
         window.order_product_list_RemoveItem = (lineNumber) => {
@@ -147,44 +150,6 @@ class _ProductTable extends React.Component {
                             {count}
                         </div>)
                 }
-                // sorter: (a, b) => a.orderStatus.localeCompare(b.orderStatus),
-                // render: (_, {orderStatus}) => {
-                //     let color = 'geekblue';
-                //     let statusText = "●" + orderStatus;
-                //     if (orderStatus === 'Временной') {
-                //         color = 'lime';
-                //         statusText = '● Временной';
-                //     } else if (orderStatus === '1.Заказан') {
-                //         color = 'magenta';
-                //         statusText = '● Заказан';
-                //     } else if (orderStatus === '2.Кухня') {
-                //         color = 'red';
-                //         statusText = '● Кухня';
-                //     } else if (orderStatus === '2,5.Комплектация') {
-                //         color = 'volcano';
-                //         statusText = '● Комплектация';
-                //     } else if (orderStatus === '3.Ожидает') {
-                //         color = 'blue';
-                //         statusText = '● Ожидает';
-                //     } else if (orderStatus === '4.В пути') {
-                //         color = 'gold';
-                //         statusText = '● В пути';
-                //     } else if (orderStatus === '5.Доставлен') {
-                //         color = 'cyan';
-                //         statusText = '● Доставлен';
-                //     } else if (orderStatus === '6.Деньги сдал') {
-                //         color = 'green';
-                //         statusText = '● Деньги сдал';
-                //     } else if (orderStatus === '7.На удаление') {
-                //         color = 'orange';
-                //         statusText = '● На удаление';
-                //     }
-                //     return (
-                //         <div align='left'><Tag color={color} key={orderStatus}>
-                //             {statusText.toUpperCase()}
-                //         </Tag></div>
-                //     );
-                // }
 
             },
             {
@@ -196,10 +161,6 @@ class _ProductTable extends React.Component {
                         <div style={{fontSize: '11px'}}>
                             {price}
                         </div>)}
-                // sorter: (a, b) => a.orderPackage.localeCompare(b.orderPackage),
-                // render: (_, {orderPackage}) => {
-                //     return (<div align='right'>{orderPackage}</div>)
-                // }
             },
             {
                 title: 'Сумма',
@@ -210,21 +171,18 @@ class _ProductTable extends React.Component {
                         <div style={{fontSize: '11px'}}>
                             {total}
                         </div>)}
-                // sorter: (a, b) => a.orderPaymentType.localeCompare(b.orderPaymentType),
-                // render: (_, {orderPaymentType}) => {
-                //     return (<div align='right'>{orderPaymentType}</div>)
-                // }
             },
             {
                 title: 'product_id',
                 dataIndex: 'product_id',
                 key: 'product_id',
                 hidden: true
-
-                // sorter: (a, b) => a.orderPaymentType.localeCompare(b.orderPaymentType),
-                // render: (_, {orderPaymentType}) => {
-                //     return (<div align='right'>{orderPaymentType}</div>)
-                // }
+            },
+            {
+                title: 'promo_id',
+                dataIndex: 'promo_id',
+                key: 'promo_id',
+                hidden: true
             }
         ].filter(item => !item.hidden);
 

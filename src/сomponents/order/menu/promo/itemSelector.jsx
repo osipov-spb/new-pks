@@ -22,7 +22,7 @@ class ItemSelector extends React.Component {
                         title: 'Филадельфия прайм с лососем'
                     },
                     {
-                        id: '2',
+                        id: '4',
                         price: 100,
                         title: 'Позиция 2'
                     },
@@ -31,12 +31,14 @@ class ItemSelector extends React.Component {
                         price: 100,
                         title: 'Позиция 3'
                     }
-                ]
+                ],
+                selectedItems:[]
             }
         }else {
             this.state = {
                 count: this.props.count,
-                items: this.props.items
+                items: this.props.items,
+                selectedItems: this.props.selectedItems
             }
         }
     }
@@ -47,30 +49,38 @@ class ItemSelector extends React.Component {
 
     render() {
         const items = []
+        let handlePromoItemSelect = (value) => {
+            this.state.items.forEach((item) => {
+                if (item.id == value) {
+                    this.state.selectedItems.push(item)
+                }
+            })
+            console.log(this.state.selectedItems)
+        }
         const selector = <Select style={{
             width: '270px'
-        }} placeholder="Выберите позицию из списка" allowClear={true}>
+        }} placeholder="Выберите позицию из списка" allowClear={true} onChange={handlePromoItemSelect}>
             {this.state.items
                 ? this.state.items.map((item, index) => (
-                    <Option  value={item.id}>{item.title}</Option>
+                    <Option value={item.id}>{item.title}</Option>
                 ))
                 : null}
         </Select>
         for (let i = 1; i <= this.state.count; i++) {
             let child = () => {
-                return(
+                return (
                     <>
-                    <Select placeholder="Выберите" allowClear={true}>
-                        {this.state.items
-                            ? this.state.items.map((item, index) => (
-                                <Option  value={item.id}>{item.title}</Option>
-                            ))
-                            : null}
-                    </Select>
+                        <Select placeholder="Выберите" allowClear={true} o>
+                            {this.state.items
+                                ? this.state.items.map((item, index) => (
+                                    <Option value={item.id}>{item.title}</Option>
+                                ))
+                                : null}
+                        </Select>
                     </>
                 )
-        }
-        items.push({label: i, key: 'item'+i, children: selector })
+            }
+            items.push({label: i, key: 'item' + i, children: selector})
         }
 
        return (

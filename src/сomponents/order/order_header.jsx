@@ -10,6 +10,8 @@ import {
     PercentageOutlined, ProfileOutlined, RollbackOutlined,
     UserOutlined
 } from "@ant-design/icons";
+import ClientSelectForm from "./clientSelector/clientSelector";
+import PromoCodeModal from "./cert/cert";
 
 
 const {Text, Link} = Typography;
@@ -54,13 +56,20 @@ class _OrderHeader extends React.Component {
                                 </Space>
 
                             </Button>
-                            <Button href="#" size={m_size}>
-                                <Space size="small">
-                                <UserOutlined />
-                                Гость
-                                </Space>
-                            </Button>
-                            <Button href="#" size={m_size}>
+                            {/*<Button href="#"*/}
+                            {/*        size={m_size}*/}
+                            {/*        data-button-id="order-header-guest">*/}
+                            {/*    <Space size="small">*/}
+                            {/*    <UserOutlined />*/}
+                            {/*    Гость*/}
+                            {/*    </Space>*/}
+                            {/*</Button>*/}
+                            <PromoCodeModal/>
+                            <ClientSelectForm/>
+
+                            <Button href="#"
+                                    size={m_size}
+                                    data-button-id="order-header-promo">
                                 <Space size="small">
                                 <PercentageOutlined />
                                 Акции

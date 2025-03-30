@@ -13,173 +13,12 @@ class _PromoMenu extends React.Component {
     constructor(props) {
         super(props);
         this.pageSize = 5
-        this.promoList = [
-            {
-                title: 'Позиция за 100 рублей при заказе от 1000',
-                id: '1',
-                available: 2,
-                info: 'Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции Подробная информация об акции',
-                items:[
-                    {
-                        id: '1',
-                        price: 100,
-                        title: 'Филадельфия прайм с лососем'
-                    },
-                    {
-                        id: '2',
-                        price: 100,
-                        title: 'Позиция 2'
-                    },
-                    {
-                        id: '3',
-                        price: 100,
-                        title: 'Позиция 3'
-                    }
-                ]
-            },
-            {
-                title: 'Акция 3',
-                id: '2',
-                available: 7,
-                info: 'Подробная информация об акции',
-                items:[
-                    {
-                        id: '1',
-                        price: 100,
-                        title: 'Филадельфия прайм с лососем'
-                    },
-                    {
-                        id: '2',
-                        price: 200,
-                        title: 'Позиция 2'
-                    },
-                    {
-                        id: '3',
-                        price: 300,
-                        title: 'Позиция 3'
-                    }
-                ]
-            },
-            {
-                title: 'Акция 2',
-                id: '3',
-                available: 3,
-                info: 'Подробная информация об акции',
-                items:[
-                    {
-                        id: '1',
-                        price: 100,
-                        title: 'Позиция 1'
-                    },
-                    {
-                        id: '2',
-                        price: 200,
-                        title: 'Позиция 2'
-                    },
-                    {
-                        id: '3',
-                        price: 300,
-                        title: 'Позиция 3'
-                    }
-                ]
-            },
-            {
-                title: 'Акция 2',
-                id: '4',
-                available: 3,
-                info: 'Подробная информация об акции',
-                items:[
-                    {
-                        id: '1',
-                        price: 100,
-                        title: 'Позиция 1'
-                    },
-                    {
-                        id: '2',
-                        price: 200,
-                        title: 'Позиция 2'
-                    },
-                    {
-                        id: '3',
-                        price: 300,
-                        title: 'Позиция 3'
-                    }
-                ]
-            },
-            {
-                title: 'Акция 2',
-                id: '5',
-                available: 3,
-                info: 'Подробная информация об акции',
-                items:[
-                    {
-                        id: '1',
-                        price: 100,
-                        title: 'Позиция 1'
-                    },
-                    {
-                        id: '2',
-                        price: 200,
-                        title: 'Позиция 2'
-                    },
-                    {
-                        id: '3',
-                        price: 300,
-                        title: 'Позиция 3'
-                    }
-                ]
-            },
-            {
-                title: 'Акция 2',
-                id: '6',
-                available: 3,
-                info: 'Подробная информация об акции',
-                items:[
-                    {
-                        id: '1',
-                        price: 100,
-                        title: 'Позиция 1'
-                    },
-                    {
-                        id: '2',
-                        price: 200,
-                        title: 'Позиция 2'
-                    },
-                    {
-                        id: '3',
-                        price: 300,
-                        title: 'Позиция 3'
-                    }
-                ]
-            },
-            {
-                title: 'Акция 2',
-                id: '7',
-                available: 3,
-                info: 'Подробная информация об акции',
-                items:[
-                    {
-                        id: '1',
-                        price: 100,
-                        title: 'Позиция 1'
-                    },
-                    {
-                        id: '2',
-                        price: 200,
-                        title: 'Позиция 2'
-                    },
-                    {
-                        id: '3',
-                        price: 300,
-                        title: 'Позиция 3'
-                    }
-                ]
-            },
-        ];
+        this.promoList = props.items;
         this.state = {
             items: this.promoList,
             currentPage: 1,
-            currentItems: this.promoList.slice(0,this.pageSize)
+            currentItems: [],
+            selectedItems: []
         }
     }
 
@@ -228,7 +67,8 @@ class _PromoMenu extends React.Component {
     }
 
     render() {
-        let promoItems = []
+        let promoItems = [];
+        if (this.promoList != undefined){
         this.promoList.forEach((item) => {
             promoItems.push(
                 <PromoItem data={{
@@ -237,27 +77,21 @@ class _PromoMenu extends React.Component {
                     available: item.available,
                     info: item.info,
                     items: item.items
-                }}/>
+                }}
+                selectedItems={this.state.selectedItems}/>
             )
         })
+        }
+
+       let addSelectedToList = () => {
+            console.log(this.state.selectedItems)
+            this.state.selectedItems.forEach((dataItem) => {
+                window.order_product_list_AddItem(dataItem.title, dataItem.id, dataItem.price)
+            })
+           window.changeMenuType('products')
+        }
 
         return (
-            // <div>
-            //     <div className="style-btn-wrapper">
-            //         {/*{promoItems}*/}
-            //         <List
-            //             header={<div>Список доступных акций</div>}
-            //             footer={<div><Button> Сохранить </Button></div>}
-            //             dataSource={promoItems}
-            //             renderItem={(item) => (
-            //                 <List.Item>
-            //                     {item}
-            //                 </List.Item>
-            //             )}
-            //         />
-            //     </div>
-            //
-            // </div>
             <div>
             <div
                 id="scrollableDiv"
@@ -283,7 +117,7 @@ class _PromoMenu extends React.Component {
                 </InfiniteScroll>
 
             </div>
-                <Button> Сохранить </Button>
+                <Button onClick={addSelectedToList}> Сохранить </Button>
             </div>
 
 

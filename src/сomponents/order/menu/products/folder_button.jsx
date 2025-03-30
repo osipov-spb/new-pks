@@ -71,30 +71,31 @@ class FolderButton extends React.Component {
                 className={"style-btn"}
                 onClick={(e) => {this.state.data.openFolder(e, this.state.data.id)}}
             >
-                <div style={{
-                    position: "absolute",
-                    top: "6%",
-                    left: "6%",
-                    width: "100%",
-                    height: "37%",
-                }}>
-                    <Row align="top">
-                        <Col span={23}>
-                            <Tag color="#ffa940"><FolderOpenOutlined /></Tag>
-                        </Col>
+                {/*<div style={{*/}
+                {/*    position: "absolute",*/}
+                {/*    top: "6%",*/}
+                {/*    left: "6%",*/}
+                {/*    width: "100%",*/}
+                {/*    height: "37%",*/}
+                {/*}}>*/}
+                {/*    <Row align="top">*/}
+                {/*        /!*<Col span={23}>*!/*/}
+                {/*        /!*    *!/*/}
+                {/*        /!*</Col>*!/*/}
 
-                    </Row>
-                </div>
+                {/*    </Row>*/}
+                {/*</div>*/}
                 <div style={{
-                    position: "absolute",
-                    top: "34%",
-                    width: "100%",
-                    height: "63%",
-                    textAlign: "center",
-                    padding: "5px 5px 5px 5px"
+                    // position: "absolute",
+                    // top: "34%",
+                    // width: "100%",
+                    // height: "100%",
+                    // textAlign: "center",
+                    // padding: "5px 5px 5px 5px"
                 }}>
                     <Row>
                         <Col span={24}>
+                            {/*<Tag><FolderOpenOutlined /></Tag>*/}
                             <this.BreakString text={this.state.data.title}/>
                         </Col>
                     </Row>

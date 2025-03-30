@@ -1,6 +1,8 @@
 import React from "react";
 import {Button, Tag, Row, Col} from 'antd'
 import {PercentageOutlined} from "@ant-design/icons";
+import PaymentForm from "../payment/paymentForm";
+import ClientSelectForm from "../clientSelector/clientSelector";
 
 class StatusButtons extends React.Component {
     constructor(props) {
@@ -59,9 +61,10 @@ class StatusButtons extends React.Component {
 
                 {/*</Row>*/}
             </div>
-
             Оплатить
             </Button>
+                <PaymentForm/>
+                {/*<ClientSelectForm/>*/}
             </div>
         )
     };

@@ -1,14 +1,14 @@
 import React from "react";
-import {Carousel, Progress, Space} from "antd";
 import OrdersList from "./list/orders_list";
 import Order from "./order/order";
+import _Alert from "./common/alert";
+import Alert from "./common/alert";
 
 class Main extends React.Component {
     constructor(props) {
         super(props);
         this.state = {}
     }
-
 
     componentDidMount() {
         const page_type = 'list'
@@ -43,13 +43,21 @@ class Main extends React.Component {
     render() {
         if (this.state.page_type == 'list') {
             return (
-                <OrdersList/>
+                <>
+                    <OrdersList/>
+                    <Alert/>
+                </>
+
             );
         } else if (this.state.page_type == 'order') {
             return (
-                <Order order_str={this.state.order_data} additionalParams={this.state.additionalParams}/>
+                <>
+                    <Order order_str={this.state.order_data} additionalParams={this.state.additionalParams}/>
+                    <Alert/>
+                </>
             )
         }
+
     }
 }
 

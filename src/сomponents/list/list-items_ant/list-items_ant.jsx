@@ -19,32 +19,17 @@ class _Table extends React.Component {
         this.state = {}
     }
     componentDidMount() {
-        const locale = {
-            emptyText: 'Abc',
-        }
-
-        // const [filteredInfo, setFilteredInfo] = {};
-        // const [sortedInfo, setSortedInfo] = {};
-
         const data = [];
 
         this.setState({
             dataSource: data
         })
 
-        window.setLocalStorageKirill = (name, value) => {
-            window.localStorage.setItem(name, value)
-        }
-
-        window.getLocalStorageKirill = (name) => {
-            return window.localStorage.getItem(name)
-        }
-
         window.list_AddItem = (orderDate, orderNumber, orderStatus, orderPackage,
-                               orderPaymentType, orderTotal, orderAddress, orderID) => {
+                               orderPaymentType, orderTotal, orderAddress, orderOnlineID, id) => {
             const newItem = {
                 orderDate, orderNumber, orderStatus, orderPackage,
-                orderPaymentType, orderTotal, orderAddress, orderID
+                orderPaymentType, orderTotal, orderAddress, orderOnlineID, id
             };
 
             this.setState(({dataSource}) => {
@@ -97,14 +82,12 @@ class _Table extends React.Component {
                 dataIndex: 'orderNumber',
                 key: 'orderNumber',
                 width: '8%',
-                render: (_, {orderNumber, orderID}) => {
-                    let tagName = 'open-order-' + orderNumber
+                render: (_, {orderNumber, id}) => {
+                    let tagName = 'open-order-' + id
                     return (
                         <div align='right'>
                             <Space size='small'>
-                                <Button >
-                                    {/*onClick={() => window.show_page('order', orderNumber)}*/}
-                                    {/*style={{color: '#096dd9'}}*/}
+                                <Button>
                                 <a href='#' data-button-id={tagName}>
                                     {orderNumber.replace(/\s+/g, '').slice(-4)}
                                 </a>
@@ -224,18 +207,12 @@ class _Table extends React.Component {
                 render: (_, {orderAddress}) => {return (<Text style={{ fontSize: '12' +
                         'px' }}>{orderAddress.substring(0, 27)}</Text>)}
             },
-            // {
-            //     title: 'ID заказа',
-            //     dataIndex: 'orderID',
-            //     key: 'orderID',
-            //     render: (_, {orderID}) => {return (<div align='right'>{orderID}</div>)}
-            // },
             {
                 title: '',
                 dataIndex: 'tags',
                 key: 'tags',
                 width: '6%',
-                render: (_, {orderAddress, orderID, orderPackage}) => {
+                render: (_, {orderAddress, orderOnlineID, orderPackage}) => {
                     return (
                         <Space size='small'>
                             {(orderPackage == 'Доставка') ? <Popover content={
@@ -243,8 +220,8 @@ class _Table extends React.Component {
                                 <HomeOutlined style={{color: '#1890ff', fontSize: '25px'}}/>
                             </Popover>: ''}
 
-                            {(orderID !== '') ? <Popover content={
-                                <div style={{ width: 130 }}>{orderID}</div>} title="№ онлайн заказа" trigger="click">
+                            {(orderOnlineID !== '') ? <Popover content={
+                                <div style={{ width: 130 }}>{orderOnlineID}</div>} title="№ онлайн заказа" trigger="click">
                                 <GlobalOutlined style={{color: '#1890ff', fontSize: '25px'}}/>
                             </Popover>: ''}
 
@@ -252,7 +229,13 @@ class _Table extends React.Component {
                     )
                 }
             },
-        ];
+            {
+                title: 'id',
+                dataIndex: 'id',
+                key: 'id',
+                hidden: true
+            },
+        ].filter(item => !item.hidden);
         return (
             <Table size='middle' locale={{
                 emptyText: (
