@@ -92,11 +92,11 @@ const items = [
         children: [
             {
                 key: 'menu-functions-staff-employee-schedule',
-                label: <a data-button-id='menu-functions-working-shift-select-administrator'>График сотрудников</a>
+                label: <a data-button-id='menu-functions-staff-employee-schedule'>График сотрудников</a>
             },
             {
                 key: 'menu-functions-staff-employee-schedule-report',
-                label: <a data-button-id='menu-functions-cash-cash-withdrawal'>Отчет о графике сотрудников</a>
+                label: <a data-button-id='menu-functions-staff-employee-schedule-report'>Отчет о графике сотрудников</a>
             },
             {
                 key: 'menu-functions-staff-ordering-workwear',
