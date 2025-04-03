@@ -20,6 +20,7 @@ class _Header extends React.Component {
             this.setState(({subtitle: storeName}));
             return true}
     }
+
     render() {
         return (
             <div>

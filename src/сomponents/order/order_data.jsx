@@ -7,7 +7,8 @@ class _OrderData {
             scheduled: false,
             client: '',
             items: [],
-            comment: ''
+            comment: '',
+            summary: 0
         }
     )
     {
@@ -18,6 +19,7 @@ class _OrderData {
         this.client = ord_data.client;
         this.items = ord_data.items;
         this.comment = ord_data.comment;
+        this.summary = ord_data.summary;
     }
 
 

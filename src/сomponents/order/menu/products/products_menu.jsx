@@ -1,33 +1,30 @@
-import React from 'react'
-import ItemButton from "./item_button";
-import {Breadcrumb, Input, Pagination, Row, Layout, Col} from 'antd';
+import React from 'react';
+import { Input, Pagination, Row, Col, Card, Typography } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 import MenuBreadcrumb from "./menu_breadcrumb";
+import ItemButton from "./item_button";
 import FolderButton from "./folder_button";
+import PropTypes from 'prop-types';
 
-const {Search} = Input;
+const { Search } = Input;
+const { Text } = Typography;
 
 class _ProductsMenu extends React.Component {
     constructor(props) {
         super(props);
-        this.pageSize = 20
-        this.menu = this.props.items;
+        this.pageSize = 20;
+        this.menu = Array.isArray(props.items) ? props.items : [];
         this.state = {
-            currentPath: [
-                {
-                    level: 0,
-                    index: 'ROOT',
-                    //product_id: 0,
-                    title: 'Меню'
-                }
-            ],
+            currentPath: [{
+                level: 0,
+                index: 'ROOT',
+                title: 'Меню'
+            }],
             items: this.menu,
             currentPage: 1,
-            currentItems: this.menu.slice(0, this.pageSize)
-        }
-    }
-
-    componentDidMount() {
-
+            currentItems: this.menu.slice(0, this.pageSize),
+            searchQuery: props.searchQuery || '' // Используем переданный поисковый запрос
+        };
     }
 
     updatePath = (e, level) => {
@@ -36,138 +33,208 @@ class _ProductsMenu extends React.Component {
         this.setState({
             currentPath: newPath
         })
-
     }
+
     changePage = (page) => {
-        let num1 = Number(page) - 1;
-        let num2 = this.pageSize;
-        let num3 = Number(num1 * num2);
-
-        let newItems = this.state.items.slice(num3, Number(num3 + this.pageSize))
-
+        const start = (page - 1) * this.pageSize;
         this.setState({
             currentPage: page,
-            currentItems: newItems
-        })
-    }
+            currentItems: this.state.items.slice(start, start + this.pageSize)
+        });
+    };
 
     openFolder = (e, id = 0, fromBreadcrumb = false, pathIndex = 0) => {
-        if (!fromBreadcrumb) {
-            this.state.currentItems.forEach((item) => {
-                if (item.id == id) {
-                    let itemIndex = this.state.items.indexOf(item);
-                    console.log(itemIndex)
-                    this.setState({
-                        items: item.children,
-                        currentItems: item.children.slice(0, this.pageSize)
-                    })
+        try {
+            if (!fromBreadcrumb) {
+                // Клик по папке в списке
+                const clickedItem = this.state.currentItems.find(item => item && item.id === id);
+                if (!clickedItem || !clickedItem.children) return;
 
-                    let newPathElem = {
+                const newPath = [
+                    ...this.state.currentPath,
+                    {
                         level: this.state.currentPath.length,
-                        index: itemIndex,
-                        //product_id: 0,
-                        title: item.title
+                        index: this.state.items.indexOf(clickedItem),
+                        title: clickedItem.title
                     }
-                    let newPath = this.state.currentPath
-                    newPath.push(newPathElem)
+                ];
+
+                this.setState({
+                    items: clickedItem.children,
+                    currentItems: clickedItem.children.slice(0, this.pageSize),
+                    currentPath: newPath,
+                    currentPage: 1,
+                    searchQuery: ''
+                });
+            } else {
+                // Навигация по хлебным крошкам
+                if (pathIndex === 'ROOT') {
+                    // Возврат в корень
+                    this.setState({
+                        items: this.menu,
+                        currentItems: this.menu.slice(0, this.pageSize),
+                        currentPath: [this.state.currentPath[0]],
+                        currentPage: 1,
+                        searchQuery: ''
+                    });
+                } else {
+                    // Переход на конкретный уровень
+                    let currentMenu = this.menu;
+                    const newPath = [this.state.currentPath[0]];
+
+                    for (let i = 1; i <= pathIndex; i++) {
+                        const pathItem = this.state.currentPath[i];
+                        if (!pathItem || !currentMenu[pathItem.index]) {
+                            console.error('Invalid navigation path');
+                            return;
+                        }
+                        currentMenu = currentMenu[pathItem.index].children;
+                        newPath.push(pathItem);
+                        break;
+                    }
 
                     this.setState({
-                        currentPath: newPath
-                    })
-                    //this.changePage(1)
-                    console.log(newPath)
+                        items: currentMenu || [],
+                        currentItems: (currentMenu || []).slice(0, this.pageSize),
+                        currentPath: newPath,
+                        currentPage: 1,
+                        searchQuery: ''
+                    });
                 }
-            });
-        } else {
-            if (pathIndex != 'ROOT') {
-                let currentData = this.state.currentPath.slice(0, this.state.currentPath.length - 1);
-                let currentMenu = this.menu
-                console.log('currentData full:' + JSON.stringify(currentData))
-                let firstEntry = true
-                currentData.forEach((pathItem) => {
-                    if (!firstEntry) {
-                        currentMenu = currentMenu[pathItem.index]
-                    } else {
-                        firstEntry = false
-                        console.log('firstEntry')
-                    }
-                })
-                console.log('currentMenu: ' + JSON.stringify(currentMenu))
-
-                this.setState({
-                    items: currentMenu.children,
-                    currentItems: currentMenu.children.slice(0, this.pageSize)
-                })
-            } else {
-                this.setState({
-                    items: this.menu,
-                    currentItems: this.menu.slice(0, this.pageSize)
-                })
             }
+        } catch (error) {
+            console.error('Navigation error:', error);
+            // Fallback to root on error
+            this.setState({
+                items: this.menu,
+                currentItems: this.menu.slice(0, this.pageSize),
+                currentPath: [{
+                    level: 0,
+                    index: 'ROOT',
+                    title: 'Меню'
+                }],
+                currentPage: 1
+            });
+        }
+    };
+
+    handleSearch = (value) => {
+        this.setState({ searchQuery: value });
+    };
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.searchQuery !== this.props.searchQuery) {
+            this.setState({
+                searchQuery: this.props.searchQuery,
+                currentPage: 1
+            });
         }
     }
 
     render() {
+        const { currentItems, currentPath, currentPage, items, searchQuery } = this.state;
+        const filteredItems = searchQuery
+            ? currentItems.filter(item =>
+                item && item.title.toLowerCase().includes(searchQuery.toLowerCase()))
+            : currentItems;
+
+
         return (
-            <div>
-                <Row>
-                    <Col span={15}>
-                        <Breadcrumb>
-                            {this.state.currentPath
-                                ? this.state.currentPath.map((item, index) => (
-                                    <MenuBreadcrumb title={item.title} updatePath={this.updatePath}
-                                                    openFolder={this.openFolder} level={item.level}
-                                                    itemIndex={item.index}/>
-                                ))
-                                : null}
-                        </Breadcrumb>
-                    </Col>
-                    <Col span={9}>
-                        <Search
-                            placeholder="Поиск по меню"
-                            // onSearch={onSearch}
-                            style={{
-                                width: 200,
-                            }}
-                        />
-                    </Col>
+            <div style={{
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+            }}>
+                {/* Хлебные крошки (без заголовка меню) */}
+                <Card
+                    bordered={false}
+                    style={{
+                        // marginBottom: '12px',
+                        // borderRadius: '4px',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                    }}
+                    bodyStyle={{padding: '12px'}}
+                >
+                    <div style={{display: 'flex', alignItems: 'center', flexWrap: 'wrap'}}>
+                        {currentPath.map((item, index) => item && (
+                            <MenuBreadcrumb
+                                key={index}
+                                title={item.title}
+                                updatePath={this.updatePath}
+                                openFolder={this.openFolder}
+                                level={item.level}
+                                itemIndex={item.index}
+                                isLast={index === currentPath.length - 1}
+                            />
+                        ))}
+                    </div>
+                </Card>
 
-                </Row>
-
-                <div className="style-btn-wrapper">
-                    {this.state.currentItems
-                        ? this.state.currentItems.map((item, index) => {
-                            if (!item.folder) {
-                                return (
-                                    <div key={item.id}>
-                                        <ItemButton data={{
-                                            index: index,
-                                            id: item.id,
-                                            price: item.price,
-                                            discount: item.discount,
-                                            title: item.title
-                                        }}/>
-                                    </div>
-                                )
-                            } else {
-                                return (
-                                    <div key={item.id}>
-                                        <FolderButton data={{
-                                            index: index,
-                                            id: item.id,
-                                            discount: item.discount,
-                                            title: item.title
-                                        }} openFolder={this.openFolder}/>
-                                    </div>)
-                            }
-                        })
-                        : null}
+                {/* Список товаров */}
+                <div style={{
+                    flex: 1,
+                    overflowY: 'auto',
+                    marginBottom: '20px',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                    gap: '4px 8px', // Горизонтальный 8px, вертикальный 4px
+                    padding: '2px'
+                }}>
+                    {filteredItems.map((item, index) => item && (
+                        <div key={item.id} style={{
+                            margin: '0px 0px 0px 0px' // Уменьшаем вертикальные отступы
+                        }}>
+                            {!item.folder ? (
+                                <ItemButton
+                                    style={{padding: '4px'}} // Уменьшаем внутренние отступы
+                                    data={{
+                                        index: index,
+                                        id: item.id,
+                                        price: item.price,
+                                        discount: item.discount,
+                                        title: item.title
+                                    }}
+                                />
+                            ) : (
+                                <FolderButton
+                                    style={{padding: '4px'}} // Уменьшаем внутренние отступы
+                                    data={{
+                                        index: index,
+                                        id: item.id,
+                                        discount: item.discount,
+                                        title: item.title
+                                    }}
+                                    openFolder={this.openFolder}
+                                />
+                            )}
+                        </div>
+                    ))}
                 </div>
-                <Pagination current={this.state.currentPage} onChange={this.changePage} total={this.state.items.length}
-                            pageSize={this.pageSize}/>
+
+                {/* Пагинация */}
+                {items.length > this.pageSize && (
+                    <div style={{
+                        textAlign: 'center',
+                        padding: '8px',
+                        borderTop: '1px solid #f0f0f0'
+                    }}>
+                        <Pagination
+                            current={currentPage}
+                            onChange={this.changePage}
+                            total={items.length}
+                            pageSize={this.pageSize}
+                            showSizeChanger={false}
+                            showQuickJumper={false}
+                        />
+                    </div>
+                )}
             </div>
-        )
+        );
     }
 }
+
+_ProductsMenu.propTypes = {
+    items: PropTypes.array.isRequired
+};
 
 export default _ProductsMenu;

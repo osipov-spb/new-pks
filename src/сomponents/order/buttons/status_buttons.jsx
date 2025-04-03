@@ -1,5 +1,5 @@
 import React from "react";
-import {Button, Tag, Row, Col} from 'antd'
+import {Button, Tag, Row, Col, Space} from 'antd'
 import {PercentageOutlined} from "@ant-design/icons";
 import PaymentForm from "../payment/paymentForm";
 import ClientSelectForm from "../clientSelector/clientSelector";
@@ -7,64 +7,50 @@ import ClientSelectForm from "../clientSelector/clientSelector";
 class StatusButtons extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-        }
+        this.state = {}
     }
 
 
     componentDidMoёёunt() {
 
     }
+
     render() {
         return (
             <div>
-            <Button
-                key='close-order-button'
-                // className={"close-order-button"}
-                onClick={() => {window.show_page('list')}}
-            >
-                <div style={{
-                    // position: "absolute",
-                    // top: "6%",
-                    // left: "6%",
-                    // width: "100%",
-                    // height: "37%",
-                }}>
-                    {/*<Row align="top">*/}
-                    {/*    <Col span={24}>*/}
-                    {/*        <Tag color="#ffa940" ><div >{this.state.data.price} Р</div></Tag><Tag color="red"><PercentageOutlined /></Tag>*/}
-                    {/*    </Col>*/}
+                <Space direction={"horizontal"} size={"small"}>
+                    <Button
+                        key='close-order-button'
+                        // className={"close-order-button"}
+                        onClick={() => {
+                            window.show_page('list')
+                        }}
+                        type="primary"
+                        danger
+                        style={{
+                            minWidth: '120px',
+                            minHeight: '40px'
 
-                    {/*</Row>*/}
-                </div>
+                        }}
+                    >
+                        Закрыть
+                    </Button>
+                    <PaymentForm/>
+                    <Button
+                        key='save-order-button'
+                        // className={"close-order-button"}
+                        href="#"
+                        data-button-id="save-order"
+                        style={{
+                            minWidth: '120px',
+                            minHeight: '40px'
 
-            Закрыть
-            </Button>
-        <Button
-            key='save-order-button'
-            // className={"close-order-button"}
-            // onClick={() => {}}
-            href="#"
-            data-button-id="save-order"
-        >
-            <div style={{
-                // position: "absolute",
-                // top: "6%",
-                // left: "6%",
-                // width: "100%",
-                // height: "37%",
-            }}>
-                {/*<Row align="top">*/}
-                {/*    <Col span={24}>*/}
-                {/*        <Tag color="#ffa940" ><div >{this.state.data.price} Р</div></Tag><Tag color="red"><PercentageOutlined /></Tag>*/}
-                {/*    </Col>*/}
+                        }}
+                    >Далее
+                    </Button>
 
-                {/*</Row>*/}
-            </div>
-            Оплатить
-            </Button>
-                <PaymentForm/>
-                {/*<ClientSelectForm/>*/}
+                    {/*<ClientSelectForm/>*/}
+                </Space>
             </div>
         )
     };

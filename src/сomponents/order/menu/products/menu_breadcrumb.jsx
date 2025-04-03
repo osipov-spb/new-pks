@@ -1,37 +1,73 @@
 import React from "react";
-import {Breadcrumb, Button, Tag, Row, Col} from 'antd'
+import { HomeOutlined, RightOutlined } from '@ant-design/icons';
+import { Typography, Space } from 'antd';
+import PropTypes from 'prop-types';
 
-class MenuBreadcrumb extends React.Component {
-    constructor(props) {
-        super(props);
-        if (this.props.title==undefined){
-            this.state = {
-                title: 'Неопределено',
-                level: 0,
-                itemIndex: 0,
-                updatePath: undefined,
-                openFolder: undefined
-                }
-        }else {
-            this.state = {
-                title: this.props.title,
-                level: this.props.level,
-                itemIndex: this.props.itemIndex,
-                updatePath: this.props.updatePath,
-                openFolder: this.props.openFolder
-            }
+const { Text } = Typography;
+
+const MenuBreadcrumb = ({ title = 'Меню', level = 0, itemIndex = 'ROOT', updatePath, openFolder, isLast }) => {
+    const handleClick = (e) => {
+        if (!updatePath || !openFolder) return;
+        e.preventDefault();
+        try {
+            updatePath(e, level);
+            openFolder(e, 0, true, itemIndex);
+        } catch (error) {
+            console.error('Breadcrumb navigation error:', error);
         }
-    }
-
-
-    render() {
-        return (
-            <Breadcrumb.Item><a onClick={(e) => {
-                this.state.updatePath(e, this.state.level, this.state.itemIndex)
-                this.state.openFolder(e,0,true,this.state.itemIndex)
-            }}>{this.state.title}</a></Breadcrumb.Item>
-        )
     };
-}
 
-export default MenuBreadcrumb
+    return (
+        <Space size={4} style={{ display: 'flex', alignItems: 'center' }}>
+            {!isLast ? (
+                <>
+                    {level === 0 ? (
+                        <HomeOutlined
+                            style={{
+                                color: '#1890ff',
+                                fontSize: '14px',
+                                cursor: 'pointer'
+                            }}
+                            onClick={handleClick}
+                        />
+                    ) : (
+                        <Text
+                            onClick={handleClick}
+                            style={{
+                                color: '#1890ff',
+                                cursor: 'pointer',
+                                padding: '0 4px',
+                                borderRadius: '4px',
+                                transition: 'all 0.2s'
+                            }}
+                            className="breadcrumb-link"
+                        >
+                            {title}
+                        </Text>
+                    )}
+                    <RightOutlined style={{
+                        color: 'rgba(0,0,0,0.25)',
+                        fontSize: '10px',
+                        marginLeft: '6px'
+                    }} />
+                </>
+            ) : (
+                <Text strong style={{ color: '#595959', marginLeft: level === 0 ? 0 : '6px' }}>
+                    {level === 0 ? <HomeOutlined style={{ marginRight: '4px' }} /> : null}
+                    {title}
+                </Text>
+            )}
+        </Space>
+    );
+};
+
+MenuBreadcrumb.propTypes = {
+    title: PropTypes.string,
+    level: PropTypes.number,
+    itemIndex: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    updatePath: PropTypes.func.isRequired,
+    openFolder: PropTypes.func.isRequired,
+    isLast: PropTypes.bool
+};
+
+export default MenuBreadcrumb;
