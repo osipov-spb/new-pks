@@ -1,16 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Col, Layout, Row, Space, Input, Button, Modal } from 'antd';
-import { CreditCardOutlined } from '@ant-design/icons';
-import { createFromIconfontCN } from '@ant-design/icons';
-
-const IconFont = createFromIconfontCN({
-    scriptUrl: [
-        '//at.alicdn.com/t/c/font_4783646_mhk8odqws27.js', // icon-javascript, icon-java, icon-shoppingcart (overrided)
-    ],
-});
-
-const { Content, Footer } = Layout;
-const { TextArea } = Input;
+import { Col, Row, Space, Input, Button, Modal } from 'antd';
+import { CreditCardOutlined, WalletOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const PaymentForm = () => {
     const [total, setTotal] = useState(0);
@@ -18,6 +8,7 @@ const PaymentForm = () => {
     const [change, setChange] = useState(0);
     const [paymentType, setPaymentType] = useState('cash');
     const [isOn, setIsOn] = useState(false);
+
 
     useEffect(() => {
         window.payment_form_open = (total) => {
@@ -68,40 +59,53 @@ const PaymentForm = () => {
 
     return (
         <>
-            <Button href="#" data-button-id="payment" type="primary"
-                    style={{
-                        minWidth: '120px',
-                        minHeight: '40px'
-
-                    }}
+            <Button
+                href="#"
+                data-button-id="payment"
+                type="primary"
+                style={{ minWidth: '120px', minHeight: '40px' }}
             >
-                {/*onClick={() => setIsOn(!isOn)}*/}
                 Оплатить
             </Button>
             <Modal
-                title="Оплата"
+                title={null} // Убираем заголовок
+                closable={false} // Убираем крестик
                 open={isOn}
                 width={350}
-                okText={<a data-button-id='payment_confirm'>Оплатить</a>}
-                cancelText={<a data-button-id='payment_cancel'>Закрыть</a>}
+                footer={[ // Кастомный футер
+                    <Button key="cancel" onClick={() => setIsOn(false)}>Закрыть</Button>,
+                    <Button
+                        key="submit"
+                        type="primary"
+                        onClick={() => {
+                            const returnData = {paymentType, operationType: 'income'};
+                            setIsOn(false);
+                            return JSON.stringify(returnData);
+                        }}
+                    >
+                        Оплатить
+                    </Button>
+                ]}
             >
                 <div className="payment-summary">
                     <Row>
                         <Col span={11}>
-                            <div style={{ textAlign: 'left' }}>Итого к оплате:</div>
+                            <div style={{textAlign: 'left'}}>Итого к оплате:</div>
                         </Col>
                         <Col span={13}>
-                            <div style={{ textAlign: 'right' }}>{total} ₽</div>
+                            <div style={{textAlign: 'right'}}>{total} ₽</div>
                         </Col>
                     </Row>
                 </div>
 
                 <div className="payment-btn-wrapper">
                     <Space size={[10, 10]} wrap>
-                        <Button type={typeCashButton} className='payment-form-number-btn-xl' onClick={handleCashButtonClick}>
-                            <IconFont type="icon-cash"/>
+                        <Button type={typeCashButton} className='payment-form-number-btn-xl'
+                                onClick={handleCashButtonClick}>
+                            <WalletOutlined/>
                         </Button>
-                        <Button type={typeCardButton} className='payment-form-number-btn-xl' onClick={handleCardButtonClick}>
+                        <Button type={typeCardButton} className='payment-form-number-btn-xl'
+                                onClick={handleCardButtonClick}>
                             <CreditCardOutlined/>
                         </Button>
                     </Space>
@@ -109,7 +113,6 @@ const PaymentForm = () => {
 
                     <div className='payment-cash-data'>
                         <Row>
-
                             <Col span={5}>
                                 <div>Наличные:</div>
                             </Col>
@@ -121,44 +124,43 @@ const PaymentForm = () => {
                             <Col span={10}>
                                 <div className='payment-cash-summary'>{cashInput} ₽</div>
                             </Col>
-
                         </Row>
                     </div>
 
-                    <Row gutter={5}> {/* Уменьшили расстояние между группами */}
-                        {/*<Space direction="horizontal" size={0}>*/}
+                    <Row gutter={5}>
                         <Col span={13}>
                             <Space size={[10, 10]} wrap>
                                 {['7', '8', '9', '4', '5', '6', '1', '2', '3', '.', '0', '00'].map((num) => (
-                                    <Button key={num} className='payment-form-number-btn-s' onClick={() => handleInput(Number(`${cashInput}${num}`))}>
+                                    <Button key={num} className='payment-form-number-btn-s'
+                                            onClick={() => handleInput(Number(`${cashInput}${num}`))}>
                                         {num}
                                     </Button>
                                 ))}
                             </Space>
                         </Col>
                         <Col span={7}>
-                            <Space direction="vertical" size={10} >
+                            <Space direction="vertical" size={10}>
                                 {[1000, 2000, 5000].map((amount) => (
-                                    <Button key={amount} type="primary" className='payment-form-number-btn-l' onClick={() => handleInput(amount)}>
+                                    <Button key={amount} type="primary" className='payment-form-number-btn-l'
+                                            onClick={() => handleInput(amount)}>
                                         {amount} ₽
                                     </Button>
                                 ))}
                                 <Button className='payment-form-number-btn-l' onClick={handleBackspaceClick}>
-                                    <IconFont type="icon-backspace"/>
+                                    <DeleteOutlined/>
                                 </Button>
                             </Space>
                         </Col>
-                        {/*</Space>*/}
                     </Row>
                 </div>
                 <br/>
                 <div className="payment-summary">
                     <Row>
                         <Col span={11}>
-                            <div style={{ textAlign: 'left' }}>Сдача:</div>
+                            <div style={{textAlign: 'left'}}>Сдача:</div>
                         </Col>
                         <Col span={13}>
-                            <div style={{ textAlign: 'right' }}>{change} ₽</div>
+                            <div style={{textAlign: 'right'}}>{change} ₽</div>
                         </Col>
                     </Row>
                 </div>

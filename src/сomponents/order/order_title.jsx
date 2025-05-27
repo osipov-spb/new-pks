@@ -1,7 +1,19 @@
 import React from 'react';
-import { Typography } from 'antd';
+import { Typography, Tag } from 'antd';
+import {
+    ClockCircleOutlined,
+    CheckCircleOutlined,
+    HourglassOutlined,
+    CloseCircleOutlined,
+    CalendarOutlined,
+    CarOutlined,
+    ShoppingOutlined,
+    MoneyCollectOutlined,
+    DeleteOutlined,
+    ShopOutlined
+} from '@ant-design/icons';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 class _OrderTitle extends React.Component {
     constructor(props) {
@@ -11,37 +23,174 @@ class _OrderTitle extends React.Component {
         };
     }
 
+    getStatusIcon = (status) => {
+        const statusIcons = {
+            'Временной': <ClockCircleOutlined style={{ color: '#1890ff' }}/>,
+            'Заказан': <HourglassOutlined style={{ color: '#faad14' }}/>,
+            'Кухня': <HourglassOutlined style={{ color: '#fa8c16' }}/>,
+            'Комплектация': <ShoppingOutlined style={{ color: '#faad14' }}/>,
+            'Ожидает': <HourglassOutlined style={{ color: '#faad14' }}/>,
+            'В пути': <CarOutlined style={{ color: '#13c2c2' }}/>,
+            'Доставлен': <CheckCircleOutlined style={{ color: '#52c41a' }}/>,
+            'Деньги сдал': <MoneyCollectOutlined style={{ color: '#52c41a' }}/>,
+            'На удаление': <DeleteOutlined style={{ color: '#f5222d' }}/>,
+            'Удален': <DeleteOutlined style={{ color: '#ff4d4f' }}/>,
+            'Отказ': <CloseCircleOutlined style={{ color: '#f5222d' }}/>,
+            'Ожидание оплаты': <HourglassOutlined style={{ color: '#faad14' }}/>,
+            'Возврат на ТТ': <CarOutlined style={{ color: '#13c2c2' }}/>,
+            'Ожидание оплаты на точке клиентом': <HourglassOutlined style={{ color: '#faad14' }}/>
+        };
+
+        return statusIcons[this.cleanStatusText(status)] || <ClockCircleOutlined style={{ color: '#1890ff' }}/>;
+    };
+
+    getStatusColor = (status) => {
+        const statusColors = {
+            'Временной': 'processing',
+            'Заказан': 'processing',
+            'Кухня': 'processing',
+            'Комплектация': 'processing',
+            'Ожидает': 'processing',
+            'В пути': 'processing',
+            'Доставлен': 'success',
+            'Деньги сдал': 'success',
+            'На удаление': 'error',
+            'Удален': 'error',
+            'Отказ': 'error',
+            'Ожидание оплаты': 'processing',
+            'Возврат на ТТ': 'warning',
+            'Ожидание оплаты на точке клиентом': 'processing'
+        };
+
+        return statusColors[this.cleanStatusText(status)] || 'default';
+    };
+
+    cleanStatusText = (status) => {
+        if (!status) return '';
+
+        // Регулярное выражение для удаления:
+        // ^ - начало строки
+        // [\d,]+ - одна или более цифр или запятых
+        // \.? - необязательная точка
+        // \s* - необязательные пробелы
+        let cleaned = status.replace(/^[\d,]+\.?\s*/, '');
+
+        // Дополнительные замены для читаемости
+        cleaned = cleaned.replace('ТТ', 'торговую точку');
+
+        return cleaned;
+    };
+
+    formatDate = (dateString) => {
+        if (!dateString) return 'Нет данных';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
     render() {
+        const { status, date } = this.props;
+        const projectTitle = this.props.project?.title; // Получаем название фирмы
+
         return (
             <div style={{
-                padding: '8px 16px', // Уменьшили вертикальный padding
-                margin: '-8px -16px 8px -16px', // Соответственно уменьшили margin
+                padding: '8px 16px',
+                margin: '-8px -16px 8px -16px',
                 background: '#f0f9ff',
                 borderBottom: '1px solid #d9eef7',
                 display: 'flex',
-                alignItems: 'center', // Точное вертикальное выравнивание
-                height: '40px' // Фиксированная высота
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                height: '40px'
             }}>
+                <div style={{display: 'flex', alignItems: 'center'}}>
+                    <div style={{
+                        width: '4px',
+                        height: '20px',
+                        background: '#1890ff',
+                        marginRight: '12px',
+                        borderRadius: '2px',
+                        flexShrink: 0
+                    }}></div>
+
+                    <Title
+                        level={4}
+                        style={{
+                            margin: 0,
+                            color: '#1890ff',
+                            fontWeight: 600,
+                            fontSize: '16px',
+                            lineHeight: '24px',
+                            marginRight: '12px' // Добавляем отступ перед ярлыком
+                        }}
+                    >
+                        {this.state.orderNumber ? `Заказ №${this.state.orderNumber}` : 'Новый заказ'}
+                    </Title>
+
+                    {/* Ярлык с названием фирмы */}
+                    {projectTitle && (
+                        <Tag
+                            icon={<ShopOutlined/>}
+                            color="geekblue"
+                            style={{
+                                borderRadius: '4px',
+                                padding: '0 10px',
+                                height: '24px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                fontSize: '12px',
+                                fontWeight: 500
+                            }}
+                        >
+                            {projectTitle}
+                        </Tag>
+                    )}
+                </div>
+
                 <div style={{
-                    width: '4px',
-                    height: '20px',
-                    background: '#1890ff',
-                    marginRight: '12px',
-                    borderRadius: '2px',
-                    flexShrink: 0
-                }}></div>
-                <Title
-                    level={4}
-                    style={{
-                        margin: 0,
-                        color: '#1890ff',
-                        fontWeight: 600,
-                        fontSize: '16px', // Слегка уменьшили размер
-                        lineHeight: '24px' // Фиксированный line-height
-                    }}
-                >
-                    {this.state.orderNumber ? `Заказ №${this.state.orderNumber}` : 'Новый заказ'}
-                </Title>
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '16px'
+                }}>
+                    {status && (
+                        <Tag
+                            icon={this.getStatusIcon(status)}
+                            color={this.getStatusColor(status)}
+                            style={{
+                                margin: 0,
+                                padding: '2px 8px',
+                                borderRadius: '4px',
+                                fontWeight: 500,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                whiteSpace: 'nowrap'
+                            }}
+                        >
+                            {this.cleanStatusText(status)}
+                        </Tag>
+                    )}
+
+                    {date && (
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            color: '#595959',
+                            fontSize: '14px'
+                        }}>
+                            <CalendarOutlined/>
+                            <Text type="secondary">
+                                {this.formatDate(date)}
+                            </Text>
+                        </div>
+                    )}
+                </div>
             </div>
         );
     }

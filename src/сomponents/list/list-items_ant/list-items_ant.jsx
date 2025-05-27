@@ -76,12 +76,14 @@ class _Table extends React.Component {
                 dataIndex: 'orderDate',
                 key: 'orderDate',
                 width: '10%',
+                sorter: (a, b) => a.orderDate.localeCompare(b.orderDate)
             },
             {
                 title: '№',
                 dataIndex: 'orderNumber',
                 key: 'orderNumber',
                 width: '8%',
+                sorter: (a, b) => a.orderNumber.localeCompare(b.orderNumber),
                 render: (_, {orderNumber, id}) => {
                     let tagName = 'open-order-' + id
                     return (

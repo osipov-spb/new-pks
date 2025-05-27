@@ -1,63 +1,116 @@
 import React from "react";
 import OrdersList from "./list/orders_list";
 import Order from "./order/order";
-import _Alert from "./common/alert";
 import Alert from "./common/alert";
 
 class Main extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {}
+        this.state = {
+            page_type: "list",
+            projects: [] // Добавляем хранение списка проектов
+        };
     }
 
     componentDidMount() {
-        const page_type = 'list'
+        this.setupWindowMethods();
+    }
 
+    componentWillUnmount() {
+        // Очищаем методы window при размонтировании
+        delete window.setAvailableProjects;
+        delete window.test_app;
+        delete window.show_page;
+        delete window.current_page;
+        delete window.open_order;
+    }
+
+    setupWindowMethods = () => {
+        window.test_app = this.handleTestApp;
+        window.show_page = this.handleShowPage;
+        window.current_page = this.getCurrentPage;
+        window.open_order = this.handleOpenOrder;
+
+        // Добавляем новую внешнюю функцию
+        window.setAvailableProjects = this.handleSetProjects;
+    };
+
+    // Новая функция для сохранения проектов
+    handleSetProjects = (projectsJson) => {
+        try {
+            const projects = JSON.parse(projectsJson);
+
+            // Проверяем структуру проектов
+            if (Array.isArray(projects) &&
+                projects.every(p => p.id && p.title)) {
+                this.setState({ projects });
+            } else {
+                console.error("Invalid projects format. Expected array of {id, title}");
+            }
+        } catch (error) {
+            console.error("Error parsing projects:", error);
+        }
+    };
+
+    handleTestApp = () => {
+        alert("123");
+    };
+
+    handleShowPage = (page_type, order_number) => {
         this.setState({
-            page_type: page_type
-        })
+            page_type,
+            order_number
+        });
+    };
 
-        window.show_page = (page_type, order_number) => {
-            this.setState({
-                page_type: page_type,
-                order_number: order_number,
-            })
+    getCurrentPage = () => {
+        return this.state.page_type;
+    };
+
+    handleOpenOrder = (order_data, additionalParams) => {
+        this.setState({
+            page_type: "order",
+            order_data,
+            additionalParams
+        });
+
+        try {
+            const parsedItems = JSON.parse(order_data).items;
+            window.orderProductListLoadItems(parsedItems);
+        } catch (error) {
+            console.error("Error parsing order data:", error);
         }
+    };
 
-        window.current_page = () => {
-            return this.state.page_type;
-        }
+    renderPageContent() {
+        const { page_type, order_data, additionalParams, projects } = this.state;
 
-        window.open_order = (order_data, additionalParams) => {
-            this.setState({
-                page_type: 'order',
-                order_data: order_data,
-                additionalParams : additionalParams
-            })
-
-            window.orderProductListLoadItems(JSON.parse(order_data).items)
+        switch (page_type) {
+            case "order":
+                return (
+                    <Order
+                        order_str={order_data}
+                        additionalParams={additionalParams}
+                    />
+                );
+            case "list":
+            default:
+                return <OrdersList projects={projects} />; // Передаем projects
         }
     }
 
-
     render() {
-        if (this.state.page_type == 'list') {
-            return (
-                <>
-                    <OrdersList/>
-                    <Alert/>
-                </>
+        return (
+            <>
+                {this.renderPageContent()}
+                <Alert />
 
-            );
-        } else if (this.state.page_type == 'order') {
-            return (
-                <>
-                    <Order order_str={this.state.order_data} additionalParams={this.state.additionalParams}/>
-                    <Alert/>
-                </>
-            )
-        }
-
+                {/* Скрытый элемент для отладки */}
+                <div style={{ display: 'none' }}>
+                    Loaded projects: {this.state.projects.length}
+                </div>
+            </>
+        );
     }
 }
 

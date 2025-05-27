@@ -144,6 +144,7 @@ class _ProductsMenu extends React.Component {
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
+                overflow: "hidden"
             }}>
                 {/* Хлебные крошки (без заголовка меню) */}
                 <Card
@@ -178,7 +179,8 @@ class _ProductsMenu extends React.Component {
                     display: 'grid',
                     gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
                     gap: '4px 8px', // Горизонтальный 8px, вертикальный 4px
-                    padding: '2px'
+                    padding: '2px',
+                    overflow: "hidden"
                 }}>
                     {filteredItems.map((item, index) => item && (
                         <div key={item.id} style={{

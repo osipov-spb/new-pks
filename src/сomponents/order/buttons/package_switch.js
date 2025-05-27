@@ -1,24 +1,73 @@
-import React from 'react'
-import {Radio} from "antd";
+import React, { useState } from 'react';
+import { Button, Dropdown, Menu, Tag } from 'antd';
+import { ShopOutlined, CarryOutOutlined, RocketOutlined } from '@ant-design/icons';
 
-const _PackageSwitch = () => {
-    const onChange = (e) => {
-        if(e.target.value=='in_store'){
-            // sessionStorage.setItem('package', 'in_store')
-        }else if (e.target.value=='take_away') {
-            // sessionStorage.setItem('package', 'take_away')
+const _PackageSwitch = ({ updatePackage, initialPackageType = 'in_store' }) => {
+    const [packageType, setPackageType] = useState(initialPackageType);
+    const [visible, setVisible] = useState(false);
+
+    const handleMenuClick = (e) => {
+        setPackageType(e.key);
+        // Вызываем callback для обновления package в родительском компоненте
+        if (updatePackage) {
+            updatePackage(e.key);
         }
-        // console.log(sessionStorage.getItem('base_path'))
+        setVisible(false);
+    };
+
+
+    const handleVisibleChange = (flag) => {
+        setVisible(flag);
+    };
+
+    const menu = (
+        <Menu onClick={handleMenuClick}>
+            <Menu.Item key="in_store" icon={<ShopOutlined />}>
+                Зал
+            </Menu.Item>
+            <Menu.Item key="take_away" icon={<CarryOutOutlined />}>
+                На вынос
+            </Menu.Item>
+            <Menu.Item key="delivery" icon={<RocketOutlined />}>
+                Доставка
+            </Menu.Item>
+        </Menu>
+    );
+
+    const getButtonText = () => {
+        switch(packageType) {
+            case 'in_store': return 'Зал';
+            case 'take_away': return 'На вынос';
+            case 'delivery': return 'Доставка';
+            default: return 'Выберите тип';
+        }
+    };
+
+    const getButtonIcon = () => {
+        switch(packageType) {
+            case 'in_store': return <ShopOutlined />;
+            case 'take_away': return <CarryOutOutlined />;
+            case 'delivery': return <RocketOutlined />;
+            default: return <ShopOutlined />;
+        }
     };
 
     return (
-        <div className='package-switch'>
-            <Radio.Group onChange={onChange} defaultValue="in_store" buttonStyle="solid">
-                <Radio.Button value="in_store">Зал</Radio.Button>
-                <Radio.Button value="take_away">На вынос</Radio.Button>
-            </Radio.Group>
-        </div>
-    )
-}
+        <Dropdown
+            overlay={menu}
+            trigger={['click']}
+            visible={visible}
+            onVisibleChange={handleVisibleChange}
+        >
+            <Button
+                type="default"
+                icon={getButtonIcon()}
+                style={{ minWidth: '120px' }}
+            >
+                {getButtonText()}
+            </Button>
+        </Dropdown>
+    );
+};
 
-export default _PackageSwitch
+export default _PackageSwitch;

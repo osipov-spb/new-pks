@@ -2,7 +2,8 @@ class OrderAdditionalInfo {
     constructor(
         data = {
             menu: [],
-            promoList: []
+            promoList: [],
+            available_projects: []
         }
     )
     {

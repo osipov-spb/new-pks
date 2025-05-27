@@ -1,126 +1,146 @@
-import React from 'react'
-import {Space, Table, Tag, Typography, Popover, Empty, Button} from 'antd'
-import {
-    ClockCircleFilled,
-    FrownFilled,
-    GlobalOutlined,
-    HomeOutlined,
-    Loading3QuartersOutlined,
-    LoadingOutlined
-} from "@ant-design/icons";
-import './products_list.css'
-import Icon from "antd/es/icon";
+import React from 'react';
+import { Table, Typography, InputNumber, Button, Popconfirm, message } from 'antd';
+import { Loading3QuartersOutlined, DeleteOutlined } from "@ant-design/icons";
+import './products_list.css';
 
-const {Text, Title} = Typography;
+const { Text } = Typography;
 
 class _ProductTable extends React.Component {
     constructor(props) {
         super(props);
-
         this.state = {
-            setItemsList: this.props.setItemsList
-        }
+            dataSource: [],
+            editingKey: null // Добавляем ключ редактируемой строки
+        };
     }
+
+    handleCountChange = (lineNumber, value) => {
+        // Если значение undefined или null (когда поле пустое)
+        if (value === null || value === undefined) {
+            // Устанавливаем минимальное значение 1, но не удаляем позицию
+            this.editItem(lineNumber, 'count', 1);
+            return;
+        }
+
+        // Если значение стало 0 или отрицательным
+        if (value <= 0) {
+            // Устанавливаем минимальное значение 1
+            this.editItem(lineNumber, 'count', 1);
+            message.warning('Минимальное количество - 1');
+            return;
+        }
+
+        // Обычное изменение количества
+        this.editItem(lineNumber, 'count', value);
+    };
 
     componentDidMount() {
-        const locale = {
-            emptyText: 'Abc'
-        }
-
-        const data = [];
-
-        this.setState({
-            dataSource: data
-        })
-
         window.order_product_list_AddItem = (product_title, product_id, price) => {
-            // let current_count = this.state.dataSource.length;
-
-            let added = false;
-            if (this.state.dataSource.length > 0) {
-                for (let i = 0; i < this.state.dataSource.length; ++i) {
-                    let dataElement = this.state.dataSource[i];
-                    console.log(this.state.dataSource)
-                    console.log(dataElement.product_id + ' ' + product_id)
-                    console.log(dataElement.price + ' ' + price)
-                    if (dataElement.product_id == product_id && dataElement.price == price) {
-                        const newData = [...this.state.dataSource];
-                        const newData2 = []
-                        newData.forEach((dataElement2) => {
-                            if (dataElement2.lineNumber == dataElement.lineNumber) {
-                                dataElement2.count = dataElement2.count + 1
-                                dataElement2.total = dataElement2.total + dataElement.price
-                            }
-                            newData2.push(dataElement2)
-                        })
-
-                        this.setState(() => {
-                            return {
-                                dataSource: newData2
-                            }
-                        });
-                        added = true;
-                        break;
-                    }
-                }
-            }
-
-            if (this.state.dataSource.length == 0 || !added) {
-                const lineNumber = (this.state.dataSource.length + 1).toString()
-                const count = 1
-                const total = price
-                const promo_id = null
-                const newItem = {
-                    lineNumber, product_title, count, price,
-                    total, product_id, promo_id
-                };
-                console.log('newItem')
-                console.log(newItem)
-                console.log('this.state')
-                console.log(this.state)
-                this.setState(({dataSource}) => {
-                    const newData = [...dataSource, newItem];
-                    return {
-                        dataSource: newData
-                    }
-                });
-            }
-            this.state.setItemsList(this.state.dataSource);
-        }
+            this.addOrUpdateItem(product_title, product_id, price);
+        };
 
         window.order_product_list_RemoveItem = (lineNumber) => {
-            this.setState(({dataSource}) => {
-                    const newData = [];
-                    dataSource.forEach((dataElement) => {
-                        if (dataElement.lineNumber !== lineNumber) {
-                            newData.push(dataElement)
-                        }
-                    })
-                    return {
-                        dataSource: newData
-                    }
-                }
-            );
-        }
+            this.removeItem(lineNumber);
+        };
 
         window.orderProductListLoadItems = (items) => {
-            this.setState(({dataSource: items}));
-        }
+            this.setState({ dataSource: items }, () => {
+                this.updateParentItemsList();
+            });
+        };
 
         window.order_product_list_EditItem = (lineNumber, pName, pValue) => {
-            const newData = [...this.state.dataSource];
-            const newData2 = []
-            newData.forEach((dataElement) => {
-                if (dataElement.lineNumber == lineNumber) {
-                    dataElement[pName] = pValue
-                }
-                newData2.push(dataElement)
-            })
-            this.setState(({dataSource: newData2}));
-
-            return true
-        }
+            this.editItem(lineNumber, pName, pValue);
+            return true;
+        };
     }
+
+    addOrUpdateItem = (product_title, product_id, price) => {
+        this.setState(prevState => {
+            let newData = [...prevState.dataSource];
+            let added = false;
+
+            const existingItemIndex = newData.findIndex(
+                item => item.product_id === product_id && item.price === price
+            );
+
+            if (existingItemIndex >= 0) {
+                newData[existingItemIndex] = {
+                    ...newData[existingItemIndex],
+                    count: newData[existingItemIndex].count + 1,
+                    total: (newData[existingItemIndex].count + 1) * price
+                };
+                added = true;
+            }
+
+            if (!added) {
+                const lineNumber = (newData.length + 1).toString();
+                newData.push({
+                    lineNumber,
+                    product_title,
+                    count: 1,
+                    price,
+                    total: price,
+                    product_id,
+                    promo_id: null
+                });
+            }
+
+            return { dataSource: newData };
+        }, this.updateParentItemsList);
+    };
+
+    removeItem = (lineNumber) => {
+        this.setState(prevState => {
+            const newData = prevState.dataSource.filter(
+                item => item.lineNumber !== lineNumber
+            );
+
+            // Перенумеруем оставшиеся строки
+            return {
+                dataSource: newData.map((item, index) => ({
+                    ...item,
+                    lineNumber: (index + 1).toString()
+                }))
+            };
+        }, this.updateParentItemsList);
+    };
+
+    editItem = (lineNumber, pName, pValue) => {
+        this.setState(prevState => {
+            const newData = prevState.dataSource.map(item => {
+                if (item.lineNumber === lineNumber) {
+                    const updatedItem = { ...item, [pName]: pValue };
+
+                    // Если изменяется количество, пересчитываем сумму
+                    if (pName === 'count') {
+                        updatedItem.total = updatedItem.count * updatedItem.price;
+                    }
+
+                    // Если изменяется цена, пересчитываем сумму
+                    if (pName === 'price') {
+                        updatedItem.total = updatedItem.count * updatedItem.price;
+                    }
+
+                    return updatedItem;
+                }
+                return item;
+            });
+            return { dataSource: newData };
+        }, this.updateParentItemsList);
+    };
+
+    updateParentItemsList = () => {
+        this.props.setItemsList(this.state.dataSource);
+    };
+
+    handleCountChange = (lineNumber, value) => {
+        if (value > 0) {
+            this.editItem(lineNumber, 'count', value);
+        } else {
+            this.removeItem(lineNumber);
+        }
+    };
 
     render() {
         const columns = [
@@ -128,49 +148,84 @@ class _ProductTable extends React.Component {
                 title: '№',
                 dataIndex: 'lineNumber',
                 key: 'lineNumber',
+                width: 50,
             },
             {
                 title: 'Товары',
                 dataIndex: 'product_title',
                 key: 'product_title',
-                render: (_, {product_title}) => {
-                    return (
-                        <div style={{fontSize: '11px'}}>
-                            {product_title}
-                        </div>)
-                }
+                render: (_, { product_title }) => (
+                    <div style={{ fontSize: '11px' }}>{product_title}</div>
+                )
             },
             {
                 title: 'Кол-во',
                 dataIndex: 'count',
                 key: 'count',
-                render: (_, {count}) => {
-                    return (
-                        <div style={{fontSize: '11px'}}>
-                            {count}
-                        </div>)
-                }
-
+                width: 100,
+                render: (_, record) => (
+                    <InputNumber
+                        min={1}
+                        max={999}
+                        value={record.count}
+                        onChange={(value) => this.handleCountChange(record.lineNumber, value)}
+                        onBlur={() => {
+                            // При потере фокуса проверяем, что значение не пустое
+                            if (!record.count || record.count < 1) {
+                                this.editItem(record.lineNumber, 'count', 1);
+                            }
+                        }}
+                        size="small"
+                        style={{ width: '60px' }}
+                        precision={0}
+                        parser={(value) => {
+                            // Парсим только целые числа
+                            return parseInt(value.replace(/[^\d]/g, '')) || 1;
+                        }}
+                        formatter={(value) => {
+                            // Форматируем без лишних символов
+                            return `${value}`.replace(/[^\d]/g, '');
+                        }}
+                    />
+                )
             },
             {
                 title: 'Цена',
                 dataIndex: 'price',
                 key: 'price',
-                render: (_, {price}) => {
-                    return (
-                        <div style={{fontSize: '11px'}}>
-                            {price}
-                        </div>)}
+                width: 100,
+                render: (_, { price }) => (
+                    <div style={{ fontSize: '11px' }}>{price} ₽</div>
+                )
             },
             {
                 title: 'Сумма',
                 dataIndex: 'total',
                 key: 'total',
-                render: (_, {total}) => {
-                    return (
-                        <div style={{fontSize: '11px'}}>
-                            {total}
-                        </div>)}
+                width: 100,
+                render: (_, { total }) => (
+                    <div style={{ fontSize: '11px' }}>{total} ₽</div>
+                )
+            },
+            {
+                title: 'Действия',
+                key: 'actions',
+                width: 80,
+                render: (_, record) => (
+                    <Popconfirm
+                        title="Удалить позицию?"
+                        onConfirm={() => this.removeItem(record.lineNumber)}
+                        okText="Да"
+                        cancelText="Нет"
+                    >
+                        <Button
+                            icon={<DeleteOutlined />}
+                            size="small"
+                            danger
+                            type="text"
+                        />
+                    </Popconfirm>
+                )
             },
             {
                 title: 'product_id',
@@ -187,11 +242,26 @@ class _ProductTable extends React.Component {
         ].filter(item => !item.hidden);
 
         return (
-            <div><Table size='small' locale={{
-                emptyText: (
-                    <div><Loading3QuartersOutlined spin /> Пусто</div>)
-            }} pagination={{ defaultPageSize: 6, showSizeChanger: false, position:['bottomRight']}} columns={columns} dataSource={this.state.dataSource} bordered/></div>
-        )
+            <div>
+                <Table
+                    size='small'
+                    locale={{
+                        emptyText: (
+                            <div><Loading3QuartersOutlined spin /> Пусто</div>
+                        )
+                    }}
+                    pagination={{
+                        defaultPageSize: 6,
+                        showSizeChanger: false,
+                        position: ['bottomRight']
+                    }}
+                    columns={columns}
+                    dataSource={this.state.dataSource}
+                    bordered
+                    rowKey="lineNumber"
+                />
+            </div>
+        );
     }
 }
 

@@ -12,17 +12,22 @@ import OrderAdditionalInfo from "./orderAdditionalInfo";
 const { Search } = Input;
 const { Content } = Layout;
 const { Title, Text } = Typography;
-const { TextArea } = Input; // Правильный импорт TextArea
+const { TextArea } = Input;
 
 class Order extends React.Component {
     constructor(props) {
         super(props);
         if (this.props.order_str==undefined) {
             this.state = {
-                order_data: new _OrderData(),
+                order_data: new _OrderData(
+                    {
+                        scheduled: false,
+                        scheduledTime: null
+                    }
+                ),
                 additionalParams: new OrderAdditionalInfo(),
                 menuType: 'products',
-                menuSearchQuery: '' // Добавляем состояние для поиска
+                menuSearchQuery: ''
             }
         } else {
             this.state = {
@@ -34,7 +39,7 @@ class Order extends React.Component {
         }
     }
 
-    // Добавляем обработчик поиска
+
     handleMenuSearch = (value) => {
         this.setState({ menuSearchQuery: value });
     };
@@ -45,14 +50,58 @@ class Order extends React.Component {
     }
 
     setItemsList = (itemsList) => {
-        console.log(JSON.stringify(itemsList))
-        this.state.order_data.items = itemsList;
+        console.log("Updating items list:", itemsList);
+
+        // Создаем копию текущего состояния
+        const newOrderData = { ...this.state.order_data };
+
+        // Обновляем список товаров
+        newOrderData.items = itemsList;
+
+        // Пересчитываем сумму
         let summary = 0;
-        this.state.order_data.items.forEach((productItem) => {
-            summary = summary + productItem.total;
-        })
-        this.state.order_data.summary = summary;
+        itemsList.forEach((productItem) => {
+            summary += productItem.total;
+        });
+
+        newOrderData.summary = summary;
+        newOrderData.total = summary + (newOrderData.deliveryPrice || 0);
+
+        // Обновляем состояние
+        this.setState({ order_data: newOrderData }, () => {
+            console.log("State after update:", this.state.order_data);
+        });
     }
+
+    updatePackageType = (packageType) => {
+        const newOrderData = { ...this.state.order_data };
+        newOrderData.package = packageType;
+        this.setState({ order_data: newOrderData });
+    }
+
+    updateScheduledStatus = (isScheduled) => {
+        const newOrderData = { ...this.state.order_data };
+        newOrderData.scheduled = isScheduled;
+        this.setState({ order_data: newOrderData });
+    }
+
+    updateScheduledTime = (time) => {
+        const newOrderData = { ...this.state.order_data };
+        newOrderData.scheduledTime = time ? time.format() : null;
+
+        // Автоматически устанавливаем scheduled в true при наличии времени
+        if (time) {
+            newOrderData.scheduled = true;
+        }
+
+        this.setState({ order_data: newOrderData });
+    }
+
+    updateClient = (clientData) => {
+        const newOrderData = { ...this.state.order_data };
+        newOrderData.client = clientData;
+        this.setState({ order_data: newOrderData });
+    };
 
     componentDidMount() {
         window.get_order_data = () => {
@@ -72,15 +121,28 @@ class Order extends React.Component {
         window.updateAdditionalInfo = (key, value) => {
             this.state.additionalParams[key] = JSON.parse(value);
         }
+
+        window.set_client_phone = (phone) => {
+            if (window.clientSelectorSetPhone) {
+                window.clientSelectorSetPhone(phone);
+            }
+            // Также обновляем order_data
+            const newOrderData = { ...this.state.order_data };
+            newOrderData.client = { ...newOrderData.client, phone: phone };
+            this.setState({ order_data: newOrderData });
+        };
+
     }
+
+
 
     render() {
         let menuComponent;
         if (this.state.menuType == 'products') {
             menuComponent = (
                 <div style={{
-                    width: '570px', // Фиксированная ширина
-                    height: '610px', // Фиксированная высота
+                    width: '570px',
+                    height: '610px',
                     display: 'flex',
                     flexDirection: 'column'
                 }}>
@@ -107,15 +169,15 @@ class Order extends React.Component {
                     <_ProductsMenu
                         items={this.state.additionalParams.menu}
                         searchQuery={this.state.menuSearchQuery}
-                        style={{ width: '100%' }} // Занимает всю ширину родителя
+                        style={{ width: '100%' }}
                     />
                 </div>
             );
         } else if(this.state.menuType == 'promo') {
             menuComponent = (
                 <div style={{
-                    width: '570px', // Фиксированная ширина для промо тоже
-                    height: '610px', // Фиксированная высота
+                    width: '570px',
+                    height: '610px',
                     display: 'flex',
                     flexDirection: 'column'
                 }}>
@@ -155,10 +217,14 @@ class Order extends React.Component {
                 padding: '0'
             }}>
                 <Content style={{ padding: '0', margin: 0 }}>
-                    <_OrderHeader order_data={this.state.order_data} />
+                    <_OrderHeader
+                        order_data={this.state.order_data}
+                        updatePackage={this.updatePackageType}
+                        updateScheduledStatus={this.updateScheduledStatus}
+                        updateScheduledTime={this.updateScheduledTime}
+                    />
 
                     <Row gutter={[12, 12]} style={{ margin: '0', padding: '12px' }}>
-                        {/* Левая колонка - товары */}
                         <Col xs={24} md={10}>
                             <Card
                                 bordered={false}
@@ -177,7 +243,7 @@ class Order extends React.Component {
                                 </div>
                                 <div style={{
                                     padding: '8px',
-                                    height: 'calc(100vh - 220px)',
+                                    height: 'calc(100vh - 340px)',
                                     overflowY: 'auto'
                                 }}>
                                     <_ProductTable setItemsList={this.setItemsList} />
@@ -194,14 +260,37 @@ class Order extends React.Component {
                                         onChange={this.handleCommentChange}
                                         style={{
                                             width: '100%',
-                                            borderColor: '#d9d9d9'
+                                            borderColor: '#d9d9d9',
+                                            marginBottom: '12px'
                                         }}
                                     />
+
+                                    {/* Добавляем блок с суммами */}
+                                    <div style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '8px',
+                                        padding: '12px',
+                                        background: '#fafafa',
+                                        borderRadius: '4px'
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <Text strong>Итого:</Text>
+                                            <Text>{this.state.order_data.summary || 0} ₽</Text>
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <Text strong>Доставка:</Text>
+                                            <Text>{this.state.order_data.deliveryPrice || 0} ₽</Text>
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <Text strong>К оплате:</Text>
+                                            <Text strong>{this.state.order_data.total || 0} ₽</Text>
+                                        </div>
+                                    </div>
                                 </div>
                             </Card>
                         </Col>
 
-                        {/* Правая колонка - меню */}
                         <Col xs={24} md={14}>
                             <Card
                                 bordered={false}

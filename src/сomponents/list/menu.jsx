@@ -1,4 +1,4 @@
-import {Button, Col, Row, Space, Typography} from "antd";
+import {Button, Col, Row, Space, Typography, Modal} from "antd";
 import {
     CompassOutlined,
     FilterOutlined,
@@ -11,23 +11,57 @@ import _FunctionsButton from "./buttons/functions";
 import Motivation from "./motivation/motivation";
 import _Header from "./header";
 
+const {Text} = Typography;
 
-const {Text, Link} = Typography;
-const _Menu = () => {
+const _Menu = ({ projects = [] }) => { // Добавляем пропс projects
     const [size, setSize] = useState('large');
-    const createOrderOnClick = () => {
-        // window.show_page('order')
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
+    const showProjectModal = () => {
+        setIsModalVisible(true);
     };
-    return (<>
+
+    const handleCancel = () => {
+        setIsModalVisible(false);
+    };
+
+    const createOrderOnClick = () => {
+        if (projects.length <= 1) {
+            // window.show_page('order')
+        } else {
+            showProjectModal();
+        }
+    };
+
+    return (
+        <>
             <Row align="bottom">
                 <Col span={18}>
                     <Space direction="vertical" size="large">
                         <_Header/>
                         <Space size="small">
-                            <Button type="primary" onClick={createOrderOnClick} href="#" data-button-id="menu-create-order" icon={<PlusOutlined/>}
-                                    size={size}>
-                                Создать заказ
-                            </Button>
+                            {projects.length == 1 ? (
+                                <Button
+                                    type="primary"
+                                    onClick={createOrderOnClick}
+                                    href="#"
+                                    data-button-id={`menu-create-order-project-${projects[0].id}`}
+                                    icon={<PlusOutlined/>}
+                                    size={size}
+                                >
+                                    Создать заказ
+                                </Button>
+                            ) : (
+                                <Button
+                                    type="primary"
+                                    onClick={createOrderOnClick}
+                                    icon={<PlusOutlined/>}
+                                    size={size}
+                                >
+                                    Создать заказ
+                                </Button>
+                            )}
+
                             <Button icon={<FilterOutlined/>} size={size}/>
                             <_FunctionsButton/>
                             <Button href="#" data-button-id="menu-info" icon={<InfoCircleOutlined/>} size={size}>
@@ -46,8 +80,34 @@ const _Menu = () => {
                     <Motivation/>
                 </Col>
             </Row>
+
+            {/* Модальное окно выбора проекта */}
+            <Modal
+                title="Выберите проект"
+                visible={isModalVisible}
+                onCancel={handleCancel}
+                footer={[
+                    <Button key="cancel" onClick={handleCancel}>
+                        Отмена
+                    </Button>
+                ]}
+            >
+                <Space direction="vertical" style={{ width: '100%' }}>
+                    {projects.map(project => (
+                        <Button
+                            key={project.id}
+                            block
+                            style={{ textAlign: 'left' }}
+                            href="#"
+                            data-button-id={`menu-create-order-project-${project.id}`}
+                        >
+                            {project.title}
+                        </Button>
+                    ))}
+                </Space>
+            </Modal>
         </>
     )
 }
 
-export default _Menu
+export default _Menu;

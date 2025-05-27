@@ -2,11 +2,82 @@ import React, { useState, useEffect } from 'react';
 import { Input, Button, Row, Col, Modal, Select, DatePicker, Form, Divider, Spin, Alert } from 'antd';
 import { PhoneOutlined, DeleteOutlined, UserOutlined, PercentageOutlined, ManOutlined, WomanOutlined, CalendarOutlined, MailOutlined } from '@ant-design/icons';
 import moment from 'moment'; // Импорт moment
+import 'moment/locale/ru';
+moment.locale('ru');
 
 const { Option } = Select;
 
-const NumberInputPadModal = () => {
-    const [inputValue, setInputValue] = useState('+7');
+const DatePickerWithMask = ({ value, onChange, ...props }) => {
+    const [inputValue, setInputValue] = useState('');
+
+    const handleInputChange = (e) => {
+        let value = e.target.value.replace(/\D/g, ''); // Удаляем все нецифровые символы
+
+        // Ограничиваем длину ввода (не более 8 цифр)
+        if (value.length > 8) {
+            value = value.slice(0, 8);
+        }
+
+        // Форматируем ввод по мере набора
+        let formattedValue = value;
+        if (value.length > 4) {
+            formattedValue = `${value.slice(0, 2)}.${value.slice(2, 4)}.${value.slice(4)}`;
+        } else if (value.length > 2) {
+            formattedValue = `${value.slice(0, 2)}.${value.slice(2)}`;
+        }
+
+        setInputValue(formattedValue);
+
+        // Если введено 8 цифр (полная дата), преобразуем в объект moment
+        if (value.length === 8) {
+            const day = parseInt(value.slice(0, 2), 10);
+            const month = parseInt(value.slice(2, 4), 10) - 1; // Месяцы в JS 0-11
+            const year = parseInt(value.slice(4), 10);
+
+            if (day > 0 && day <= 31 && month >= 0 && month <= 11) {
+                const date = moment([year, month, day]);
+                if (date.isValid()) {
+                    onChange(date);
+                }
+            }
+        } else if (value.length === 0) {
+            onChange(null);
+        }
+    };
+
+    const handleBlur = () => {
+        // При потере фокуса, если введено неполное значение, сбрасываем
+        if (inputValue.replace(/\D/g, '').length < 8) {
+            setInputValue('');
+            onChange(null);
+        }
+    };
+
+    return (
+        <DatePicker
+            {...props}
+            value={value}
+            onChange={(date, dateString) => {
+                onChange(date);
+                setInputValue(dateString);
+            }}
+            format="DD.MM.YYYY"
+            inputRender={(props) => (
+                <input
+                    {...props}
+                    value={inputValue || (value ? value.format('DD.MM.YYYY') : '')}
+                    onChange={handleInputChange}
+                    onBlur={handleBlur}
+                    placeholder="ДД.ММ.ГГГГ"
+                />
+            )}
+        />
+    );
+};
+
+const NumberInputPadModal = ({ clientData, onClientChange }) => {
+
+    const [inputValue, setInputValue] = useState(clientData?.phone || '+7');
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [showAdditionalFields, setShowAdditionalFields] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -14,6 +85,21 @@ const NumberInputPadModal = () => {
     const [isNewClient, setIsNewClient] = useState(false); // Состояние для отображения сообщения о новом клиенте
     const [initialFormData, setInitialFormData] = useState(null); // Исходные данные формы
     const [form] = Form.useForm();
+
+    useEffect(() => {
+        window.clientSelectorSetPhone = (phone) => {
+            setInputValue(phone);
+            if (phone && phone.length >= 11) {
+                setShowAdditionalFields(true);
+                setIsLoading(false);
+                setShowNumberPad(false);
+
+                if (onClientChange) {
+                    onClientChange({ ...clientData, phone: phone });
+                }
+            }
+        };
+    }, [clientData, onClientChange]);
 
     const handleNumberClick = (number) => {
         setInputValue((prevValue) => prevValue + number);
@@ -195,6 +281,27 @@ const NumberInputPadModal = () => {
         setIsLoading(false); // Выключаем анимацию загрузки
     };
 
+    window.clientSelectorSetPhone = (phone) => {
+        setInputValue(phone);
+        if (phone && phone.length >= 11) {
+            setShowAdditionalFields(true);
+            setIsLoading(false);
+            setShowNumberPad(false);
+
+            // Если нужно сразу передать данные в order_data.client
+            window.clientSelectorFillFormData(JSON.stringify({
+                phone: phone,
+                // Остальные поля могут быть пустыми
+                name: '',
+                discount: '',
+                gender: '',
+                advertising: '',
+                birthDate: null,
+                email: ''
+            }));
+        }
+    };
+
     // Внешняя функция закрытия формы
     window.clientSelectorCloseForm = () => {
         setIsModalVisible(false);
@@ -203,7 +310,7 @@ const NumberInputPadModal = () => {
     return (
         <div>
             <Button onClick={showModal} icon={<UserOutlined />}>
-                Гость
+                {inputValue !== '+7' && inputValue.length >= 11 ? inputValue : 'Гость'}
             </Button>
 
             <Modal
@@ -350,7 +457,7 @@ const NumberInputPadModal = () => {
                                     </Form.Item>
 
                                     <Form.Item label="Дата рождения" name="birthDate">
-                                        <DatePicker
+                                        <DatePickerWithMask
                                             placeholder="Введите дату рождения"
                                             style={{ width: '100%', borderRadius: '8px' }}
                                             suffixIcon={<CalendarOutlined />}
