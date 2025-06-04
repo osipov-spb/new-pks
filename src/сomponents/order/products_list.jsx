@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Typography, InputNumber, Button, Popconfirm, message } from 'antd';
+import { Table, Typography, InputNumber, Button, Popconfirm, message, Row, Col, Pagination } from 'antd';
 import { Loading3QuartersOutlined, DeleteOutlined } from "@ant-design/icons";
 import './products_list.css';
 
@@ -10,28 +10,60 @@ class _ProductTable extends React.Component {
         super(props);
         this.state = {
             dataSource: [],
-            editingKey: null // Добавляем ключ редактируемой строки
+            editingKey: null,
+            pagination: {
+                current: 1,
+                pageSize: 5,
+            }
         };
     }
 
+    renderPagination = () => {
+        const { pagination, dataSource } = this.state;
+        const total = dataSource.length;
+        const { current, pageSize } = pagination;
+
+        return (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Button
+                    size="small"
+                    disabled={current === 1}
+                    onClick={() => this.handleTableChange({ current: current - 1, pageSize })}
+                >
+                    &lt;
+                </Button>
+                <span style={{ margin: '0 8px' }}>
+                    {current} / {Math.ceil(total / pageSize)}
+                </span>
+                <Button
+                    size="small"
+                    disabled={current === Math.ceil(total / pageSize) || total === 0}
+                    onClick={() => this.handleTableChange({ current: current + 1, pageSize })}
+                >
+                    &gt;
+                </Button>
+            </div>
+        );
+    };
+
+
     handleCountChange = (lineNumber, value) => {
-        // Если значение undefined или null (когда поле пустое)
         if (value === null || value === undefined) {
-            // Устанавливаем минимальное значение 1, но не удаляем позицию
             this.editItem(lineNumber, 'count', 1);
             return;
         }
 
-        // Если значение стало 0 или отрицательным
         if (value <= 0) {
-            // Устанавливаем минимальное значение 1
             this.editItem(lineNumber, 'count', 1);
             message.warning('Минимальное количество - 1');
             return;
         }
 
-        // Обычное изменение количества
         this.editItem(lineNumber, 'count', value);
+    };
+
+    handleTableChange = (pagination) => {
+        this.setState({ pagination });
     };
 
     componentDidMount() {
@@ -96,7 +128,6 @@ class _ProductTable extends React.Component {
                 item => item.lineNumber !== lineNumber
             );
 
-            // Перенумеруем оставшиеся строки
             return {
                 dataSource: newData.map((item, index) => ({
                     ...item,
@@ -112,12 +143,10 @@ class _ProductTable extends React.Component {
                 if (item.lineNumber === lineNumber) {
                     const updatedItem = { ...item, [pName]: pValue };
 
-                    // Если изменяется количество, пересчитываем сумму
                     if (pName === 'count') {
                         updatedItem.total = updatedItem.count * updatedItem.price;
                     }
 
-                    // Если изменяется цена, пересчитываем сумму
                     if (pName === 'price') {
                         updatedItem.total = updatedItem.count * updatedItem.price;
                     }
@@ -134,15 +163,9 @@ class _ProductTable extends React.Component {
         this.props.setItemsList(this.state.dataSource);
     };
 
-    handleCountChange = (lineNumber, value) => {
-        if (value > 0) {
-            this.editItem(lineNumber, 'count', value);
-        } else {
-            this.removeItem(lineNumber);
-        }
-    };
-
     render() {
+        const { dataSource, pagination } = this.state;
+
         const columns = [
             {
                 title: '№',
@@ -165,12 +188,12 @@ class _ProductTable extends React.Component {
                 width: 100,
                 render: (_, record) => (
                     <InputNumber
+                        disabled={this.props.disabled}
                         min={1}
                         max={999}
                         value={record.count}
                         onChange={(value) => this.handleCountChange(record.lineNumber, value)}
                         onBlur={() => {
-                            // При потере фокуса проверяем, что значение не пустое
                             if (!record.count || record.count < 1) {
                                 this.editItem(record.lineNumber, 'count', 1);
                             }
@@ -179,11 +202,9 @@ class _ProductTable extends React.Component {
                         style={{ width: '60px' }}
                         precision={0}
                         parser={(value) => {
-                            // Парсим только целые числа
                             return parseInt(value.replace(/[^\d]/g, '')) || 1;
                         }}
                         formatter={(value) => {
-                            // Форматируем без лишних символов
                             return `${value}`.replace(/[^\d]/g, '');
                         }}
                     />
@@ -212,19 +233,23 @@ class _ProductTable extends React.Component {
                 key: 'actions',
                 width: 80,
                 render: (_, record) => (
-                    <Popconfirm
-                        title="Удалить позицию?"
-                        onConfirm={() => this.removeItem(record.lineNumber)}
-                        okText="Да"
-                        cancelText="Нет"
-                    >
-                        <Button
-                            icon={<DeleteOutlined />}
-                            size="small"
-                            danger
-                            type="text"
-                        />
-                    </Popconfirm>
+                    <div style={{
+                            pointerEvents: this.props.disabled ? 'none' : 'auto'}}>
+                        <Popconfirm
+                            title="Удалить позицию?"
+                            onConfirm={() => this.removeItem(record.lineNumber)}
+                            okText="Да"
+                            cancelText="Нет"
+                        >
+                            <Button
+                                disabled={this.props.disabled}
+                                icon={<DeleteOutlined />}
+                                size="small"
+                                danger
+                                type="text"
+                            />
+                        </Popconfirm>
+                    </div>
                 )
             },
             {
@@ -242,21 +267,36 @@ class _ProductTable extends React.Component {
         ].filter(item => !item.hidden);
 
         return (
-            <div>
+            <div style={{visibility: this.props.hidden ? 'hidden' : 'visible'}}>
+                <Row
+                    align="middle"
+                    justify="space-between"
+                    style={{
+                        padding: '8px 16px',
+                        background: '#f5f5f5',
+                        borderBottom: '1px solid #e8e8e8'
+                    }}
+                >
+                    <Col>
+                        <Text strong style={{color: '#595959'}}>СПИСОК ТОВАРОВ</Text>
+                    </Col>
+                    <Col>
+                        {this.renderPagination()}
+                    </Col>
+                </Row>
                 <Table
                     size='small'
                     locale={{
                         emptyText: (
-                            <div><Loading3QuartersOutlined spin /> Пусто</div>
+                            <div><Loading3QuartersOutlined spin/> Пусто</div>
                         )
                     }}
-                    pagination={{
-                        defaultPageSize: 6,
-                        showSizeChanger: false,
-                        position: ['bottomRight']
-                    }}
+                    pagination={false}
                     columns={columns}
-                    dataSource={this.state.dataSource}
+                    dataSource={dataSource.slice(
+                        (pagination.current - 1) * pagination.pageSize,
+                        pagination.current * pagination.pageSize
+                    )}
                     bordered
                     rowKey="lineNumber"
                 />

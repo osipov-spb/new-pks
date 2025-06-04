@@ -185,57 +185,64 @@ class _OrderHeader extends React.Component {
                 </div>
 
                 {/* Панель с кнопками */}
-                <Row align="middle" justify="space-between">
-                    <Col>
-                        <Space size={6} wrap>
-                            <_PackageSwitch
-                                size="middle"
-                                updatePackage={this.props.updatePackage}
-                                initialPackageType={this.props.order_data.package}
-                            />
+                <div style={{
+                    pointerEvents: this.props.disabled ? 'none' : 'auto',
+                    opacity: this.props.disabled ? 0.5 : 1,
+                    cursor: this.props.disabled ? 'not-allowed' : 'default',
+                    visibility: this.props.hidden ? 'hidden' : 'default',
+                }} >
+                    <Row align="middle" justify="space-between">
+                        <Col>
+                            <Space size={6} wrap>
+                                <_PackageSwitch
+                                    size="middle"
+                                    updatePackage={this.props.updatePackage}
+                                    initialPackageType={this.props.order_data.package}
+                                />
 
-                            <Button
-                                size="middle"
-                                type={isTemporaryOrder ? 'primary' : 'default'}
-                                icon={<ClockCircleOutlined />}
-                                onClick={() => this.setState({ showDateTimePicker: true })}
-                            >
-                                {isTemporaryOrder && selectedDateTime ? (
-                                    selectedDateTime.format('DD.MM.YYYY HH:mm')
-                                ) : (
-                                    'Временной'
-                                )}
-                            </Button>
+                                <Button
+                                    size="middle"
+                                    type={isTemporaryOrder ? 'primary' : 'default'}
+                                    icon={<ClockCircleOutlined />}
+                                    onClick={() => this.setState({ showDateTimePicker: true })}
+                                >
+                                    {isTemporaryOrder && selectedDateTime ? (
+                                        selectedDateTime.format('DD.MM.YYYY HH:mm')
+                                    ) : (
+                                        'Временной'
+                                    )}
+                                </Button>
 
-                            <Button
-                                size="middle"
-                                type={this.state.isBSO ? 'primary' : 'default'}
-                                icon={<FileOutlined />}
-                                onClick={() => this.setState({ isBSO: !this.state.isBSO })}
-                            >
-                                БСО
-                            </Button>
+                                <Button
+                                    size="middle"
+                                    type={this.state.isBSO ? 'primary' : 'default'}
+                                    icon={<FileOutlined />}
+                                    onClick={() => this.setState({ isBSO: !this.state.isBSO })}
+                                >
+                                    БСО
+                                </Button>
 
-                            <PromoCodeModal size="middle" />
-                            <ClientSelectForm
-                                size="middle"
-                                clientData={this.props.order_data.client}
-                                onClientChange={this.props.updateClient}
-                            />
+                                <PromoCodeModal size="middle" />
+                                <ClientSelectForm
+                                    size="middle"
+                                    clientData={this.props.order_data.client}
+                                    onClientChange={this.props.updateClient}
+                                />
 
-                            <Button size="middle" icon={<PercentageOutlined />}>
-                                Акции
-                            </Button>
-                        </Space>
-                    </Col>
+                                <Button size="middle" icon={<PercentageOutlined />}>
+                                    Акции
+                                </Button>
+                            </Space>
+                        </Col>
 
-                    <Col>
-                        <Space size={6}>
-                            <Button size="middle" icon={<ProfileOutlined />}>Акт</Button>
-                            <Button size="middle" icon={<RollbackOutlined />}>Возврат</Button>
-                        </Space>
-                    </Col>
-                </Row>
+                        <Col>
+                            <Space size={6}>
+                                <Button size="middle" icon={<ProfileOutlined />}>Акт</Button>
+                                <Button size="middle" icon={<RollbackOutlined />}>Возврат</Button>
+                            </Space>
+                        </Col>
+                    </Row>
+                </div>
 
                 {/* Модальное окно выбора даты и времени */}
                 <Modal

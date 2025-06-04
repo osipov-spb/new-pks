@@ -30,29 +30,27 @@ class StatusButtons extends React.Component {
 
     render() {
         const { order_data } = this.props;
-        const showPrintButton = order_data && order_data.order_number;
+        // const showPrintButton = order_data && order_data.order_number;
 
         return (
             <div>
                 <Space direction={"horizontal"} size={"small"} style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                    {showPrintButton && (
-                        <Button
-                            icon={<PrinterOutlined />}
-                            href="#"
-                            data-button-id="order-print"
-                            style={{
-                                minWidth: '120px',
-                                height: '35px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'flex-start'
-                            }}
-                        >
-                            Печать
-                        </Button>
-                    )}
-
-                    {!showPrintButton && <div style={{ minWidth: '120px' }}></div>}
+                    <Button
+                        icon={<PrinterOutlined />}
+                        href="#"
+                        data-button-id="order-print"
+                        disabled={this.props.printDisabed}
+                        style={{
+                            minWidth: '120px',
+                            height: '35px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'flex-start',
+                            visibility: this.props.printHidden ? 'hidden' : 'visible',
+                        }}
+                    >
+                        Печать
+                    </Button>
 
                     <Space direction={"horizontal"} size={"small"}>
                         <Button
@@ -71,19 +69,26 @@ class StatusButtons extends React.Component {
                         >
                             Закрыть
                         </Button>
-
-                        <PaymentForm />
-
+                        <div style={{
+                            pointerEvents: this.props.payDisabed ? 'none' : 'auto',
+                            opacity: this.props.payDisabed ? 0.5 : 1,
+                            cursor: this.props.payDisabed ? 'not-allowed' : 'default',
+                            visibility: this.props.payHidden ? 'hidden' : 'visible',
+                        }}>
+                            <PaymentForm/>
+                        </div>
                         <Button
                             key='save-order-button'
                             href="#"
                             data-button-id="save-order"
+                            disabled={this.props.nextDisabed}
                             style={{
                                 minWidth: '120px',
                                 height: '35px',
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: 'space-between'
+                                justifyContent: 'space-between',
+                                visibility: this.props.nextHidden ? 'hidden' : 'visible',
                             }}
                         >
                             Далее
