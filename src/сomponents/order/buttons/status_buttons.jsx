@@ -1,8 +1,12 @@
 import React from "react";
-import { Button, Tag, Row, Col, Space, Modal } from 'antd';
-import { PercentageOutlined } from "@ant-design/icons";
+import { Button, Space, Modal } from 'antd';
+import {
+    CloseOutlined,
+    ArrowRightOutlined,
+    PrinterOutlined,
+    ShoppingCartOutlined
+} from '@ant-design/icons';
 import PaymentForm from "../payment/paymentForm";
-import ClientSelectForm from "../clientSelector/clientSelector";
 
 class StatusButtons extends React.Component {
     constructor(props) {
@@ -17,49 +21,77 @@ class StatusButtons extends React.Component {
     };
 
     handleConfirmClose = () => {
-        // Действие при подтверждении закрытия
-        //window.show_page('list');
         this.setState({ isConfirmModalVisible: false });
     };
 
     handleCancelClose = () => {
-        // Действие при отмене закрытия
         this.setState({ isConfirmModalVisible: false });
     };
 
     render() {
+        const { order_data } = this.props;
+        const showPrintButton = order_data && order_data.order_number;
+
         return (
             <div>
-                <Space direction={"horizontal"} size={"small"}>
-                    <Button
-                        key='close-order-button'
-                        onClick={this.showConfirmModal}
-                        type="primary"
-                        danger
-                        style={{
-                            minWidth: '120px',
-                            minHeight: '40px'
-                        }}
-                    >
-                        Закрыть
-                    </Button>
+                <Space direction={"horizontal"} size={"small"} style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                    {showPrintButton && (
+                        <Button
+                            icon={<PrinterOutlined />}
+                            href="#"
+                            data-button-id="order-print"
+                            style={{
+                                minWidth: '120px',
+                                height: '35px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'flex-start'
+                            }}
+                        >
+                            Печать
+                        </Button>
+                    )}
 
-                    <PaymentForm />
+                    {!showPrintButton && <div style={{ minWidth: '120px' }}></div>}
 
-                    <Button
-                        key='save-order-button'
-                        href="#"
-                        data-button-id="save-order"
-                        style={{
-                            minWidth: '120px',
-                            minHeight: '40px'
-                        }}
-                    >
-                        Далее
-                    </Button>
+                    <Space direction={"horizontal"} size={"small"}>
+                        <Button
+                            key='close-order-button'
+                            onClick={this.showConfirmModal}
+                            type="primary"
+                            danger
+                            icon={<CloseOutlined />}
+                            style={{
+                                minWidth: '120px',
+                                height: '35px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'flex-start'
+                            }}
+                        >
+                            Закрыть
+                        </Button>
+
+                        <PaymentForm />
+
+                        <Button
+                            key='save-order-button'
+                            href="#"
+                            data-button-id="save-order"
+                            style={{
+                                minWidth: '120px',
+                                height: '35px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between'
+                            }}
+                        >
+                            Далее
+                            {<ArrowRightOutlined />}
+                        </Button>
+                    </Space>
                 </Space>
 
-                {/* Модальное окно подтверждения */}
                 <Modal
                     title="Подтверждение действия"
                     visible={this.state.isConfirmModalVisible}
@@ -69,12 +101,14 @@ class StatusButtons extends React.Component {
                         <Button key="back" onClick={this.handleCancelClose}>
                             Нет
                         </Button>,
-                        <Button href="#"
-                                data-button-id="order-back"
-                                key="submit"
-                                type="primary"
-                                danger
-                                onClick={this.handleConfirmClose}>
+                        <Button
+                            href="#"
+                            data-button-id="order-back"
+                            key="submit"
+                            type="primary"
+                            danger
+                            onClick={this.handleConfirmClose}
+                        >
                             Да
                         </Button>,
                     ]}

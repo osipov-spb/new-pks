@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Tag } from 'antd';
+import {Typography, Tag, Space} from 'antd';
 import {
     ClockCircleOutlined,
     CheckCircleOutlined,
@@ -157,6 +157,7 @@ class _OrderTitle extends React.Component {
                     alignItems: 'center',
                     gap: '16px'
                 }}>
+                    <Space direction={"horizontal"} size={"middle"}>
                     {status && (
                         <Tag
                             icon={this.getStatusIcon(status)}
@@ -184,12 +185,15 @@ class _OrderTitle extends React.Component {
                             color: '#595959',
                             fontSize: '14px'
                         }}>
+                            <Space direction={"horizontal"} size={"small"}>
                             <CalendarOutlined/>
                             <Text type="secondary">
                                 {this.formatDate(date)}
                             </Text>
+                            </Space>
                         </div>
                     )}
+                    </Space>
                 </div>
             </div>
         );

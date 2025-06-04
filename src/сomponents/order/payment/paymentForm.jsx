@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Col, Row, Space, Input, Button, Modal } from 'antd';
-import { CreditCardOutlined, WalletOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Button, Modal, Row, Col, Space } from 'antd';
+import { CreditCardOutlined, WalletOutlined, DeleteOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 
 const PaymentForm = () => {
     const [total, setTotal] = useState(0);
@@ -8,7 +8,6 @@ const PaymentForm = () => {
     const [change, setChange] = useState(0);
     const [paymentType, setPaymentType] = useState('cash');
     const [isOn, setIsOn] = useState(false);
-
 
     useEffect(() => {
         window.payment_form_open = (total) => {
@@ -49,7 +48,7 @@ const PaymentForm = () => {
     };
 
     const handleBackspaceClick = () => {
-        const newCashInput = Math.floor(cashInput / 10); // Удаляем последний символ
+        const newCashInput = Math.floor(cashInput / 10);
         setCashInput(newCashInput);
         setChange(newCashInput - total);
     };
@@ -63,16 +62,24 @@ const PaymentForm = () => {
                 href="#"
                 data-button-id="payment"
                 type="primary"
-                style={{ minWidth: '120px', minHeight: '40px' }}
+                icon={<ShoppingCartOutlined />}
+                style={{
+                    minWidth: '120px',
+                    minHeight: '35px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start'
+                }}
             >
                 Оплатить
             </Button>
+
             <Modal
-                title={null} // Убираем заголовок
-                closable={false} // Убираем крестик
+                title={null}
+                closable={false}
                 open={isOn}
                 width={350}
-                footer={[ // Кастомный футер
+                footer={[
                     <Button key="cancel" onClick={() => setIsOn(false)}>Закрыть</Button>,
                     <Button
                         key="submit"
@@ -87,6 +94,7 @@ const PaymentForm = () => {
                     </Button>
                 ]}
             >
+                {/* Остальное содержимое модального окна остается без изменений */}
                 <div className="payment-summary">
                     <Row>
                         <Col span={11}>

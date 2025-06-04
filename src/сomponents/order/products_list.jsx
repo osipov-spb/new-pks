@@ -208,7 +208,7 @@ class _ProductTable extends React.Component {
                 )
             },
             {
-                title: 'Действия',
+                title: '',
                 key: 'actions',
                 width: 80,
                 render: (_, record) => (

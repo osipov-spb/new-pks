@@ -12,7 +12,7 @@ const { Text } = Typography;
 class _ProductsMenu extends React.Component {
     constructor(props) {
         super(props);
-        this.pageSize = 20;
+        this.pageSize = 16;
         this.menu = Array.isArray(props.items) ? props.items : [];
         this.state = {
             currentPath: [{
@@ -138,97 +138,93 @@ class _ProductsMenu extends React.Component {
                 item && item.title.toLowerCase().includes(searchQuery.toLowerCase()))
             : currentItems;
 
-
         return (
             <div style={{
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
-                overflow: "hidden"
+                overflow: 'hidden'
             }}>
                 {/* Хлебные крошки (без заголовка меню) */}
-                <Card
-                    bordered={false}
-                    style={{
-                        // marginBottom: '12px',
-                        // borderRadius: '4px',
-                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-                    }}
-                    bodyStyle={{padding: '12px'}}
-                >
-                    <div style={{display: 'flex', alignItems: 'center', flexWrap: 'wrap'}}>
-                        {currentPath.map((item, index) => item && (
-                            <MenuBreadcrumb
-                                key={index}
-                                title={item.title}
-                                updatePath={this.updatePath}
-                                openFolder={this.openFolder}
-                                level={item.level}
-                                itemIndex={item.index}
-                                isLast={index === currentPath.length - 1}
-                            />
-                        ))}
-                    </div>
-                </Card>
+                {!this.props.collapsed && (
+                    <>
+                        <Card
+                            bordered={false}
+                            style={{
+                                boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                            }}
+                            bodyStyle={{padding: '10px'}}
+                        >
+                            <div style={{display: 'flex', alignItems: 'center', flexWrap: 'wrap'}}>
+                                {currentPath.map((item, index) => item && (
+                                    <MenuBreadcrumb
+                                        key={index}
+                                        title={item.title}
+                                        updatePath={this.updatePath}
+                                        openFolder={this.openFolder}
+                                        level={item.level}
+                                        itemIndex={item.index}
+                                        isLast={index === currentPath.length - 1}
+                                    />
+                                ))}
+                            </div>
+                        </Card>
 
-                {/* Список товаров */}
-                <div style={{
-                    flex: 1,
-                    overflowY: 'auto',
-                    marginBottom: '20px',
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-                    gap: '4px 8px', // Горизонтальный 8px, вертикальный 4px
-                    padding: '2px',
-                    overflow: "hidden"
-                }}>
-                    {filteredItems.map((item, index) => item && (
-                        <div key={item.id} style={{
-                            margin: '0px 0px 0px 0px' // Уменьшаем вертикальные отступы
+                        {/* Список товаров */}
+                        <div style={{
+                            overflowY: 'auto',
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(4, 1fr)',
+                            padding: '10px',
+                            overflow: 'hidden'
                         }}>
-                            {!item.folder ? (
-                                <ItemButton
-                                    style={{padding: '4px'}} // Уменьшаем внутренние отступы
-                                    data={{
-                                        index: index,
-                                        id: item.id,
-                                        price: item.price,
-                                        discount: item.discount,
-                                        title: item.title
-                                    }}
-                                />
-                            ) : (
-                                <FolderButton
-                                    style={{padding: '4px'}} // Уменьшаем внутренние отступы
-                                    data={{
-                                        index: index,
-                                        id: item.id,
-                                        discount: item.discount,
-                                        title: item.title
-                                    }}
-                                    openFolder={this.openFolder}
-                                />
-                            )}
+                            {filteredItems.map((item, index) => item && (
+                                <div key={item.id} style={{width: '100%'}}>
+                                    {!item.folder ? (
+                                        <ItemButton
+                                            style={{width: '100%', padding: '4px'}}
+                                            data={{
+                                                index: index,
+                                                id: item.id,
+                                                price: item.price,
+                                                discount: item.discount,
+                                                title: item.title
+                                            }}
+                                        />
+                                    ) : (
+                                        <FolderButton
+                                            style={{width: '100%', padding: '4px'}}
+                                            data={{
+                                                index: index,
+                                                id: item.id,
+                                                discount: item.discount,
+                                                title: item.title
+                                            }}
+                                            openFolder={this.openFolder}
+                                        />
+                                    )}
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
 
-                {/* Пагинация */}
-                {items.length > this.pageSize && (
-                    <div style={{
-                        textAlign: 'center',
-                        padding: '8px',
-                        borderTop: '1px solid #f0f0f0'
-                    }}>
-                        <Pagination
-                            current={currentPage}
-                            onChange={this.changePage}
-                            total={items.length}
-                            pageSize={this.pageSize}
-                            showSizeChanger={false}
-                            showQuickJumper={false}
-                        />
-                    </div>
+                        {/* Пагинация */}
+                        {items.length > this.pageSize && (
+                            <div style={{
+                                textAlign: 'center',
+                                padding: '8px',
+                                borderTop: '1px solid #f0f0f0'
+                            }}>
+                                <Pagination
+                                    current={currentPage}
+                                    onChange={this.changePage}
+                                    total={items.length}
+                                    pageSize={this.pageSize}
+                                    showSizeChanger={false}
+                                    showQuickJumper={false}
+                                />
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         );

@@ -1,4 +1,4 @@
-import { Card, Col, Layout, Row, Typography, Input } from 'antd';
+import {Card, Col, Layout, Row, Typography, Input, Button} from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import React from 'react';
 import _ProductTable from "./products_list";
@@ -27,18 +27,19 @@ class Order extends React.Component {
                 ),
                 additionalParams: new OrderAdditionalInfo(),
                 menuType: 'products',
-                menuSearchQuery: ''
+                menuSearchQuery: '',
+                menuCollapsed: false // Добавлено новое состояние
             }
         } else {
             this.state = {
                 order_data: new _OrderData(JSON.parse(this.props.order_str)),
                 additionalParams: new OrderAdditionalInfo(JSON.parse(this.props.additionalParams)),
                 menuType: 'products',
-                menuSearchQuery: ''
+                menuSearchQuery: '',
+                menuCollapsed: false // Добавлено новое состояние
             }
         }
     }
-
 
     handleMenuSearch = (value) => {
         this.setState({ menuSearchQuery: value });
@@ -52,13 +53,9 @@ class Order extends React.Component {
     setItemsList = (itemsList) => {
         console.log("Updating items list:", itemsList);
 
-        // Создаем копию текущего состояния
         const newOrderData = { ...this.state.order_data };
-
-        // Обновляем список товаров
         newOrderData.items = itemsList;
 
-        // Пересчитываем сумму
         let summary = 0;
         itemsList.forEach((productItem) => {
             summary += productItem.total;
@@ -67,7 +64,6 @@ class Order extends React.Component {
         newOrderData.summary = summary;
         newOrderData.total = summary + (newOrderData.deliveryPrice || 0);
 
-        // Обновляем состояние
         this.setState({ order_data: newOrderData }, () => {
             console.log("State after update:", this.state.order_data);
         });
@@ -88,12 +84,9 @@ class Order extends React.Component {
     updateScheduledTime = (time) => {
         const newOrderData = { ...this.state.order_data };
         newOrderData.scheduledTime = time ? time.format() : null;
-
-        // Автоматически устанавливаем scheduled в true при наличии времени
         if (time) {
             newOrderData.scheduled = true;
         }
-
         this.setState({ order_data: newOrderData });
     }
 
@@ -126,34 +119,31 @@ class Order extends React.Component {
             if (window.clientSelectorSetPhone) {
                 window.clientSelectorSetPhone(phone);
             }
-            // Также обновляем order_data
             const newOrderData = { ...this.state.order_data };
             newOrderData.client = { ...newOrderData.client, phone: phone };
             this.setState({ order_data: newOrderData });
         };
-
     }
-
-
 
     render() {
         let menuComponent;
         if (this.state.menuType == 'products') {
             menuComponent = (
                 <div style={{
-                    width: '570px',
-                    height: '610px',
+                    flex: 1,
                     display: 'flex',
-                    flexDirection: 'column'
+                    flexDirection: 'column',
+                    overflow: 'hidden'
                 }}>
                     <div style={{
                         padding: '3px 12px',
                         background: '#fafafa',
                         borderBottom: '1px solid #f0f0f0',
-                        marginBottom: 8,
                         display: 'flex',
                         justifyContent: 'space-between',
-                        alignItems: 'center'
+                        // marginBottom: 'px',
+                        alignItems: 'center',
+                        overflow: 'hidden'
                     }}>
                         <Text strong style={{ color: '#595959' }}>МЕНЮ ТОВАРОВ</Text>
                         <Search
@@ -169,15 +159,13 @@ class Order extends React.Component {
                     <_ProductsMenu
                         items={this.state.additionalParams.menu}
                         searchQuery={this.state.menuSearchQuery}
-                        style={{ width: '100%' }}
                     />
                 </div>
             );
         } else if(this.state.menuType == 'promo') {
             menuComponent = (
                 <div style={{
-                    width: '570px',
-                    height: '610px',
+                    flex: 1,
                     display: 'flex',
                     flexDirection: 'column'
                 }}>
@@ -214,9 +202,17 @@ class Order extends React.Component {
             <Layout style={{
                 minHeight: '100vh',
                 background: '#fff',
-                padding: '0'
+                padding: '0',
+                display: 'flex',
+                flexDirection: 'column'
             }}>
-                <Content style={{ padding: '0', margin: 0 }}>
+                <Content style={{
+                    padding: '0',
+                    margin: 0,
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column'
+                }}>
                     <_OrderHeader
                         order_data={this.state.order_data}
                         updatePackage={this.updatePackageType}
@@ -224,15 +220,27 @@ class Order extends React.Component {
                         updateScheduledTime={this.updateScheduledTime}
                     />
 
-                    <Row gutter={[12, 12]} style={{ margin: '0', padding: '12px' }}>
-                        <Col xs={24} md={10}>
+                    <Row gutter={[12, 12]} style={{
+                        margin: '0',
+                        padding: '6px',
+                        flex: 1,
+                        display: 'flex'
+                    }}>
+                        <Col xs={24} md={10} style={{ display: 'flex', flexDirection: 'column' }}>
                             <Card
                                 bordered={false}
                                 style={{
                                     boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                                    height: '100%'
+                                    flex: 1,
+                                    display: 'flex',
+                                    flexDirection: 'column'
                                 }}
-                                bodyStyle={{ padding: 0 }}
+                                bodyStyle={{
+                                    padding: 0,
+                                    flex: 1,
+                                    display: 'flex',
+                                    flexDirection: 'column'
+                                }}
                             >
                                 <div style={{
                                     padding: '8px 16px',
@@ -243,7 +251,7 @@ class Order extends React.Component {
                                 </div>
                                 <div style={{
                                     padding: '8px',
-                                    height: 'calc(100vh - 340px)',
+                                    flex: 1,
                                     overflowY: 'auto'
                                 }}>
                                     <_ProductTable setItemsList={this.setItemsList} />
@@ -265,7 +273,6 @@ class Order extends React.Component {
                                         }}
                                     />
 
-                                    {/* Добавляем блок с суммами */}
                                     <div style={{
                                         display: 'flex',
                                         flexDirection: 'column',
@@ -291,23 +298,73 @@ class Order extends React.Component {
                             </Card>
                         </Col>
 
-                        <Col xs={24} md={14}>
+                        <Col xs={24} md={14} style={{ display: 'flex', flexDirection: 'column' }}>
                             <Card
                                 bordered={false}
                                 style={{
                                     boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                                    height: '100%'
+                                    flex: 1,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    overflow: 'hidden'
                                 }}
-                                bodyStyle={{ padding: 0 }}
+                                bodyStyle={{
+                                    padding: 0,
+                                    flex: 1,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    overflow: 'hidden'
+                                }}
                             >
-                                {menuComponent}
+                                <div style={{
+                                    flex: 1,
+                                    overflow: 'hidden',
+                                    display: 'flex',
+                                    flexDirection: 'column'
+                                }}>
+                                    {this.state.menuCollapsed ? (
+                                        <div style={{
+                                            padding: '12px',
+                                            textAlign: 'center',
+                                            borderBottom: '1px solid #f0f0f0'
+                                        }}>
+                                            <Button
+                                                type="primary"
+                                                onClick={() => this.setState({ menuCollapsed: false })}
+                                            >
+                                                Развернуть меню
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div style={{
+                                                padding: '8px',
+                                                background: '#fafafa',
+                                                borderBottom: '1px solid #f0f0f0',
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center'
+                                            }}>
+                                                <Text strong>Меню товаров</Text>
+                                                <Button
+                                                    type="primary"
+                                                    onClick={() => this.setState({ menuCollapsed: true })}
+                                                >
+                                                    Завершить выбор
+                                                </Button>
+                                            </div>
+                                            {menuComponent}
+                                        </>
+                                    )}
+                                </div>
 
                                 <div style={{
-                                    padding: '12px',
+                                    padding: '8px',
                                     borderTop: '1px solid #f0f0f0',
-                                    textAlign: 'right'
+                                    textAlign: 'right',
+                                    flexShrink: 0
                                 }}>
-                                    <StatusButtons />
+                                    <StatusButtons order_data={this.state.order_data} />
                                 </div>
                             </Card>
                         </Col>

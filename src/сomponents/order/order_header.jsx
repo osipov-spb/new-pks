@@ -166,6 +166,7 @@ class _OrderHeader extends React.Component {
 
     render() {
         const { isTemporaryOrder, selectedDateTime } = this.state;
+        const { order_data, updatePackage } = this.props;
 
         return (
             <div style={{
