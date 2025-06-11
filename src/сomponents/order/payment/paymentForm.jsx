@@ -84,6 +84,8 @@ const PaymentForm = () => {
                     <Button
                         key="submit"
                         type="primary"
+                        href="#"
+                        data-button-id="payment_confirm"
                         onClick={() => {
                             const returnData = {paymentType, operationType: 'income'};
                             setIsOn(false);

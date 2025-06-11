@@ -26,7 +26,7 @@ class _ProductTable extends React.Component {
         return (
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Button
-                    size="small"
+                    size="middle"
                     disabled={current === 1}
                     onClick={() => this.handleTableChange({ current: current - 1, pageSize })}
                 >
@@ -36,7 +36,7 @@ class _ProductTable extends React.Component {
                     {current} / {Math.ceil(total / pageSize)}
                 </span>
                 <Button
-                    size="small"
+                    size="middle"
                     disabled={current === Math.ceil(total / pageSize) || total === 0}
                     onClick={() => this.handleTableChange({ current: current + 1, pageSize })}
                 >
@@ -171,12 +171,13 @@ class _ProductTable extends React.Component {
                 title: '№',
                 dataIndex: 'lineNumber',
                 key: 'lineNumber',
-                width: 50,
+                width: 30,
             },
             {
                 title: 'Товары',
                 dataIndex: 'product_title',
                 key: 'product_title',
+                width: 200,
                 render: (_, { product_title }) => (
                     <div style={{ fontSize: '11px' }}>{product_title}</div>
                 )
@@ -190,7 +191,7 @@ class _ProductTable extends React.Component {
                     <InputNumber
                         disabled={this.props.disabled}
                         min={1}
-                        max={999}
+                        max={99}
                         value={record.count}
                         onChange={(value) => this.handleCountChange(record.lineNumber, value)}
                         onBlur={() => {
@@ -199,7 +200,7 @@ class _ProductTable extends React.Component {
                             }
                         }}
                         size="small"
-                        style={{ width: '60px' }}
+                        style={{ width: '50px' }}
                         precision={0}
                         parser={(value) => {
                             return parseInt(value.replace(/[^\d]/g, '')) || 1;
@@ -214,7 +215,7 @@ class _ProductTable extends React.Component {
                 title: 'Цена',
                 dataIndex: 'price',
                 key: 'price',
-                width: 100,
+                width: 80,
                 render: (_, { price }) => (
                     <div style={{ fontSize: '11px' }}>{price} ₽</div>
                 )
@@ -223,7 +224,7 @@ class _ProductTable extends React.Component {
                 title: 'Сумма',
                 dataIndex: 'total',
                 key: 'total',
-                width: 100,
+                width: 80,
                 render: (_, { total }) => (
                     <div style={{ fontSize: '11px' }}>{total} ₽</div>
                 )
@@ -231,7 +232,7 @@ class _ProductTable extends React.Component {
             {
                 title: '',
                 key: 'actions',
-                width: 80,
+                width: 45,
                 render: (_, record) => (
                     <div style={{
                             pointerEvents: this.props.disabled ? 'none' : 'auto'}}>

@@ -80,7 +80,7 @@ class StatusButtons extends React.Component {
                         <Button
                             key='save-order-button'
                             href="#"
-                            data-button-id="save-order"
+                            data-button-id="order-proceed"
                             disabled={this.props.nextDisabed}
                             style={{
                                 minWidth: '120px',

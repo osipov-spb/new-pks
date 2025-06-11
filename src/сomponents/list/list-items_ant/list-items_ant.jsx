@@ -25,7 +25,7 @@ class OrdersTable extends React.Component {
     }
 
     updateTableHeight = () => {
-        const height = window.innerHeight - 200; // Подстройте под ваш layout
+        const height = window.innerHeight - 165; // Подстройте под ваш layout
         this.setState({ tableHeight: Math.max(height, 300) });
     }
 

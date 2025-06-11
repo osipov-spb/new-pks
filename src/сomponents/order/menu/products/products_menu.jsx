@@ -1,13 +1,9 @@
 import React from 'react';
-import { Input, Pagination, Row, Col, Card, Typography } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { Pagination, Card } from 'antd';
 import MenuBreadcrumb from "./menu_breadcrumb";
 import ItemButton from "./item_button";
 import FolderButton from "./folder_button";
 import PropTypes from 'prop-types';
-
-const { Search } = Input;
-const { Text } = Typography;
 
 class _ProductsMenu extends React.Component {
     constructor(props) {
@@ -23,13 +19,28 @@ class _ProductsMenu extends React.Component {
             items: this.menu,
             currentPage: 1,
             currentItems: this.menu.slice(0, this.pageSize),
-            searchQuery: props.searchQuery || '' // Используем переданный поисковый запрос
+            searchResults: [],
+            isSearchMode: false,
+            prevPathBeforeSearch: null // Сохраняем путь до поиска
         };
+    }
+
+    searchItems = (query, items) => {
+        let results = [];
+
+        items.forEach(item => {
+            if (item.folder && item.children) {
+                results = [...results, ...this.searchItems(query, item.children)];
+            } else if (!item.folder && item.title.toLowerCase().includes(query.toLowerCase())) {
+                results.push(item);
+            }
+        });
+
+        return results;
     }
 
     updatePath = (e, level) => {
         let newPath = this.state.currentPath.slice(0, level + 1);
-        console.log(newPath)
         this.setState({
             currentPath: newPath
         })
@@ -37,16 +48,16 @@ class _ProductsMenu extends React.Component {
 
     changePage = (page) => {
         const start = (page - 1) * this.pageSize;
+        const itemsToShow = this.state.isSearchMode ? this.state.searchResults : this.state.items;
         this.setState({
             currentPage: page,
-            currentItems: this.state.items.slice(start, start + this.pageSize)
+            currentItems: itemsToShow.slice(start, start + this.pageSize)
         });
     };
 
     openFolder = (e, id = 0, fromBreadcrumb = false, pathIndex = 0) => {
         try {
             if (!fromBreadcrumb) {
-                // Клик по папке в списке
                 const clickedItem = this.state.currentItems.find(item => item && item.id === id);
                 if (!clickedItem || !clickedItem.children) return;
 
@@ -64,21 +75,20 @@ class _ProductsMenu extends React.Component {
                     currentItems: clickedItem.children.slice(0, this.pageSize),
                     currentPath: newPath,
                     currentPage: 1,
-                    searchQuery: ''
+                    isSearchMode: false,
+                    prevPathBeforeSearch: null
                 });
             } else {
-                // Навигация по хлебным крошкам
                 if (pathIndex === 'ROOT') {
-                    // Возврат в корень
                     this.setState({
                         items: this.menu,
                         currentItems: this.menu.slice(0, this.pageSize),
                         currentPath: [this.state.currentPath[0]],
                         currentPage: 1,
-                        searchQuery: ''
+                        isSearchMode: false,
+                        prevPathBeforeSearch: null
                     });
                 } else {
-                    // Переход на конкретный уровень
                     let currentMenu = this.menu;
                     const newPath = [this.state.currentPath[0]];
 
@@ -98,13 +108,13 @@ class _ProductsMenu extends React.Component {
                         currentItems: (currentMenu || []).slice(0, this.pageSize),
                         currentPath: newPath,
                         currentPage: 1,
-                        searchQuery: ''
+                        isSearchMode: false,
+                        prevPathBeforeSearch: null
                     });
                 }
             }
         } catch (error) {
             console.error('Navigation error:', error);
-            // Fallback to root on error
             this.setState({
                 items: this.menu,
                 currentItems: this.menu.slice(0, this.pageSize),
@@ -113,29 +123,71 @@ class _ProductsMenu extends React.Component {
                     index: 'ROOT',
                     title: 'Меню'
                 }],
-                currentPage: 1
+                currentPage: 1,
+                isSearchMode: false,
+                prevPathBeforeSearch: null
             });
         }
     };
 
-    handleSearch = (value) => {
-        this.setState({ searchQuery: value });
-    };
-
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps, prevState) {
         if (prevProps.searchQuery !== this.props.searchQuery) {
+            const query = this.props.searchQuery || '';
+
+            if (query.trim() === '') {
+                // Восстанавливаем состояние до поиска
+                this.setState({
+                    isSearchMode: false,
+                    currentItems: this.state.prevPathBeforeSearch?.items || this.menu.slice(0, this.pageSize),
+                    currentPage: 1,
+                    currentPath: this.state.prevPathBeforeSearch?.path || [{
+                        level: 0,
+                        index: 'ROOT',
+                        title: 'Меню'
+                    }],
+                    prevPathBeforeSearch: null
+                });
+            } else {
+                // Сохраняем текущее состояние перед поиском
+                if (!this.state.isSearchMode) {
+                    this.setState({
+                        prevPathBeforeSearch: {
+                            path: [...this.state.currentPath],
+                            items: [...this.state.items]
+                        }
+                    });
+                }
+
+                // Выполняем поиск
+                const searchResults = this.searchItems(query, this.menu);
+                this.setState({
+                    isSearchMode: true,
+                    searchResults: searchResults,
+                    currentItems: searchResults.slice(0, this.pageSize),
+                    currentPage: 1,
+                    currentPath: [{
+                        level: 0,
+                        index: 'ROOT',
+                        title: `Результаты поиска: "${query}"`
+                    }]
+                });
+            }
+        }
+
+        if (!this.state.isSearchMode && prevState.currentPage !== this.state.currentPage) {
+            const start = (this.state.currentPage - 1) * this.pageSize;
             this.setState({
-                searchQuery: this.props.searchQuery,
-                currentPage: 1
+                currentItems: this.state.items.slice(start, start + this.pageSize)
             });
         }
     }
 
     render() {
-        const { currentItems, currentPath, currentPage, items, searchQuery } = this.state;
-        const filteredItems = searchQuery
-            ? currentItems.filter(item =>
-                item && item.title.toLowerCase().includes(searchQuery.toLowerCase()))
+        const { currentItems, currentPath, currentPage, items, isSearchMode, searchResults } = this.state;
+
+        const itemsToShow = isSearchMode ? searchResults : items;
+        const filteredItems = isSearchMode
+            ? currentItems.filter(item => item && !item.folder)
             : currentItems;
 
         return (
@@ -145,7 +197,6 @@ class _ProductsMenu extends React.Component {
                 flexDirection: 'column',
                 overflow: 'hidden'
             }}>
-                {/* Хлебные крошки (без заголовка меню) */}
                 {!this.props.collapsed && (
                     <>
                         <Card
@@ -170,7 +221,6 @@ class _ProductsMenu extends React.Component {
                             </div>
                         </Card>
 
-                        {/* Список товаров */}
                         <div style={{
                             overflowY: 'auto',
                             display: 'grid',
@@ -191,7 +241,7 @@ class _ProductsMenu extends React.Component {
                                                 title: item.title
                                             }}
                                         />
-                                    ) : (
+                                    ) : !isSearchMode && (
                                         <FolderButton
                                             style={{width: '100%', padding: '4px'}}
                                             data={{
@@ -207,8 +257,7 @@ class _ProductsMenu extends React.Component {
                             ))}
                         </div>
 
-                        {/* Пагинация */}
-                        {items.length > this.pageSize && (
+                        {itemsToShow.length > this.pageSize && (
                             <div style={{
                                 textAlign: 'center',
                                 padding: '8px',
@@ -217,7 +266,7 @@ class _ProductsMenu extends React.Component {
                                 <Pagination
                                     current={currentPage}
                                     onChange={this.changePage}
-                                    total={items.length}
+                                    total={itemsToShow.length}
                                     pageSize={this.pageSize}
                                     showSizeChanger={false}
                                     showQuickJumper={false}
@@ -232,7 +281,9 @@ class _ProductsMenu extends React.Component {
 }
 
 _ProductsMenu.propTypes = {
-    items: PropTypes.array.isRequired
+    items: PropTypes.array.isRequired,
+    searchQuery: PropTypes.string,
+    collapsed: PropTypes.bool
 };
 
 export default _ProductsMenu;

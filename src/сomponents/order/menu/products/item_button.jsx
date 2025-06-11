@@ -81,9 +81,9 @@ class ItemButton extends React.Component {
                 }}>
                     <Row align="top">
                         <Col span={24}>
-                            <Tag color="#ffa940" ><div >{this.state.data.price} Р</div></Tag>
+                            <Tag color="#40a9ff" ><div >{this.state.data.price} ₽</div></Tag>
                                {this.state.data.discount ? (
-                                   <Tag color="red"><PercentageOutlined /></Tag>
+                                   <Tag color="#ff7a45"><PercentageOutlined /></Tag>
                                ) : null}
                         </Col>
 
