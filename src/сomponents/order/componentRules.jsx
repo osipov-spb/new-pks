@@ -17,7 +17,7 @@ export const componentRules = {
         hidden: (orderData) => false
     },
     statusButtonsPay: {
-        disabled: (orderData) => false,
+        disabled: (orderData) => orderData.paid,
         hidden: (orderData) => false
     },
     statusButtonsNext: {

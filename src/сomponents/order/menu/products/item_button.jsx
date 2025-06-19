@@ -28,33 +28,53 @@ class ItemButton extends React.Component {
         }
     }
 
-    FitString = (text) =>{
-        const firstPart = text.substring(0,8);
-        var secondPart = text.substring(8);
-        var  replacedSpace = secondPart.replace( " ",  " \n"); //text1.slice(0, 15) + " \n" + text1.slice(15);
-        if (replacedSpace.length > 15){
-            const firstPart2 = replacedSpace.substring(0,8);
-            var secondPart2 = replacedSpace.substring(8);
-            var  replacedSpace2 = secondPart2.replace( " ",  " \n");
-            if (replacedSpace2.length > 24){
-
-                return firstPart + firstPart2 + replacedSpace2.substring(0,21) + '...'
-            }
-            else{
-                return firstPart + firstPart2 + replacedSpace2;}
-        }else{
-            return firstPart + replacedSpace;
-        }
-    }
 
     BreakString = ({ text }) => {
-        const strArr = this.FitString(text).split("\n");
+        const MAX_LINE_LENGTH = 15; // Максимальная длина строки до переноса
+        const MAX_LINES = 3; // Максимальное количество строк
+        const ELLIPSIS = '...'; // Многоточие для обрезанного текста
+
+        // Функция для разбиения текста на строки
+        const splitTextIntoLines = (text) => {
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = words[0] || '';
+
+            for (let i = 1; i < words.length; i++) {
+                const word = words[i];
+                // Если текущая строка + следующее слово не превышают максимальную длину
+                if (currentLine.length + word.length + 1 <= MAX_LINE_LENGTH) {
+                    currentLine += ' ' + word;
+                } else {
+                    // Если достигли максимального количества строк
+                    if (lines.length + 1 >= MAX_LINES) {
+                        // Обрезаем текущую строку, если нужно
+                        const remainingLength = MAX_LINE_LENGTH - currentLine.length;
+                        if (word.length > remainingLength) {
+                            currentLine += ' ' + word.substring(0, remainingLength - ELLIPSIS.length) + ELLIPSIS;
+                        } else {
+                            currentLine += ' ' + word;
+                        }
+                        break;
+                    } else {
+                        lines.push(currentLine);
+                        currentLine = word;
+                    }
+                }
+            }
+
+            lines.push(currentLine);
+            return lines.slice(0, MAX_LINES); // Возвращаем не более MAX_LINES строк
+        };
+
+        const lines = splitTextIntoLines(text);
+
         return (
             <>
-                {strArr.map((str, index) => (
+                {lines.map((line, index) => (
                     <React.Fragment key={index}>
-                        {str}
-                        {index !== str.length - 1 && <br />}
+                        {line}
+                        {index !== lines.length - 1 && <br />}
                     </React.Fragment>
                 ))}
             </>

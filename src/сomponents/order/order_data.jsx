@@ -15,6 +15,8 @@ class _OrderData {
             summary: 0,
             total: 0,
             project: {},
+            address: {},
+            paid: false,
             items: []
         }
     )
@@ -32,6 +34,8 @@ class _OrderData {
         this.summary = ord_data.summary;
         this.total = ord_data.total;
         this.project = ord_data.project;
+        this.address = ord_data.address;
+        this.paid = ord_data.paid;
         this.items = ord_data.items;
     }
 

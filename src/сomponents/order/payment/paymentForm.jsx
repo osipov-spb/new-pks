@@ -78,9 +78,16 @@ const PaymentForm = () => {
                 title={null}
                 closable={false}
                 open={isOn}
-                width={350}
+                width={370}
                 footer={[
                     <Button key="cancel" onClick={() => setIsOn(false)}>Закрыть</Button>,
+                    <Button
+                        key="prodeed_no_payment"
+                        onClick={() => setIsOn(false)}
+                        href="#"
+                        data-button-id="prodeed_no_payment">
+                        Оплатить позже
+                    </Button>,
                     <Button
                         key="submit"
                         type="primary"
@@ -97,6 +104,10 @@ const PaymentForm = () => {
                 ]}
             >
                 {/* Остальное содержимое модального окна остается без изменений */}
+                <div
+                    style={{
+                        'padding': '10px'
+                    }}>
                 <div className="payment-summary">
                     <Row>
                         <Col span={11}>
@@ -173,6 +184,7 @@ const PaymentForm = () => {
                             <div style={{textAlign: 'right'}}>{change} ₽</div>
                         </Col>
                     </Row>
+                </div>
                 </div>
             </Modal>
         </>

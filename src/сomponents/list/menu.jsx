@@ -1,5 +1,6 @@
 import {Button, Col, Row, Space, Typography, Modal} from "antd";
 import {
+    ClockCircleOutlined,
     CompassOutlined,
     FilterOutlined,
     InfoCircleOutlined,
@@ -62,7 +63,6 @@ const _Menu = ({ projects = [] }) => { // Добавляем пропс projects
                                 </Button>
                             )}
 
-                            <Button icon={<FilterOutlined/>} size={size}/>
                             <_FunctionsButton/>
                             <Button href="#" data-button-id="menu-info" icon={<InfoCircleOutlined/>} size={size}>
                                 Инфо
@@ -73,6 +73,7 @@ const _Menu = ({ projects = [] }) => { // Добавляем пропс projects
                             <Button href="#" data-button-id="menu-stop" icon={<StopOutlined/>} size={size} danger>
                                 Стоп
                             </Button>
+                            <Button href="#" data-button-id="menu-sheduled-orders" icon={<ClockCircleOutlined />} size={size}/>
                         </Space>
                     </Space>
                 </Col>
