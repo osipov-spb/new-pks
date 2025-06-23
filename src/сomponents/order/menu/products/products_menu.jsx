@@ -293,7 +293,7 @@ class _ProductsMenu extends React.Component {
                                         <ItemButton
                                             style={{
                                                 width: '100%',
-                                                maxWidth: '125px', // Фиксированная максимальная ширина
+                                                maxWidth: '125px',
                                                 padding: '4px',
                                                 boxSizing: 'border-box'
                                             }}
@@ -303,6 +303,13 @@ class _ProductsMenu extends React.Component {
                                                 price: item.price,
                                                 discount: item.discount,
                                                 title: item.title
+                                            }}
+                                            onClick={() => {
+                                                if (window.orderAddItem) {
+                                                    window.orderAddItem(item.title, item.id, item.price);
+                                                } else {
+                                                    console.error('orderAddItem function not found');
+                                                }
                                             }}
                                         />
                                     ) : !isSearchMode && (

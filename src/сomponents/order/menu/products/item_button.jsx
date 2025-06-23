@@ -1,40 +1,26 @@
 import React from "react";
-import {Button, Tag, Row, Col} from 'antd'
-import {PercentageOutlined} from "@ant-design/icons";
+import { Button, Tag, Row, Col } from 'antd';
+import { PercentageOutlined } from "@ant-design/icons";
 
 class ItemButton extends React.Component {
     constructor(props) {
         super(props);
-        if (this.props.data==undefined){
-            this.state = {
-                data: {
-                    index: 0,
-                    id: 0,
-                    price: 0,
-                    discount: false,
-                    title: 'Без названия'
-                }
+        this.state = {
+            data: props.data || {
+                index: 0,
+                id: 0,
+                price: 0,
+                discount: false,
+                title: 'Без названия'
             }
-        }else {
-            this.state = {
-                data: {
-                    index: this.props.data.index,
-                    id: this.props.data.id,
-                    price: this.props.data.price,
-                    discount: this.props.data.discount,
-                    title: this.props.data.title
-                }
-            }
-        }
+        };
     }
 
-
     BreakString = ({ text }) => {
-        const MAX_LINE_LENGTH = 15; // Максимальная длина строки до переноса
-        const MAX_LINES = 3; // Максимальное количество строк
-        const ELLIPSIS = '...'; // Многоточие для обрезанного текста
+        const MAX_LINE_LENGTH = 15;
+        const MAX_LINES = 3;
+        const ELLIPSIS = '...';
 
-        // Функция для разбиения текста на строки
         const splitTextIntoLines = (text) => {
             const words = text.split(' ');
             const lines = [];
@@ -42,13 +28,10 @@ class ItemButton extends React.Component {
 
             for (let i = 1; i < words.length; i++) {
                 const word = words[i];
-                // Если текущая строка + следующее слово не превышают максимальную длину
                 if (currentLine.length + word.length + 1 <= MAX_LINE_LENGTH) {
                     currentLine += ' ' + word;
                 } else {
-                    // Если достигли максимального количества строк
                     if (lines.length + 1 >= MAX_LINES) {
-                        // Обрезаем текущую строку, если нужно
                         const remainingLength = MAX_LINE_LENGTH - currentLine.length;
                         if (word.length > remainingLength) {
                             currentLine += ' ' + word.substring(0, remainingLength - ELLIPSIS.length) + ELLIPSIS;
@@ -64,7 +47,7 @@ class ItemButton extends React.Component {
             }
 
             lines.push(currentLine);
-            return lines.slice(0, MAX_LINES); // Возвращаем не более MAX_LINES строк
+            return lines.slice(0, MAX_LINES);
         };
 
         const lines = splitTextIntoLines(text);
@@ -81,52 +64,76 @@ class ItemButton extends React.Component {
         );
     };
 
-    componentDidMount() {
-
-    }
+    handleClick = () => {
+        const { title, id, price } = this.state.data;
+        if (window.orderAddItem) {
+            window.orderAddItem(title, id, price);
+        } else {
+            console.error('orderAddItem function is not defined');
+        }
+    };
 
     render() {
+        const { data } = this.state;
+        const hasDiscount = Boolean(data.discount);
+
         return (
             <Button
-                key={this.state.data.index}
-                className={"style-btn"}
-                onClick={() => window.order_product_list_AddItem(this.state.data.title, this.state.data.id, this.state.data.price)}
+                onClick={this.handleClick}
+                style={{
+                    height: '80px',
+                    width: '125px',
+                    margin: '4px',
+                    padding: '6px 6px 4px 6px',
+                    border: '1px solid #e8e8e8',
+                    backgroundColor: '#fff',
+                    display: 'grid',
+                    gridTemplateRows: '1fr auto',
+                    gap: '4px',
+                    cursor: 'pointer',
+                    boxShadow: 'none',
+                    borderRadius: 0
+                }}
             >
                 <div style={{
-                    position: "absolute",
-                    top: "6%",
-                    left: "6%",
-                    width: "100%",
-                    height: "37%",
+                    fontSize: '11px',
+                    lineHeight: '1.2',
+                    textAlign: 'left',
+                    alignSelf: 'start',
+                    color: '#595959',
+                    borderBottom: '1px solid #f0f0f0',
+                    paddingBottom: '4px'
                 }}>
-                    <Row align="top">
-                        <Col span={24}>
-                            <Tag color="#40a9ff" ><div >{this.state.data.price} ₽</div></Tag>
-                               {this.state.data.discount ? (
-                                   <Tag color="#ff7a45"><PercentageOutlined /></Tag>
-                               ) : null}
-                        </Col>
-
-                    </Row>
+                    <this.BreakString text={data.title} />
                 </div>
+
                 <div style={{
-                    position: "absolute",
-                    top: "34%",
-                    width: "100%",
-                    height: "63%",
-                    textAlign: "center",
-                    padding: "5px 5px 5px 5px"
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
                 }}>
-                    <Row>
-                        <Col span={24}>
-                            <this.BreakString text={this.state.data.title}/>
-                        </Col>
-                    </Row>
+        <span style={{
+            fontSize: '13px',
+            fontWeight: '500',
+            color: '#262626'
+        }}>
+            {data.price} ₽
+        </span>
+                    {hasDiscount && (
+                        <span style={{
+                            fontSize: '10px',
+                            color: '#1890ff',
+                            border: '1px solid #1890ff',
+                            borderRadius: '2px',
+                            padding: '0 3px'
+                        }}>
+                акция
+            </span>
+                    )}
                 </div>
-
             </Button>
-        )
-    };
+        );
+    }
 }
 
-export default ItemButton
+export default ItemButton;

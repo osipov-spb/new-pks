@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Typography, InputNumber, Button, Popconfirm, message, Row, Col, Pagination } from 'antd';
+import { Table, Typography, InputNumber, Button, Popconfirm, message, Row, Col } from 'antd';
 import { Loading3QuartersOutlined, DeleteOutlined } from "@ant-design/icons";
 import './products_list.css';
 
@@ -9,8 +9,6 @@ class _ProductTable extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            dataSource: [],
-            editingKey: null,
             pagination: {
                 current: 1,
                 pageSize: 5,
@@ -18,8 +16,34 @@ class _ProductTable extends React.Component {
         };
     }
 
+    handleCountChange = (lineNumber, value) => {
+        if (value === null || value === undefined) {
+            window.orderEditItem?.(lineNumber, 'count', 1);
+            return;
+        }
+
+        if (value <= 0) {
+            window.orderEditItem?.(lineNumber, 'count', 1);
+            message.warning('Минимальное количество - 1');
+            return;
+        }
+
+        window.orderEditItem?.(lineNumber, 'count', value);
+    };
+
+    handleTableChange = (pagination) => {
+        this.setState({ pagination });
+    };
+
+    componentDidMount() {
+        if (window.orderLoadItems && this.props.dataSource) {
+            window.orderLoadItems(this.props.dataSource);
+        }
+    }
+
     renderPagination = () => {
-        const { pagination, dataSource } = this.state;
+        const { pagination } = this.state;
+        const { dataSource = [] } = this.props;
         const total = dataSource.length;
         const { current, pageSize } = pagination;
 
@@ -46,125 +70,9 @@ class _ProductTable extends React.Component {
         );
     };
 
-
-    handleCountChange = (lineNumber, value) => {
-        if (value === null || value === undefined) {
-            this.editItem(lineNumber, 'count', 1);
-            return;
-        }
-
-        if (value <= 0) {
-            this.editItem(lineNumber, 'count', 1);
-            message.warning('Минимальное количество - 1');
-            return;
-        }
-
-        this.editItem(lineNumber, 'count', value);
-    };
-
-    handleTableChange = (pagination) => {
-        this.setState({ pagination });
-    };
-
-    componentDidMount() {
-        window.order_product_list_AddItem = (product_title, product_id, price) => {
-            this.addOrUpdateItem(product_title, product_id, price);
-        };
-
-        window.order_product_list_RemoveItem = (lineNumber) => {
-            this.removeItem(lineNumber);
-        };
-
-        window.orderProductListLoadItems = (items) => {
-            this.setState({ dataSource: items }, () => {
-                this.updateParentItemsList();
-            });
-        };
-
-        window.order_product_list_EditItem = (lineNumber, pName, pValue) => {
-            this.editItem(lineNumber, pName, pValue);
-            return true;
-        };
-    }
-
-    addOrUpdateItem = (product_title, product_id, price) => {
-        this.setState(prevState => {
-            let newData = [...prevState.dataSource];
-            let added = false;
-
-            const existingItemIndex = newData.findIndex(
-                item => item.product_id === product_id && item.price === price
-            );
-
-            if (existingItemIndex >= 0) {
-                newData[existingItemIndex] = {
-                    ...newData[existingItemIndex],
-                    count: newData[existingItemIndex].count + 1,
-                    total: (newData[existingItemIndex].count + 1) * price
-                };
-                added = true;
-            }
-
-            if (!added) {
-                const lineNumber = (newData.length + 1).toString();
-                newData.push({
-                    lineNumber,
-                    product_title,
-                    count: 1,
-                    price,
-                    total: price,
-                    product_id,
-                    promo_id: null
-                });
-            }
-
-            return { dataSource: newData };
-        }, this.updateParentItemsList);
-    };
-
-    removeItem = (lineNumber) => {
-        this.setState(prevState => {
-            const newData = prevState.dataSource.filter(
-                item => item.lineNumber !== lineNumber
-            );
-
-            return {
-                dataSource: newData.map((item, index) => ({
-                    ...item,
-                    lineNumber: (index + 1).toString()
-                }))
-            };
-        }, this.updateParentItemsList);
-    };
-
-    editItem = (lineNumber, pName, pValue) => {
-        this.setState(prevState => {
-            const newData = prevState.dataSource.map(item => {
-                if (item.lineNumber === lineNumber) {
-                    const updatedItem = { ...item, [pName]: pValue };
-
-                    if (pName === 'count') {
-                        updatedItem.total = updatedItem.count * updatedItem.price;
-                    }
-
-                    if (pName === 'price') {
-                        updatedItem.total = updatedItem.count * updatedItem.price;
-                    }
-
-                    return updatedItem;
-                }
-                return item;
-            });
-            return { dataSource: newData };
-        }, this.updateParentItemsList);
-    };
-
-    updateParentItemsList = () => {
-        this.props.setItemsList(this.state.dataSource);
-    };
-
     render() {
-        const { dataSource, pagination } = this.state;
+        const { dataSource = [] } = this.props;
+        const { pagination } = this.state;
 
         const columns = [
             {
@@ -196,7 +104,7 @@ class _ProductTable extends React.Component {
                         onChange={(value) => this.handleCountChange(record.lineNumber, value)}
                         onBlur={() => {
                             if (!record.count || record.count < 1) {
-                                this.editItem(record.lineNumber, 'count', 1);
+                                window.orderEditItem?.(record.lineNumber, 'count', 1);
                             }
                         }}
                         size="small"
@@ -225,9 +133,23 @@ class _ProductTable extends React.Component {
                 dataIndex: 'total',
                 key: 'total',
                 width: 80,
-                render: (_, { total }) => (
-                    <div style={{ fontSize: '11px' }}>{total} ₽</div>
-                )
+                render: (_, { total, total_with_discount }) => {
+                    if (total_with_discount && total_with_discount < total) {
+                        return (
+                            <div style={{ fontSize: '11px' }}>
+                                <div style={{ textDecoration: 'line-through', color: '#999' }}>
+                                    {total} ₽
+                                </div>
+                                <div>
+                                    {total_with_discount} ₽
+                                </div>
+                            </div>
+                        );
+                    }
+                    return (
+                        <div style={{ fontSize: '11px' }}>{total} ₽</div>
+                    );
+                }
             },
             {
                 title: '',
@@ -235,10 +157,11 @@ class _ProductTable extends React.Component {
                 width: 45,
                 render: (_, record) => (
                     <div style={{
-                            pointerEvents: this.props.disabled ? 'none' : 'auto'}}>
+                        pointerEvents: this.props.disabled ? 'none' : 'auto'
+                    }}>
                         <Popconfirm
                             title="Удалить позицию?"
-                            onConfirm={() => this.removeItem(record.lineNumber)}
+                            onConfirm={() => window.orderRemoveItem?.(record.lineNumber)}
                             okText="Да"
                             cancelText="Нет"
                         >
@@ -264,11 +187,17 @@ class _ProductTable extends React.Component {
                 dataIndex: 'promo_id',
                 key: 'promo_id',
                 hidden: true
+            },
+            {
+                title: 'total_with_discount',
+                dataIndex: 'total_with_discount',
+                key: 'total_with_discount',
+                hidden: true
             }
         ].filter(item => !item.hidden);
 
         return (
-            <div style={{visibility: this.props.hidden ? 'hidden' : 'visible'}}>
+            <div style={{ visibility: this.props.hidden ? 'hidden' : 'visible' }}>
                 <Row
                     align="middle"
                     justify="space-between"
@@ -279,17 +208,17 @@ class _ProductTable extends React.Component {
                     }}
                 >
                     <Col>
-                        <Text strong style={{color: '#595959'}}>СПИСОК ТОВАРОВ</Text>
+                        <Text strong style={{ color: '#595959' }}>СПИСОК ТОВАРОВ</Text>
                     </Col>
                     <Col>
                         {this.renderPagination()}
                     </Col>
                 </Row>
                 <Table
-                    size='small'
+                    size="small"
                     locale={{
                         emptyText: (
-                            <div><Loading3QuartersOutlined spin/> Пусто</div>
+                            <div><Loading3QuartersOutlined spin /> Пусто</div>
                         )
                     }}
                     pagination={false}

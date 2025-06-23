@@ -1,4 +1,4 @@
-import {Card, Col, Layout, Row, Typography, Input, Button} from 'antd';
+import { Card, Col, Layout, Row, Typography, Input, Button } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import React from 'react';
 import _ProductTable from "./products_list";
@@ -9,6 +9,7 @@ import StatusButtons from "./buttons/status_buttons";
 import _PromoMenu from "./menu/promo/promo_menu";
 import OrderAdditionalInfo from "./orderAdditionalInfo";
 import { componentRules } from './componentRules';
+import OrderAddressBlock from "./orderAddressBlock";
 const { Search } = Input;
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -17,27 +18,33 @@ const { TextArea } = Input;
 class Order extends React.Component {
     constructor(props) {
         super(props);
-        if (this.props.order_str==undefined) {
+        if (this.props.order_str == undefined) {
             this.state = {
-                order_data: new _OrderData(
-                    {
-                        scheduled: false,
-                        scheduledTime: null
-                    }
-                ),
+                order_data: new _OrderData({
+                    scheduled: false,
+                    scheduledTime: null,
+                    items: [],
+                    summary: 0,
+                    total: 0,
+                    deliveryPrice: 0
+                }),
                 additionalParams: new OrderAdditionalInfo(),
                 menuType: 'products',
                 menuSearchQuery: '',
-                menuCollapsed: false // Добавлено новое состояние
-            }
+                menuCollapsed: false
+            };
         } else {
+            const parsedData = JSON.parse(this.props.order_str);
             this.state = {
-                order_data: new _OrderData(JSON.parse(this.props.order_str)),
+                order_data: new _OrderData({
+                    ...parsedData,
+                    items: parsedData.items || []
+                }),
                 additionalParams: new OrderAdditionalInfo(JSON.parse(this.props.additionalParams)),
                 menuType: 'products',
                 menuSearchQuery: '',
-                menuCollapsed: false // Добавлено новое состояние
-            }
+                menuCollapsed: false
+            };
         }
     }
 
@@ -58,40 +65,22 @@ class Order extends React.Component {
     };
 
     handleCommentChange = (e) => {
-        this.state.order_data.comment = e.target.value;
-        console.log(this.state.order_data.comment)
-    }
-
-    setItemsList = (itemsList) => {
-        console.log("Updating items list:", itemsList);
-
         const newOrderData = { ...this.state.order_data };
-        newOrderData.items = itemsList;
-
-        let summary = 0;
-        itemsList.forEach((productItem) => {
-            summary += productItem.total;
-        });
-
-        newOrderData.summary = summary;
-        newOrderData.total = summary + (newOrderData.deliveryPrice || 0);
-
-        this.setState({ order_data: newOrderData }, () => {
-            console.log("State after update:", this.state.order_data);
-        });
-    }
+        newOrderData.comment = e.target.value;
+        this.setState({ order_data: newOrderData });
+    };
 
     updatePackageType = (packageType) => {
         const newOrderData = { ...this.state.order_data };
         newOrderData.package = packageType;
         this.setState({ order_data: newOrderData });
-    }
+    };
 
     updateScheduledStatus = (isScheduled) => {
         const newOrderData = { ...this.state.order_data };
         newOrderData.scheduled = isScheduled;
         this.setState({ order_data: newOrderData });
-    }
+    };
 
     updateScheduledTime = (time) => {
         const newOrderData = { ...this.state.order_data };
@@ -100,7 +89,7 @@ class Order extends React.Component {
             newOrderData.scheduled = true;
         }
         this.setState({ order_data: newOrderData });
-    }
+    };
 
     updateClient = (clientData) => {
         const newOrderData = { ...this.state.order_data };
@@ -108,33 +97,165 @@ class Order extends React.Component {
         this.setState({ order_data: newOrderData });
     };
 
+    addOrUpdateItem = (product_title, product_id, price) => {
+        this.setState(prevState => {
+            const items = [...prevState.order_data.items];
+            const existingIndex = items.findIndex(
+                item => item.product_id === product_id && item.price === price
+            );
+
+            if (existingIndex >= 0) {
+                items[existingIndex] = {
+                    ...items[existingIndex],
+                    count: items[existingIndex].count + 1,
+                    total: (items[existingIndex].count + 1) * price
+                };
+            } else {
+                items.push({
+                    lineNumber: (items.length + 1).toString(),
+                    product_title,
+                    count: 1,
+                    price,
+                    total: price,
+                    product_id,
+                    promo_id: null
+                });
+            }
+
+            return {
+                order_data: {
+                    ...prevState.order_data,
+                    items
+                }
+            };
+        }, this.updateSummary);
+    };
+
+    removeItem = (lineNumber) => {
+        this.setState(prevState => {
+            const items = prevState.order_data.items
+                .filter(item => item.lineNumber !== lineNumber)
+                .map((item, index) => ({
+                    ...item,
+                    lineNumber: (index + 1).toString()
+                }));
+
+            return {
+                order_data: {
+                    ...prevState.order_data,
+                    items
+                }
+            };
+        }, this.updateSummary);
+    };
+
+    editItem = (lineNumber, field, value) => {
+        this.setState(prevState => {
+            const items = prevState.order_data.items.map(item => {
+                if (item.lineNumber === lineNumber) {
+                    const updated = { ...item, [field]: value };
+                    if (field === 'count' || field === 'price') {
+                        updated.total = updated.count * updated.price;
+                    }
+                    return updated;
+                }
+                return item;
+            });
+
+            return {
+                order_data: {
+                    ...prevState.order_data,
+                    items
+                }
+            };
+        }, this.updateSummary);
+    };
+
+    updateSummary = () => {
+        const { items = [], deliveryPrice = 0 } = this.state.order_data;
+        const summary = items.reduce((sum, item) => sum + (item.total || 0), 0);
+
+        this.setState(prevState => ({
+            order_data: {
+                ...prevState.order_data,
+                summary,
+                total: summary + deliveryPrice
+            }
+        }));
+    };
+
+    updateCourier = (courier) => {
+        const newOrderData = { ...this.state.order_data };
+        newOrderData.courier = courier;
+        this.setState({ order_data: newOrderData });
+    };
+
     componentDidMount() {
         window.get_order_data = () => {
-            return JSON.stringify(this.state.order_data)
-        }
+            return JSON.stringify(this.state.order_data);
+        };
+
+        window.orderAddItem = this.addOrUpdateItem;
+        window.orderRemoveItem = this.removeItem;
+        window.orderEditItem = this.editItem;
+        window.orderLoadItems = (items) => {
+            this.setState(prevState => ({
+                order_data: {
+                    ...prevState.order_data,
+                    items
+                }
+            }), this.updateSummary);
+        };
+
+        window.updateOrderData = (orderDataStr) => {
+            try {
+                const data = JSON.parse(orderDataStr);
+                this.setState({
+                    order_data: new _OrderData({
+                        ...this.state.order_data,
+                        ...data,
+                        items: data.items || this.state.order_data.items
+                    })
+                }, this.updateSummary);
+            } catch (e) {
+                console.error('Update error:', e);
+            }
+        };
 
         window.setPromoList = (promoList) => {
-            this.state.additionalParams.promoList = JSON.parse(promoList)
-        }
+            const newAdditionalParams = { ...this.state.additionalParams };
+            newAdditionalParams.promoList = JSON.parse(promoList);
+            this.setState({ additionalParams: newAdditionalParams });
+        };
 
-        window.changeMenuType = (menuType) =>{
-            this.setState({
-                menuType: menuType
-            })
-        }
+        window.changeMenuType = (menuType) => {
+            this.setState({ menuType });
+        };
 
         window.updateAdditionalInfo = (key, value) => {
-            this.state.additionalParams[key] = JSON.parse(value);
-        }
+            const newAdditionalParams = { ...this.state.additionalParams };
+            newAdditionalParams[key] = JSON.parse(value);
+            this.setState({ additionalParams: newAdditionalParams });
+        };
 
         window.set_client_phone = (phone) => {
             if (window.clientSelectorSetPhone) {
                 window.clientSelectorSetPhone(phone);
             }
             const newOrderData = { ...this.state.order_data };
-            newOrderData.client = { ...newOrderData.client, phone: phone };
+            newOrderData.client = { ...newOrderData.client, phone };
             this.setState({ order_data: newOrderData });
         };
+
+        window.setSelectedCourier = (courierStr) => {
+            try {
+                const courier = JSON.parse(courierStr);
+                this.updateCourier(courier);
+            } catch (e) {
+                console.error('Failed to parse courier data:', e);
+            }
+        };
+
     }
 
     render() {
@@ -148,7 +269,6 @@ class Order extends React.Component {
                         borderBottom: '1px solid #f0f0f0',
                         display: 'flex',
                         justifyContent: 'space-between',
-                        // marginBottom: 'px',
                         alignItems: 'center',
                         overflow: 'hidden'
                     }}>
@@ -165,6 +285,8 @@ class Order extends React.Component {
                         />
                         <Button
                             type="primary"
+                            href="#"
+                            data-button-id="products-confirm"
                             onClick={() => this.setState({ menuCollapsed: true })}
                         >
                             Подтвердить
@@ -187,7 +309,6 @@ class Order extends React.Component {
             );
         } else if (this.state.menuType == 'promo') {
             menuComponent = (
-
                 <div style={{
                     flex: 1,
                     display: 'flex',
@@ -208,14 +329,14 @@ class Order extends React.Component {
                             allowClear
                             enterButton={<SearchOutlined />}
                             size="middle"
-                            onSearch={this.handlePromoSearch}
-                            onChange={(e) => this.handlePromoSearch(e.target.value)}
+                            onSearch={this.handleMenuSearch}
+                            onChange={(e) => this.handleMenuSearch(e.target.value)}
                             style={{ width: 200 }}
                         />
                     </div>
                     <_PromoMenu
                         items={this.state.additionalParams.promoList}
-                        searchQuery={this.state.promoSearchQuery}
+                        searchQuery={this.state.menuSearchQuery}
                         style={{ width: '100%' }}
                     />
                 </div>
@@ -274,11 +395,19 @@ class Order extends React.Component {
                                     overflow: "hidden"
                                 }}>
                                     <_ProductTable
-                                        setItemsList={this.setItemsList}
+                                        dataSource={this.state.order_data.items}
                                         disabled={this.isComponentDisabled('productTable')}
                                         hidden={this.isComponentHidden('productTable')}
                                     />
                                 </div>
+
+                                <OrderAddressBlock
+                                    address={this.state.order_data.address}
+                                    courier={this.state.order_data.courier}
+                                    onCourierChange={this.updateCourier}
+                                    disabled={this.isComponentDisabled('addressBlock')}
+                                    hidden={this.isComponentHidden('addressBlock')}
+                                />
 
                                 <div style={{
                                     padding: '12px',
@@ -287,7 +416,7 @@ class Order extends React.Component {
                                     <TextArea
                                         rows={2}
                                         placeholder="Введите примечание к заказу"
-                                        defaultValue={this.state.order_data.comment}
+                                        value={this.state.order_data.comment || ''}
                                         onChange={this.handleCommentChange}
                                         style={{
                                             width: '100%',
@@ -352,14 +481,13 @@ class Order extends React.Component {
                                             borderBottom: '1px solid #f0f0f0',
                                             display: 'flex',
                                             justifyContent: 'space-between',
-                                            // marginBottom: 'px',
                                             alignItems: 'center',
                                             overflow: 'hidden'
                                         }}>
-                                            <Text strong style={{color: '#595959'}}>МЕНЮ ТОВАРОВ</Text>
+                                            <Text strong style={{ color: '#595959' }}>МЕНЮ ТОВАРОВ</Text>
                                             <Button
                                                 type="primary"
-                                                onClick={() => this.setState({menuCollapsed: false})}
+                                                onClick={() => this.setState({ menuCollapsed: false })}
                                             >
                                                 Развернуть меню
                                             </Button>

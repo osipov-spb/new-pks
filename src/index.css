@@ -45,8 +45,8 @@ body {
   /*font-weight: 400;*/
   text-align: center;
   transition: all 0.2s;
-  line-height: 110%;
-  border-radius: 10px;
+  line-height: 100%;
+  border-radius: 0px;
 
   /*word-wrap: break-word;*/
   /*word-wrap: normal;*/

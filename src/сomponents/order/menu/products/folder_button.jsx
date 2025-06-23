@@ -1,39 +1,26 @@
 import React from "react";
-import {Button, Tag, Row, Col} from 'antd'
-import {FolderOpenOutlined, PercentageOutlined} from "@ant-design/icons";
+import { Button, Tag, Row, Col } from 'antd';
+import {FolderOpenOutlined, FolderOutlined, PercentageOutlined} from "@ant-design/icons";
 
 class FolderButton extends React.Component {
     constructor(props) {
         super(props);
-        if (this.props.data==undefined){
-            this.state = {
-                data: {
-                    index: 0,
-                    // price: 0,
-                    discount: false,
-                    title: 'Без названия',
-                    openFolder: undefined
-                }
-            }
-        }else {
-            this.state = {
-                data: {
-                    id: this.props.data.id,
-                    // price: this.props.data.price,
-                    discount: this.props.data.discount,
-                    title: this.props.data.title,
-                    openFolder: this.props.openFolder
-                }
-            }
-        }
+        this.state = {
+            data: props.data || {
+                index: 0,
+                id: 0,
+                discount: false,
+                title: 'Без названия'
+            },
+            openFolder: props.openFolder
+        };
     }
 
     BreakString = ({ text }) => {
-        const MAX_LINE_LENGTH = 15; // Максимальная длина строки до переноса
-        const MAX_LINES = 3; // Максимальное количество строк
-        const ELLIPSIS = '...'; // Многоточие для обрезанного текста
+        const MAX_LINE_LENGTH = 15;
+        const MAX_LINES = 3;
+        const ELLIPSIS = '...';
 
-        // Функция для разбиения текста на строки
         const splitTextIntoLines = (text) => {
             const words = text.split(' ');
             const lines = [];
@@ -41,13 +28,10 @@ class FolderButton extends React.Component {
 
             for (let i = 1; i < words.length; i++) {
                 const word = words[i];
-                // Если текущая строка + следующее слово не превышают максимальную длину
                 if (currentLine.length + word.length + 1 <= MAX_LINE_LENGTH) {
                     currentLine += ' ' + word;
                 } else {
-                    // Если достигли максимального количества строк
                     if (lines.length + 1 >= MAX_LINES) {
-                        // Обрезаем текущую строку, если нужно
                         const remainingLength = MAX_LINE_LENGTH - currentLine.length;
                         if (word.length > remainingLength) {
                             currentLine += ' ' + word.substring(0, remainingLength - ELLIPSIS.length) + ELLIPSIS;
@@ -63,7 +47,7 @@ class FolderButton extends React.Component {
             }
 
             lines.push(currentLine);
-            return lines.slice(0, MAX_LINES); // Возвращаем не более MAX_LINES строк
+            return lines.slice(0, MAX_LINES);
         };
 
         const lines = splitTextIntoLines(text);
@@ -80,50 +64,79 @@ class FolderButton extends React.Component {
         );
     };
 
-    componentDidMount() {
-
-    }
+    handleClick = (e) => {
+        if (this.state.openFolder) {
+            this.state.openFolder(e, this.state.data.id);
+        }
+    };
 
     render() {
+        const { data } = this.state;
+        const hasDiscount = Boolean(data.discount);
+
         return (
             <Button
-                key={this.state.data.index}
-                className={"style-btn"}
-                onClick={(e) => {this.state.data.openFolder(e, this.state.data.id)}}
+                onClick={this.handleClick}
+                style={{
+                    height: '80px',
+                    width: '125px',
+                    margin: '4px',
+                    padding: '6px 6px 4px 6px',
+                    border: '1px solid #e8e8e8',
+                    backgroundColor: '#fff',
+                    display: 'grid',
+                    gridTemplateRows: '1fr auto',
+                    gap: '4px',
+                    cursor: 'pointer',
+                    boxShadow: 'none',
+                    borderRadius: 0
+                }}
             >
-                {/*<div style={{*/}
-                {/*    position: "absolute",*/}
-                {/*    top: "6%",*/}
-                {/*    left: "6%",*/}
-                {/*    width: "100%",*/}
-                {/*    height: "37%",*/}
-                {/*}}>*/}
-                {/*    <Row align="top">*/}
-                {/*        /!*<Col span={23}>*!/*/}
-                {/*        /!*    *!/*/}
-                {/*        /!*</Col>*!/*/}
-
-                {/*    </Row>*/}
-                {/*</div>*/}
                 <div style={{
-                    // position: "absolute",
-                    // top: "34%",
-                    // width: "100%",
-                    // height: "100%",
-                    // textAlign: "center",
-                    // padding: "5px 5px 5px 5px"
+                    fontSize: '11px',
+                    lineHeight: '1.2',
+                    textAlign: 'left',
+                    alignSelf: 'start',
+                    color: '#595959',
+                    borderBottom: '1px solid #f0f0f0',
+                    paddingBottom: '4px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start'
                 }}>
-                    <Row>
-                        <Col span={24}>
-                            {/*<Tag><FolderOpenOutlined /></Tag>*/}
-                            <this.BreakString text={this.state.data.title}/>
-                        </Col>
-                    </Row>
+                    <FolderOutlined style={{
+                        fontSize: '14px',
+                        color: '#8c8c8c',
+                        marginBottom: '4px'
+                    }} />
+                    <this.BreakString text={data.title} />
                 </div>
 
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}>
+                    <span style={{
+                        fontSize: '11px',
+                        color: '#8c8c8c',
+                        fontStyle: 'italic'
+                    }}>
+                        {data.itemsCount || 'папка'}
+                    </span>
+                    <span style={{
+                        fontSize: '10px',
+                        color: '#1890ff',
+                        border: '1px solid #1890ff',
+                        borderRadius: '2px',
+                        padding: '0 3px'
+                    }}>
+                        →
+                    </span>
+                </div>
             </Button>
-        )
-    };
+        );
+    }
 }
 
-export default FolderButton
+export default FolderButton;

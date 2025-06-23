@@ -3,24 +3,43 @@ import { Button, Space, Modal } from 'antd';
 import {
     CloseOutlined,
     ArrowRightOutlined,
-    PrinterOutlined,
-    ShoppingCartOutlined
+    PrinterOutlined
 } from '@ant-design/icons';
 import PaymentForm from "../payment/paymentForm";
+import { isEqual } from 'lodash';
 
 class StatusButtons extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isConfirmModalVisible: false
-        }
+            isConfirmModalVisible: false,
+            initialOrderData: props.order_data ? { ...props.order_data } : null
+        };
     }
 
     showConfirmModal = () => {
-        this.setState({ isConfirmModalVisible: true });
+        const { order_data } = this.props;
+        const { initialOrderData } = this.state;
+
+        const hasChanges = !isEqual(order_data, initialOrderData);
+
+        if (hasChanges) {
+            this.setState({ isConfirmModalVisible: true });
+        } else {
+            // Если изменений не было, сразу выполняем действие закрытия
+            window.location.href = "#";
+            if (typeof this.props.onClose === 'function') {
+                this.props.onClose();
+            }
+        }
     };
 
     handleConfirmClose = () => {
+        // Выполняем действие закрытия
+        window.location.href = "#";
+        if (typeof this.props.onClose === 'function') {
+            this.props.onClose();
+        }
         this.setState({ isConfirmModalVisible: false });
     };
 
@@ -30,7 +49,8 @@ class StatusButtons extends React.Component {
 
     render() {
         const { order_data } = this.props;
-        // const showPrintButton = order_data && order_data.order_number;
+        const { isConfirmModalVisible, initialOrderData } = this.state;
+        const hasChanges = !isEqual(order_data, initialOrderData);
 
         return (
             <div>
@@ -53,22 +73,43 @@ class StatusButtons extends React.Component {
                     </Button>
 
                     <Space direction={"horizontal"} size={"small"}>
-                        <Button
-                            key='close-order-button'
-                            onClick={this.showConfirmModal}
-                            type="primary"
-                            danger
-                            icon={<CloseOutlined />}
-                            style={{
-                                minWidth: '120px',
-                                height: '35px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'flex-start'
-                            }}
-                        >
-                            Закрыть
-                        </Button>
+                        {hasChanges ? (
+                            <Button
+                                key='close-order-button'
+                                onClick={this.showConfirmModal}
+                                type="primary"
+                                danger
+                                icon={<CloseOutlined />}
+                                style={{
+                                    minWidth: '120px',
+                                    height: '35px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'flex-start'
+                                }}
+                            >
+                                Закрыть
+                            </Button>
+                        ) : (
+                            <Button
+                                key='close-order-button'
+                                href="#"
+                                data-button-id="order-back"
+                                type="primary"
+                                danger
+                                icon={<CloseOutlined />}
+                                style={{
+                                    minWidth: '120px',
+                                    height: '35px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'flex-start'
+                                }}
+                            >
+                                Закрыть
+                            </Button>
+                        )}
+
                         <div style={{
                             pointerEvents: this.props.payDisabed ? 'none' : 'auto',
                             opacity: this.props.payDisabed ? 0.5 : 1,
@@ -99,8 +140,7 @@ class StatusButtons extends React.Component {
 
                 <Modal
                     title="Подтверждение действия"
-                    visible={this.state.isConfirmModalVisible}
-                    onOk={this.handleConfirmClose}
+                    visible={isConfirmModalVisible}
                     onCancel={this.handleCancelClose}
                     footer={[
                         <Button key="back" onClick={this.handleCancelClose}>
@@ -108,17 +148,17 @@ class StatusButtons extends React.Component {
                         </Button>,
                         <Button
                             href="#"
-                            data-button-id="order-back"
+                            data-button-id="order-back-confirm"
                             key="submit"
                             type="primary"
                             danger
-                            onClick={this.handleConfirmClose}
                         >
                             Да
                         </Button>,
                     ]}
                 >
                     <p>Вы действительно хотите прервать оформление заказа?</p>
+                    <p>Все несохраненные изменения будут потеряны.</p>
                 </Modal>
             </div>
         )

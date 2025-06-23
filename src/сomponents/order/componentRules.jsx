@@ -1,19 +1,25 @@
+import OrderAddressBlock from "./orderAddressBlock";
+
 export const componentRules = {
     // Правила для _ProductsMenu
     productsMenu: {
         disabled: (orderData) => {
-            return orderData.status;
+            return orderData.id != '';
         },
         hidden: (orderData) => {
             return false;
         }
     },
     orderHeader: {
-        disabled: (orderData) => orderData.status,
+        disabled: (orderData) => {
+            return orderData.id != '';
+        },
         hidden: (orderData) => false
     },
     statusButtonsPrint: {
-        disabled: (orderData) => !orderData.status,
+        disabled: (orderData) => {
+            return orderData.id === '';
+        },
         hidden: (orderData) => false
     },
     statusButtonsPay: {
@@ -25,8 +31,12 @@ export const componentRules = {
         hidden: (orderData) => false
     },
     productTable: {
-        disabled: (orderData) => orderData.status,
+        disabled: (orderData) => orderData.id,
         hidden: (orderData) => false
+    },
+    addressBlock: {
+        disabled: (orderData) => false,
+        hidden: (orderData) => orderData.package != 'delivery'
     },
     // ... другие компоненты
 };
