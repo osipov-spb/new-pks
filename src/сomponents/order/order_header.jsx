@@ -178,6 +178,7 @@ class _OrderHeader extends React.Component {
                 <div style={{ marginBottom: 8 }}>
                     <_OrderTitle
                         order_number={this.props.order_data.order_number}
+                        deleted={this.props.order_data.deleted}
                         status={this.props.order_data.status}
                         date={this.props.order_data.date}
                         project={this.props.order_data.project}
@@ -213,14 +214,14 @@ class _OrderHeader extends React.Component {
                                     )}
                                 </Button>
 
-                                <Button
-                                    size="middle"
-                                    type={this.state.isBSO ? 'primary' : 'default'}
-                                    icon={<FileOutlined />}
-                                    onClick={() => this.setState({ isBSO: !this.state.isBSO })}
-                                >
-                                    БСО
-                                </Button>
+                                {/*<Button*/}
+                                {/*    size="middle"*/}
+                                {/*    type={this.state.isBSO ? 'primary' : 'default'}*/}
+                                {/*    icon={<FileOutlined />}*/}
+                                {/*    onClick={() => this.setState({ isBSO: !this.state.isBSO })}*/}
+                                {/*>*/}
+                                {/*    БСО*/}
+                                {/*</Button>*/}
 
                                 <PromoCodeModal size="middle" />
                                 <ClientSelectForm
@@ -229,9 +230,9 @@ class _OrderHeader extends React.Component {
                                     onClientChange={this.props.updateClient}
                                 />
 
-                                <Button size="middle" icon={<PercentageOutlined />}>
-                                    Акции
-                                </Button>
+                                {/*<Button size="middle" icon={<PercentageOutlined />}>*/}
+                                {/*    Акции*/}
+                                {/*</Button>*/}
                             </Space>
                         </Col>
 

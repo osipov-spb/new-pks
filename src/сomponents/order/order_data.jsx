@@ -18,6 +18,7 @@ class _OrderData {
             address: {},
             paid: false,
             courier: null,
+            deleted: false,
             items: []
 
         }
@@ -39,6 +40,7 @@ class _OrderData {
         this.address = ord_data.address;
         this.paid = ord_data.paid;
         this.courier = ord_data.courier;
+        this.deleted = ord_data.deleted;
         this.items = ord_data.items;
     }
 

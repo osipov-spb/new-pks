@@ -1,5 +1,5 @@
 import React from 'react';
-import {Typography, Tag, Space} from 'antd';
+import {Typography, Tag, Space, Alert} from 'antd';
 import {
     ClockCircleOutlined,
     CheckCircleOutlined,
@@ -94,108 +94,123 @@ class _OrderTitle extends React.Component {
     };
 
     render() {
-        const { status, date } = this.props;
+        const { status, date, deleted } = this.props;
         const projectTitle = this.props.project?.title; // Получаем название фирмы
 
         return (
-            <div style={{
-                padding: '8px 16px',
-                margin: '-8px -16px 8px -16px',
-                background: '#f0f9ff',
-                borderBottom: '1px solid #d9eef7',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                height: '40px'
-            }}>
-                <div style={{display: 'flex', alignItems: 'center'}}>
-                    <div style={{
-                        width: '4px',
-                        height: '20px',
-                        background: '#1890ff',
-                        marginRight: '12px',
-                        borderRadius: '2px',
-                        flexShrink: 0
-                    }}></div>
-
-                    <Title
-                        level={4}
+            <>
+                {deleted && (
+                    <Alert
+                        message="Заказ удален"
+                        type="error"
+                        showIcon
                         style={{
-                            margin: 0,
-                            color: '#1890ff',
-                            fontWeight: 600,
-                            fontSize: '16px',
-                            lineHeight: '24px',
-                            marginRight: '12px' // Добавляем отступ перед ярлыком
+                            margin: '-8px -16px 8px -16px',
+                            borderRadius: 0,
+                            borderLeft: 0,
+                            borderRight: 0
                         }}
-                    >
-                        {this.state.orderNumber ? `Заказ №${this.state.orderNumber}` : 'Новый заказ'}
-                    </Title>
-
-                    {/* Ярлык с названием фирмы */}
-                    {projectTitle && (
-                        <Tag
-                            icon={<ShopOutlined/>}
-                            color="geekblue"
-                            style={{
-                                borderRadius: '4px',
-                                padding: '0 10px',
-                                height: '24px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                fontSize: '12px',
-                                fontWeight: 500
-                            }}
-                        >
-                            {projectTitle}
-                        </Tag>
-                    )}
-                </div>
-
+                    />
+                )}
                 <div style={{
+                    padding: '8px 16px',
+                    margin: deleted ? '0 -16px 8px -16px' : '-8px -16px 8px -16px',
+                    background: '#f0f9ff',
+                    borderBottom: '1px solid #d9eef7',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '16px'
+                    justifyContent: 'space-between',
+                    height: '40px'
                 }}>
-                    <Space direction={"horizontal"} size={"middle"}>
-                    {status && (
-                        <Tag
-                            icon={this.getStatusIcon(status)}
-                            color={this.getStatusColor(status)}
+                    <div style={{display: 'flex', alignItems: 'center'}}>
+                        <div style={{
+                            width: '4px',
+                            height: '20px',
+                            background: '#1890ff',
+                            marginRight: '12px',
+                            borderRadius: '2px',
+                            flexShrink: 0
+                        }}></div>
+
+                        <Title
+                            level={4}
                             style={{
                                 margin: 0,
-                                padding: '2px 8px',
-                                borderRadius: '4px',
-                                fontWeight: 500,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                whiteSpace: 'nowrap'
+                                color: '#1890ff',
+                                fontWeight: 600,
+                                fontSize: '16px',
+                                lineHeight: '24px',
+                                marginRight: '12px' // Добавляем отступ перед ярлыком
                             }}
                         >
-                            {this.cleanStatusText(status)}
-                        </Tag>
-                    )}
+                            {this.state.orderNumber ? `Заказ №${this.state.orderNumber}` : 'Новый заказ'}
+                        </Title>
 
-                    {date && (
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            color: '#595959',
-                            fontSize: '14px'
-                        }}>
-                            <Space direction={"horizontal"} size={"small"}>
-                            <CalendarOutlined/>
-                            <Text type="secondary">
-                                {this.formatDate(date)}
-                            </Text>
-                            </Space>
-                        </div>
-                    )}
-                    </Space>
+                        {/* Ярлык с названием фирмы */}
+                        {projectTitle && (
+                            <Tag
+                                icon={<ShopOutlined/>}
+                                color="geekblue"
+                                style={{
+                                    // borderRadius: '4px',
+                                    padding: '0 10px',
+                                    height: '24px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    fontSize: '12px',
+                                    fontWeight: 500
+                                }}
+                            >
+                                {projectTitle}
+                            </Tag>
+                        )}
+                    </div>
+
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '16px'
+                    }}>
+                        <Space direction={"horizontal"} size={"middle"}>
+                            {status && (
+                                <Tag
+                                    icon={this.getStatusIcon(status)}
+                                    color={this.getStatusColor(status)}
+                                    style={{
+                                        margin: 0,
+                                        padding: '2px 8px',
+                                        // borderRadius: '4px',
+                                        fontWeight: 500,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        whiteSpace: 'nowrap'
+                                    }}
+                                >
+                                    {this.cleanStatusText(status)}
+                                </Tag>
+                            )}
+
+                            {date && (
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    color: '#595959',
+                                    fontSize: '14px'
+                                }}>
+                                    <Space direction={"horizontal"} size={"small"}>
+                                        <CalendarOutlined/>
+                                        <Text type="secondary">
+                                            {this.formatDate(date)}
+                                        </Text>
+                                    </Space>
+                                </div>
+                            )}
+                        </Space>
+                    </div>
                 </div>
-            </div>
+            </>
         );
     }
 }

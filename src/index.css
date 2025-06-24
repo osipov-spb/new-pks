@@ -199,3 +199,38 @@ body {
 .breadcrumb-link:hover:after {
   width: 100%;
 }
+
+/* Стили для удаленных заказов */
+.deleted-order-row {
+  background-color: #FFF2F0 !important;
+}
+
+.deleted-order-row:hover td {
+  background-color: #FFE6E6 !important;
+}
+
+.deleted-order-row td {
+  border-bottom: 1px solid #FFCCC7 !important;
+  borderRight: 1px solid #FFCCC7 !important;
+}
+
+/* Стили для оплаченных заказов */
+.paid-order-row {
+  background-color: #E6F7FF !important;
+}
+
+.paid-order-row:hover td {
+  background-color: #BAE7FF !important;
+}
+
+.paid-order-row td {
+  border-bottom: 1px solid #87e8de !important;
+  border-right: 1px solid #87e8de !important;
+}
+
+/* Фикс для анимации заглушки */
+.ant-empty-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
