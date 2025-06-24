@@ -170,11 +170,21 @@ class OrderAddressBlock extends React.Component {
     };
 
     render() {
-        const { address, courier, disabled, hidden } = this.props;
+        const {
+            address,
+            courier,
+            disabled: blockDisabled = false,
+            hidden: blockHidden = false,
+            addressDisabled = false,
+            addressHidden = false,
+            courierDisabled = false,
+            courierHidden = false
+        } = this.props;
+
         const isCourierEmpty = this.isEmptyCourier(courier);
         const isAddressEmpty = this.isEmptyAddress(address);
 
-        if (hidden) return null;
+        if (blockHidden) return null;
 
         return (
             <div style={{
@@ -183,81 +193,107 @@ class OrderAddressBlock extends React.Component {
                 borderBottom: '1px solid #f0f0f0',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '16px', // Увеличено с 12px до 16px
-                background: '#fafafa'
+                gap: '16px',
+                background: '#fafafa',
+                opacity: blockDisabled ? 0.6 : 1,
+                pointerEvents: blockDisabled ? 'none' : 'auto'
             }}>
                 {/* Блок адреса */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {!isAddressEmpty ? (
-                        <Space
-                            align="center"
-                            style={{
-                                flex: 1,
-                                padding: '4px 8px',
-                                background: '#f5f5f5',
-                                borderRadius: '4px'
-                            }}
-                        >
-                            <EnvironmentOutlined style={{ color: '#1890ff' }} />
-                            <Text style={{ fontSize: '13px' }}> {/* Уменьшенный шрифт */}
-                                {[address.street, address.house, address.buildingNumber, address.apartment]
-                                    .filter(Boolean)
-                                    .join(', ')}
+                {!addressHidden && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {!isAddressEmpty ? (
+                            <Space
+                                align="center"
+                                style={{
+                                    flex: 1,
+                                    padding: '4px 8px',
+                                    background: '#f5f5f5',
+                                    borderRadius: '4px',
+                                    opacity: addressDisabled ? 0.6 : 1
+                                }}
+                            >
+                                <EnvironmentOutlined style={{ color: '#1890ff' }} />
+                                <Text style={{ fontSize: '13px' }}>
+                                    {[address.street, address.house, address.buildingNumber, address.apartment]
+                                        .filter(Boolean)
+                                        .join(', ')}
+                                </Text>
+                            </Space>
+                        ) : (
+                            <Text
+                                type="secondary"
+                                style={{
+                                    flex: 1,
+                                    fontSize: '13px',
+                                    opacity: addressDisabled ? 0.6 : 1
+                                }}
+                            >
+                                Адрес не указан
                             </Text>
-                        </Space>
-                    ) : (
-                        <Text type="secondary" style={{ flex: 1, fontSize: '13px' }}>Адрес не указан</Text>
-                    )}
+                        )}
 
-                    <Button
-                        type={!isAddressEmpty ? "default" : "primary"}
-                        size="small"
-                        href="#"
-                        data-button-id="client_adress"
-                        icon={<SearchOutlined />}
-                        onClick={() => window.openAddressSelector && window.openAddressSelector()}
-                        disabled={disabled}
-                    >
-                        {!isAddressEmpty ? "Изменить" : "Выбрать"}
-                    </Button>
-                </div>
+                        <Button
+                            type={!isAddressEmpty ? "default" : "primary"}
+                            size="small"
+                            href="#"
+                            data-button-id="client_adress"
+                            icon={<SearchOutlined />}
+                            onClick={() => window.openAddressSelector && window.openAddressSelector()}
+                            disabled={blockDisabled || addressDisabled}
+                        >
+                            {!isAddressEmpty ? "Изменить" : "Выбрать"}
+                        </Button>
+                    </div>
+                )}
 
                 {/* Блок курьера */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {!isCourierEmpty ? (
-                        <Space
-                            align="center"
-                            style={{
-                                flex: 1,
-                                padding: '4px 8px',
-                                background: '#f5f5f5',
-                                borderRadius: '4px'
-                            }}
-                        >
-                            <UserOutlined style={{ color: '#1890ff' }} />
-                            <Text style={{ fontSize: '13px' }}> {/* Убрано strong и уменьшен шрифт */}
-                                {courier.name}
+                {!courierHidden && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {!isCourierEmpty ? (
+                            <Space
+                                align="center"
+                                style={{
+                                    flex: 1,
+                                    padding: '4px 8px',
+                                    background: '#f5f5f5',
+                                    borderRadius: '4px',
+                                    opacity: courierDisabled ? 0.6 : 1
+                                }}
+                            >
+                                <UserOutlined style={{ color: '#1890ff' }} />
+                                <Text style={{ fontSize: '13px' }}>
+                                    {courier.name}
+                                </Text>
+                                {courier.phone && (
+                                    <Text type="secondary" style={{ fontSize: '13px' }}>{courier.phone}</Text>
+                                )}
+                            </Space>
+                        ) : (
+                            <Text
+                                type="secondary"
+                                style={{
+                                    flex: 1,
+                                    fontSize: '13px',
+                                    opacity: courierDisabled ? 0.6 : 1
+                                }}
+                            >
+                                Курьер не выбран
                             </Text>
-                            {courier.phone && (
-                                <Text type="secondary" style={{ fontSize: '13px' }}>{courier.phone}</Text>
-                            )}
-                        </Space>
-                    ) : (
-                        <Text type="secondary" style={{ flex: 1, fontSize: '13px' }}>Курьер не выбран</Text>
-                    )}
+                        )}
 
-                    <Button
-                        type={!isCourierEmpty ? "default" : "primary"}
-                        size="small"
-                        href="#"
-                        data-button-id="courier-fill-start"
-                        icon={<UserOutlined />}
-                        onClick={this.loadCouriers}
-                        disabled={disabled}
-                    >
-                        {!isCourierEmpty ? "Изменить" : "Выбрать"}
-                    </Button>
-                </div>
+                        <Button
+                            type={!isCourierEmpty ? "default" : "primary"}
+                            size="small"
+                            href="#"
+                            data-button-id="courier-fill-start"
+                            icon={<UserOutlined />}
+                            onClick={this.loadCouriers}
+                            disabled={blockDisabled || courierDisabled}
+                        >
+                            {!isCourierEmpty ? "Изменить" : "Выбрать"}
+                        </Button>
+                    </div>
+                )}
 
                 {this.renderCourierModal()}
             </div>

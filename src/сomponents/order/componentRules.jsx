@@ -38,5 +38,15 @@ export const componentRules = {
         disabled: (orderData) => false,
         hidden: (orderData) => orderData.package != 'delivery'
     },
+    addressFields: {
+        disabled: (orderData) => {
+            return orderData.id != '';
+        },
+        hidden: (orderData) => false
+    },
+    courierFields: {
+        disabled: (orderData) => orderData.status != '3.Ожидает',
+        hidden: (orderData) => false
+    }
     // ... другие компоненты
 };

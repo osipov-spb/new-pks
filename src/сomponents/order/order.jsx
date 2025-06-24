@@ -407,6 +407,10 @@ class Order extends React.Component {
                                     onCourierChange={this.updateCourier}
                                     disabled={this.isComponentDisabled('addressBlock')}
                                     hidden={this.isComponentHidden('addressBlock')}
+                                    addressDisabled={this.isComponentDisabled('addressFields')}
+                                    addressHidden={this.isComponentHidden('addressFields')}
+                                    courierDisabled={this.isComponentDisabled('courierFields')}
+                                    courierHidden={this.isComponentHidden('courierFields')}
                                 />
 
                                 <div style={{
