@@ -1,23 +1,63 @@
-import React, { useState } from 'react';
-import { Modal, Input, Table, Button, Spin, Space } from 'antd';
+import React, { useState, useEffect, useRef } from 'react';
+import { Modal, Input, Table, Button, Spin, Space, message } from 'antd';
 import { PlusOutlined, DeleteOutlined, GiftOutlined } from '@ant-design/icons';
 import './PromoCodeModal.css';
 
 const { Column } = Table;
 
-const PromoCodeModal = ({ size = 'middle' }) => { // Добавляем пропс size
+const PromoCodeModal = ({ size = 'middle' }) => {
     const [visible, setVisible] = useState(false);
     const [promoCodes, setPromoCodes] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const [loading, setLoading] = useState(false);
+    const latestAddedCodeRef = useRef(null); // Реф для хранения последнего добавленного промокода
 
-    const showModal = () => {
-        setVisible(true);
-    };
+    // Регистрируем глобальные функции
+    useEffect(() => {
+        window.openPromoCodeModal = (jsonData) => {
+            try {
+                const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
 
-    const handleClose = () => {
-        setVisible(false);
-    };
+                if (!Array.isArray(data)) {
+                    throw new Error('Данные должны быть массивом');
+                }
+
+                const formattedData = data.map(item => ({
+                    key: Date.now() + Math.random(),
+                    certificate: item.certificate || '',
+                    nominal: item.nominal ? `${item.nominal} руб.` : '0 руб.'
+                }));
+
+                setPromoCodes(formattedData);
+                setVisible(true);
+            } catch (error) {
+                console.error('Ошибка обработки данных промокодов:', error);
+                message.error('Неверный формат данных промокодов');
+            }
+        };
+
+        window.closePromoCodeModal = () => {
+            setVisible(false);
+        };
+
+        window.getCurrentPromoCodes = () => {
+            return promoCodes.map(item => ({
+                certificate: item.certificate,
+                nominal: parseInt(item.nominal) || 0
+            }));
+        };
+
+        window.getNewPromoCode = () => {
+            return latestAddedCodeRef.current;
+        };
+
+        return () => {
+            delete window.openPromoCodeModal;
+            delete window.closePromoCodeModal;
+            delete window.getCurrentPromoCodes;
+            delete window.getNewPromoCode;
+        };
+    }, [promoCodes]);
 
     const addPromoCode = () => {
         if (inputValue) {
@@ -28,39 +68,33 @@ const PromoCodeModal = ({ size = 'middle' }) => { // Добавляем проп
                 nominal: '0 руб.'
             };
 
-            window.getNewPromoCodeData = () => {
-                return newPromoCode;
-            };
+            // Сохраняем последний добавленный промокод в реф
+            latestAddedCodeRef.current = inputValue;
 
+            setPromoCodes([...promoCodes, newPromoCode]);
             setInputValue('');
-        }
-    };
+            setLoading(false);
 
-    window.addPromoCodeToTable = (promoCode) => {
-        setPromoCodes([...promoCodes, promoCode]);
-        setLoading(false);
+            // Возвращаем промокод через callback (альтернативный вариант)
+            if (window.onPromoCodeAdded) {
+                window.onPromoCodeAdded(inputValue);
+            }
+        }
     };
 
     const deletePromoCode = (key) => {
         setPromoCodes(promoCodes.filter(item => item.key !== key));
     };
 
-    window.getPromoCodes = () => {
-        return promoCodes;
-    };
-
-    window.loadPromoCodes = (codes) => {
-        setPromoCodes(codes);
-    };
-
     return (
         <>
-            {/* Обновлённая кнопка */}
             <Button
-                size={size} // Используем переданный размер
+                size={size}
                 icon={<GiftOutlined />}
-                onClick={showModal}
-                style={{ marginRight: 0 }} // Убираем отступ справа
+                href="#"
+                data-button-id="promocodes-open"
+                // onClick={() => message.info('Используйте window.openPromoCodeModal() для открытия')}
+                style={{ marginRight: 0 }}
             >
                 Промокод
             </Button>
@@ -68,17 +102,14 @@ const PromoCodeModal = ({ size = 'middle' }) => { // Добавляем проп
             <Modal
                 title="Ввод сертификатов"
                 visible={visible}
-                onOk={handleClose}
-                onCancel={handleClose}
+                onCancel={() => setVisible(false)}
                 footer={[
-                    <Button key="back" onClick={handleClose} size={size}>
+                    <Button key="back" onClick={() => setVisible(false)} size={size}>
                         Закрыть
-                    </Button>,
-                    <Button key="submit" type="primary" onClick={handleClose} size={size}>
-                        Сохранить
                     </Button>,
                 ]}
                 width={600}
+                destroyOnClose
             >
                 <Spin spinning={loading}>
                     <Space.Compact style={{ width: '100%' }}>
@@ -92,7 +123,11 @@ const PromoCodeModal = ({ size = 'middle' }) => { // Добавляем проп
                         />
                         <Button
                             icon={<PlusOutlined />}
+                            href="#"
+                            data-button-id="promocode-add"
                             onClick={addPromoCode}
+
+
                             size={size}
                         />
                     </Space.Compact>
@@ -103,21 +138,22 @@ const PromoCodeModal = ({ size = 'middle' }) => { // Добавляем проп
                     pagination={false}
                     style={{ marginTop: 16 }}
                     size={size}
+                    rowKey="key"
                 >
                     <Column title="Сертификат" dataIndex="certificate" key="certificate" />
                     <Column title="Номинал" dataIndex="nominal" key="nominal" />
-                    <Column
-                        title="Действие"
-                        key="action"
-                        render={(text, record) => (
-                            <Button
-                                icon={<DeleteOutlined />}
-                                onClick={() => deletePromoCode(record.key)}
-                                size="small"
-                                danger
-                            />
-                        )}
-                    />
+                    {/*<Column*/}
+                    {/*    title="Действие"*/}
+                    {/*    key="action"*/}
+                    {/*    render={(_, record) => (*/}
+                    {/*        <Button*/}
+                    {/*            icon={<DeleteOutlined />}*/}
+                    {/*            onClick={() => deletePromoCode(record.key)}*/}
+                    {/*            size="small"*/}
+                    {/*            danger*/}
+                    {/*        />*/}
+                    {/*    )}*/}
+                    {/*/>*/}
                 </Table>
             </Modal>
         </>

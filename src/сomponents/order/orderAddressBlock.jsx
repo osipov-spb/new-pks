@@ -236,7 +236,7 @@ class OrderAddressBlock extends React.Component {
                             type={!isAddressEmpty ? "default" : "primary"}
                             size="small"
                             href="#"
-                            data-button-id="client_adress"
+                            {...(!(blockDisabled || addressDisabled) && { "data-button-id": "client_adress" })}
                             icon={<SearchOutlined />}
                             onClick={() => window.openAddressSelector && window.openAddressSelector()}
                             disabled={blockDisabled || addressDisabled}
@@ -285,7 +285,7 @@ class OrderAddressBlock extends React.Component {
                             type={!isCourierEmpty ? "default" : "primary"}
                             size="small"
                             href="#"
-                            data-button-id="courier-fill-start"
+                            {...(!(blockDisabled || courierDisabled) && { "data-button-id": "courier-fill-start" })}
                             icon={<UserOutlined />}
                             onClick={this.loadCouriers}
                             disabled={blockDisabled || courierDisabled}

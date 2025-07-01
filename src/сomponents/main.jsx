@@ -14,15 +14,31 @@ class Main extends React.Component {
 
     componentDidMount() {
         this.setupWindowMethods();
+        this.updateTableHeight();
+        this.debounceTimer = null;
+        window.addEventListener('resize', this.handleResize);
     }
 
     componentWillUnmount() {
+        window.removeEventListener('resize', this.handleResize);
         // Очищаем методы window при размонтировании
         delete window.setAvailableProjects;
         delete window.test_app;
         delete window.show_page;
         delete window.current_page;
         delete window.open_order;
+    }
+
+    handleResize = () => {
+        clearTimeout(this.debounceTimer);
+        this.debounceTimer = setTimeout(() => {
+            this.updateTableHeight();
+        }, 100);
+    }
+
+    updateTableHeight = () => {
+        const height = window.innerHeight - 165;
+        this.setState({ tableHeight: Math.max(height, 300) });
     }
 
     setupWindowMethods = () => {

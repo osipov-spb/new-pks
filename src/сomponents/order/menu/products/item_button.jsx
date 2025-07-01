@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Tag, Row, Col } from 'antd';
-import { PercentageOutlined } from "@ant-design/icons";
+import {CloseOutlined, PercentageOutlined} from "@ant-design/icons";
 
 class ItemButton extends React.Component {
     constructor(props) {
@@ -11,7 +11,8 @@ class ItemButton extends React.Component {
                 id: 0,
                 price: 0,
                 discount: false,
-                title: 'Без названия'
+                title: 'Без названия',
+                stop: false
             }
         };
     }
@@ -76,31 +77,44 @@ class ItemButton extends React.Component {
     render() {
         const { data } = this.state;
         const hasDiscount = Boolean(data.discount);
+        const isStopped = Boolean(data.stop);
 
         return (
             <Button
-                onClick={this.handleClick}
+                onClick={isStopped ? null : this.handleClick}
                 style={{
                     height: '80px',
                     width: '125px',
                     margin: '4px',
                     padding: '6px 6px 4px 6px',
-                    border: '1px solid #e8e8e8',
-                    backgroundColor: '#fff',
+                    border: isStopped ? '1px solid #ffa39e' : '1px solid #e8e8e8',
+                    backgroundColor: isStopped ? '#fff1f0' : '#fff',
                     display: 'grid',
                     gridTemplateRows: '1fr auto',
                     gap: '4px',
-                    cursor: 'pointer',
+                    cursor: isStopped ? 'not-allowed' : 'pointer',
                     boxShadow: 'none',
-                    borderRadius: 0
+                    borderRadius: 0,
+                    position: 'relative'
                 }}
             >
+                {isStopped && (
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: '3px',
+                        backgroundColor: '#ff4d4f'
+                    }} />
+                )}
+
                 <div style={{
                     fontSize: '11px',
                     lineHeight: '1.2',
                     textAlign: 'left',
                     alignSelf: 'start',
-                    color: '#595959',
+                    color: isStopped ? '#8c8c8c' : '#595959',
                     borderBottom: '1px solid #f0f0f0',
                     paddingBottom: '4px'
                 }}>
@@ -112,14 +126,14 @@ class ItemButton extends React.Component {
                     justifyContent: 'space-between',
                     alignItems: 'center'
                 }}>
-        <span style={{
-            fontSize: '13px',
-            fontWeight: '500',
-            color: '#262626'
-        }}>
-            {data.price} ₽
-        </span>
-                    {hasDiscount && (
+                <span style={{
+                    fontSize: '13px',
+                    fontWeight: '500',
+                    color: isStopped ? '#8c8c8c' : '#262626'
+                }}>
+                    {data.price} ₽
+                </span>
+                    {hasDiscount && !isStopped && (
                         <span style={{
                             fontSize: '10px',
                             color: '#1890ff',
@@ -127,8 +141,13 @@ class ItemButton extends React.Component {
                             borderRadius: '2px',
                             padding: '0 3px'
                         }}>
-                акция
-            </span>
+                        акция
+                    </span>
+                    )}
+                    {isStopped && (
+                        <Tag color="red" style={{ margin: 0, padding: '0 3px', fontSize: '10px' }}>
+                            стоп
+                        </Tag>
                     )}
                 </div>
             </Button>

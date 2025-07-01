@@ -65,126 +65,205 @@ const PaymentForm = () => {
                 icon={<ShoppingCartOutlined />}
                 style={{
                     minWidth: '120px',
-                    minHeight: '35px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'flex-start'
+                    height: '35px',
+                    background: '#13c2c2',
+                    borderColor: '#13c2c2',
+                    fontWeight: 500,
+                    margin: '4px'
                 }}
             >
                 Оплатить
             </Button>
 
+
             <Modal
                 title={null}
                 closable={false}
                 open={isOn}
-                width={370}
-                footer={[
-                    <Button key="cancel" onClick={() => setIsOn(false)}>Закрыть</Button>,
-                    <Button
-                        key="prodeed_no_payment"
-                        onClick={() => setIsOn(false)}
-                        href="#"
-                        data-button-id="prodeed_no_payment">
-                        Оплатить позже
-                    </Button>,
-                    <Button
-                        key="submit"
-                        type="primary"
-                        href="#"
-                        data-button-id="payment_confirm"
-                        onClick={() => {
-                            const returnData = {paymentType, operationType: 'income'};
-                            setIsOn(false);
-                            return JSON.stringify(returnData);
-                        }}
-                    >
-                        Оплатить
-                    </Button>
-                ]}
+                width={380}
+                footer={null}
+                bodyStyle={{ padding: 0 }}
             >
-                {/* Остальное содержимое модального окна остается без изменений */}
-                <div
-                    style={{
-                        'padding': '10px'
+                <div style={{
+                    backgroundColor: '#f0f2f5',
+                    padding: '16px',
+                    borderBottom: '1px solid #d9d9d9'
+                }}>
+                    <div style={{
+                        backgroundColor: 'white',
+                        borderRadius: '4px',
+                        padding: '12px',
+                        marginBottom: '16px'
                     }}>
-                <div className="payment-summary">
-                    <Row>
-                        <Col span={11}>
-                            <div style={{textAlign: 'left'}}>Итого к оплате:</div>
-                        </Col>
-                        <Col span={13}>
-                            <div style={{textAlign: 'right'}}>{total} ₽</div>
-                        </Col>
-                    </Row>
-                </div>
-
-                <div className="payment-btn-wrapper">
-                    <Space size={[10, 10]} wrap>
-                        <Button type={typeCashButton} className='payment-form-number-btn-xl'
-                                onClick={handleCashButtonClick}>
-                            <WalletOutlined/>
-                        </Button>
-                        <Button type={typeCardButton} className='payment-form-number-btn-xl'
-                                onClick={handleCardButtonClick}>
-                            <CreditCardOutlined/>
-                        </Button>
-                    </Space>
-                    <br/><br/><br/><br/>
-
-                    <div className='payment-cash-data'>
-                        <Row>
-                            <Col span={5}>
-                                <div>Наличные:</div>
-                            </Col>
-                            <Col span={7}>
-                                <Button className='payment-cash-no-change-button' onClick={handleWithoutChangeClick}>
-                                    Без сдачи
-                                </Button>
-                            </Col>
-                            <Col span={10}>
-                                <div className='payment-cash-summary'>{cashInput} ₽</div>
-                            </Col>
-                        </Row>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            marginBottom: '8px'
+                        }}>
+                            <span>Итого:</span>
+                            <span style={{fontWeight: 'bold'}}>{total} ₽</span>
+                        </div>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between'
+                        }}>
+                            <span>Способ оплаты:</span>
+                            <span style={{fontWeight: 'bold'}}>
+                                {paymentType === 'cash' ? 'Наличные' : 'Карта'}
+                            </span>
+                        </div>
                     </div>
 
-                    <Row gutter={5}>
-                        <Col span={13}>
-                            <Space size={[10, 10]} wrap>
-                                {['7', '8', '9', '4', '5', '6', '1', '2', '3', '.', '0', '00'].map((num) => (
-                                    <Button key={num} className='payment-form-number-btn-s'
-                                            onClick={() => handleInput(Number(`${cashInput}${num}`))}>
-                                        {num}
+                    <div style={{
+                        display: 'flex',
+                        gap: '8px',
+                        marginBottom: '16px'
+                    }}>
+                        <Button
+                            type={paymentType === 'cash' ? 'primary' : 'default'}
+                            icon={<WalletOutlined/>}
+                            block
+                            onClick={handleCashButtonClick}
+                        >
+                            Наличные
+                        </Button>
+                        <Button
+                            type={paymentType === 'card' ? 'primary' : 'default'}
+                            icon={<CreditCardOutlined/>}
+                            block
+                            onClick={handleCardButtonClick}
+                        >
+                            Карта
+                        </Button>
+                    </div>
+
+                    {paymentType === 'cash' && (
+                        <div style={{
+                            backgroundColor: 'white',
+                            borderRadius: '4px',
+                            padding: '12px',
+                            marginBottom: '16px'
+                        }}>
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                marginBottom: '12px'
+                            }}>
+                                <span>Внесено:</span>
+                                <span style={{
+                                    fontSize: '18px',
+                                    fontWeight: 'bold'
+                                }}>
+                                    {cashInput} ₽
+                                </span>
+                            </div>
+
+                            <Button
+                                type="dashed"
+                                block
+                                onClick={handleWithoutChangeClick}
+                                style={{marginBottom: '12px'}}
+                            >
+                                Без сдачи
+                            </Button>
+
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(4, 1fr)',
+                                gap: '8px',
+                                marginBottom: '12px'
+                            }}>
+                                {[1, 2, 3, '←', 4, 5, 6, 'C', 7, 8, 9, '000', '.', 0, '00'].map(item => (
+                                    <Button
+                                        key={item}
+                                        onClick={() => {
+                                            if (item === '←') handleBackspaceClick();
+                                            else if (item === 'C') handleInput(0);
+                                            else handleInput(Number(`${cashInput}${item}`))
+                                        }
+                                        }
+                                        style={{
+                                            // height: '48px',
+                                            margin: '2px',
+                                            minWidth: 0
+                                        }}
+                                        type={typeof item === 'number' ? 'default' : 'primary'}
+                                    >
+                                        {item}
                                     </Button>
                                 ))}
-                            </Space>
-                        </Col>
-                        <Col span={7}>
-                            <Space direction="vertical" size={10}>
-                                {[1000, 2000, 5000].map((amount) => (
-                                    <Button key={amount} type="primary" className='payment-form-number-btn-l'
-                                            onClick={() => handleInput(amount)}>
-                                        {amount} ₽
-                                    </Button>
-                                ))}
-                                <Button className='payment-form-number-btn-l' onClick={handleBackspaceClick}>
-                                    <DeleteOutlined/>
-                                </Button>
-                            </Space>
-                        </Col>
-                    </Row>
-                </div>
-                <br/>
-                <div className="payment-summary">
-                    <Row>
-                        <Col span={11}>
-                            <div style={{textAlign: 'left'}}>Сдача:</div>
-                        </Col>
-                        <Col span={13}>
-                            <div style={{textAlign: 'right'}}>{change} ₽</div>
-                        </Col>
-                    </Row>
-                </div>
+                                {/* Пустая ячейка вместо кнопки OK */}
+                                <div></div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div style={{
+                        backgroundColor: 'white',
+                        borderRadius: '4px',
+                        padding: '12px',
+                        marginBottom: '16px'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between'
+                        }}>
+                            <span>Сдача:</span>
+                            <span style={{
+                                fontSize: '18px',
+                                fontWeight: 'bold',
+                                color: change >= 0 ? '#52c41a' : '#f5222d'
+                            }}>
+                                {change} ₽
+                            </span>
+                        </div>
+                    </div>
+
+                    <div style={{display: 'flex', gap: '8px', marginBottom: '8px'}}>
+                        <Button
+                            block
+                            onClick={() => setIsOn(false)}
+                            style={{
+                                // height: '48px',
+                                margin: '4px',
+                                flex: '1 1 auto'
+                            }}
+                        >
+                            Отмена
+                        </Button>
+                        <Button
+                            type="primary"
+                            block
+                            href="#"
+                            data-button-id="payment_confirm"
+                            onClick={() => {
+                                const returnData = {paymentType, operationType: 'income'};
+                                setIsOn(false);
+                                return JSON.stringify(returnData);
+                            }}
+                            style={{
+                                // height: '48px',
+                                margin: '4px',
+                                flex: '1 1 auto'
+                            }}
+                            disabled={paymentType === 'cash' && cashInput < total}
+                        >
+                            Подтвердить
+                        </Button>
+                    </div>
+
+                    <Button
+                        block
+                        href="#"
+                        data-button-id="prodeed_no_payment"
+                        onClick={() => setIsOn(false)}
+                        style={{
+                            // height: '48px',
+                            margin: '4px 4px 0'
+                        }}
+                    >
+                        Оплатить позже
+                    </Button>
                 </div>
             </Modal>
         </>

@@ -58,7 +58,7 @@ class StatusButtons extends React.Component {
                     <Button
                         icon={<PrinterOutlined />}
                         href="#"
-                        data-button-id="order-print"
+                        {...(!this.props.printDisabled && { "data-button-id": "order-print" })}
                         disabled={this.props.printDisabed}
                         style={{
                             minWidth: '120px',
@@ -121,7 +121,7 @@ class StatusButtons extends React.Component {
                         <Button
                             key='save-order-button'
                             href="#"
-                            data-button-id="order-proceed"
+                            {...(!this.props.nextDisabed && { "data-button-id": "order-proceed" })}
                             disabled={this.props.nextDisabed}
                             style={{
                                 minWidth: '120px',

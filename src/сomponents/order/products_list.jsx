@@ -8,12 +8,6 @@ const { Text } = Typography;
 class _ProductTable extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            pagination: {
-                current: 1,
-                pageSize: 5,
-            }
-        };
     }
 
     handleCountChange = (lineNumber, value) => {
@@ -31,70 +25,71 @@ class _ProductTable extends React.Component {
         window.orderEditItem?.(lineNumber, 'count', value);
     };
 
-    handleTableChange = (pagination) => {
-        this.setState({ pagination });
-    };
-
     componentDidMount() {
         if (window.orderLoadItems && this.props.dataSource) {
             window.orderLoadItems(this.props.dataSource);
         }
     }
 
-    renderPagination = () => {
-        const { pagination } = this.state;
-        const { dataSource = [] } = this.props;
-        const total = dataSource.length;
-        const { current, pageSize } = pagination;
-
-        return (
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Button
-                    size="middle"
-                    disabled={current === 1}
-                    onClick={() => this.handleTableChange({ current: current - 1, pageSize })}
-                >
-                    &lt;
-                </Button>
-                <span style={{ margin: '0 8px' }}>
-                    {current} / {Math.ceil(total / pageSize)}
-                </span>
-                <Button
-                    size="middle"
-                    disabled={current === Math.ceil(total / pageSize) || total === 0}
-                    onClick={() => this.handleTableChange({ current: current + 1, pageSize })}
-                >
-                    &gt;
-                </Button>
-            </div>
-        );
-    };
-
     render() {
         const { dataSource = [] } = this.props;
-        const { pagination } = this.state;
 
         const columns = [
             {
-                title: '№',
+                title: ()=>{
+                    return <div style={{
+                        fontSize: '12px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                    }}>№</div>
+                },
                 dataIndex: 'lineNumber',
                 key: 'lineNumber',
-                width: 30,
-            },
-            {
-                title: 'Товары',
-                dataIndex: 'product_title',
-                key: 'product_title',
-                width: 200,
-                render: (_, { product_title }) => (
-                    <div style={{ fontSize: '11px' }}>{product_title}</div>
+                width: 35,
+                fixed: 'left',
+                render: (_, { lineNumber }) => (
+                    <div style={{
+                        fontSize: '13px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                    }}>{lineNumber}</div>
                 )
             },
             {
-                title: 'Кол-во',
+                title: ()=>{
+                    return <div style={{
+                        fontSize: '12px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                    }}>Товары</div>
+                },
+                dataIndex: 'product_title',
+                key: 'product_title',
+                width: 130,
+                render: (_, { product_title }) => (
+                    <div style={{
+                        fontSize: '10px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                    }}>{product_title}</div>
+                )
+            },
+            {
+                title: ()=>{
+                    return <div style={{
+                        fontSize: '12px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                    }}>Кол-во</div>
+                },
                 dataIndex: 'count',
                 key: 'count',
-                width: 100,
+                width: 55,
                 render: (_, record) => (
                     <InputNumber
                         disabled={this.props.disabled}
@@ -108,7 +103,7 @@ class _ProductTable extends React.Component {
                             }
                         }}
                         size="small"
-                        style={{ width: '50px' }}
+                        style={{ width: '40px',  fontSize: '11px'}}
                         precision={0}
                         parser={(value) => {
                             return parseInt(value.replace(/[^\d]/g, '')) || 1;
@@ -120,21 +115,34 @@ class _ProductTable extends React.Component {
                 )
             },
             {
-                title: 'Цена',
+                title: ()=>{
+                    return <div style={{
+                        fontSize: '12px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                    }}>Цена</div>
+                },
                 dataIndex: 'price',
                 key: 'price',
-                width: 80,
+                width: 55,
                 render: (_, { price }) => (
                     <div style={{ fontSize: '11px' }}>{price} ₽</div>
                 )
             },
             {
-                title: 'Сумма',
+                title: ()=>{
+                    return <div style={{
+                        fontSize: '12px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden'
+                    }}>Сумма</div>
+                },
                 dataIndex: 'total',
                 key: 'total',
-                width: 80,
+                width: 55,
                 render: (_, { total, total_with_discount }) => {
-                    if (total_with_discount && total_with_discount < total) {
+                    if (total_with_discount < total) {
                         return (
                             <div style={{ fontSize: '11px' }}>
                                 <div style={{ textDecoration: 'line-through', color: '#999' }}>
@@ -154,7 +162,8 @@ class _ProductTable extends React.Component {
             {
                 title: '',
                 key: 'actions',
-                width: 45,
+                width: 42,
+                fixed: 'right',
                 render: (_, record) => (
                     <div style={{
                         pointerEvents: this.props.disabled ? 'none' : 'auto'
@@ -175,61 +184,64 @@ class _ProductTable extends React.Component {
                         </Popconfirm>
                     </div>
                 )
-            },
-            {
-                title: 'product_id',
-                dataIndex: 'product_id',
-                key: 'product_id',
-                hidden: true
-            },
-            {
-                title: 'promo_id',
-                dataIndex: 'promo_id',
-                key: 'promo_id',
-                hidden: true
-            },
-            {
-                title: 'total_with_discount',
-                dataIndex: 'total_with_discount',
-                key: 'total_with_discount',
-                hidden: true
             }
-        ].filter(item => !item.hidden);
+        ];
 
         return (
-            <div style={{ visibility: this.props.hidden ? 'hidden' : 'visible' }}>
+            <div style={{
+                visibility: this.props.hidden ? 'hidden' : 'visible',
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                overflow: 'hidden'
+            }}>
                 <Row
                     align="middle"
                     justify="space-between"
                     style={{
                         padding: '8px 16px',
                         background: '#f5f5f5',
-                        borderBottom: '1px solid #e8e8e8'
+                        borderBottom: '1px solid #e8e8e8',
+                        flexShrink: 0
                     }}
                 >
                     <Col>
                         <Text strong style={{ color: '#595959' }}>СПИСОК ТОВАРОВ</Text>
                     </Col>
-                    <Col>
-                        {this.renderPagination()}
-                    </Col>
                 </Row>
-                <Table
-                    size="small"
-                    locale={{
-                        emptyText: (
-                            <div><Loading3QuartersOutlined spin /> Пусто</div>
-                        )
-                    }}
-                    pagination={false}
-                    columns={columns}
-                    dataSource={dataSource.slice(
-                        (pagination.current - 1) * pagination.pageSize,
-                        pagination.current * pagination.pageSize
-                    )}
-                    bordered
-                    rowKey="lineNumber"
-                />
+                <div style={{
+                    flex: 1,
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column'
+                }}>
+                    <Table
+                        size="small"
+                        locale={{
+                            emptyText: (
+                                <div><Loading3QuartersOutlined spin /> Пусто</div>
+                            )
+                        }}
+                        pagination={false}
+                        columns={columns}
+                        dataSource={dataSource}
+                        bordered
+                        rowKey="lineNumber"
+                        scroll={{
+                            y: 'calc(100vh - 400px)'
+                        }}
+                        style={{
+                            flex: 1,
+                            overflow: 'hidden',
+                            // Скрываем скроллбар полностью
+                            '&::-webkit-scrollbar': {
+                                display: 'none'
+                            },
+                            '-ms-overflow-style': 'none',
+                            'scrollbar-width': 'none'
+                        }}
+                    />
+                </div>
             </div>
         );
     }

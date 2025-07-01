@@ -20,8 +20,27 @@ class _ProductsMenu extends React.Component {
             searchResults: [],
             isSearchMode: false,
             prevPathBeforeSearch: null,
-            pageSize: this.calculatePageSize() // Инициализируем pageSize в состоянии
+            pageSize: this.calculatePageSize(),
+            prevItems: null // Добавляем для отслеживания изменений
         };
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+        // Если пришли новые items и они отличаются от предыдущих
+        if (Array.isArray(nextProps.items) &&
+            JSON.stringify(nextProps.items) !== JSON.stringify(prevState.prevItems)) {
+            return {
+                items: nextProps.items,
+                prevItems: nextProps.items, // Сохраняем новые items как предыдущие
+                // Не сбрасываем currentPath и другие состояния навигации
+                currentItems: nextProps.items.slice(0, prevState.pageSize),
+                currentPage: 1,
+                isSearchMode: false,
+                searchResults: [],
+                prevPathBeforeSearch: null
+            };
+        }
+        return null;
     }
 
     // Функция для расчета количества элементов на странице
@@ -91,72 +110,57 @@ class _ProductsMenu extends React.Component {
 
     openFolder = (e, id = 0, fromBreadcrumb = false, pathIndex = 0) => {
         try {
+            let itemsToUse = this.state.items;
+            let newPath = [...this.state.currentPath];
+
             if (!fromBreadcrumb) {
-                // Оригинальная логика для открытия папки при клике на элемент
+                // Клик по папке
                 const clickedItem = this.state.currentItems.find(item => item && item.id === id);
                 if (!clickedItem || !clickedItem.children) return;
 
-                const newPath = [
+                newPath = [
                     ...this.state.currentPath,
                     {
                         level: this.state.currentPath.length,
-                        index: this.state.items.indexOf(clickedItem),
+                        index: this.state.items.findIndex(item => item.id === id),
                         title: clickedItem.title
                     }
                 ];
 
-                this.setState({
-                    items: clickedItem.children,
-                    currentItems: clickedItem.children.slice(0, this.state.pageSize),
-                    currentPath: newPath,
-                    currentPage: 1,
-                    isSearchMode: false,
-                    prevPathBeforeSearch: null
-                });
+                itemsToUse = clickedItem.children;
             } else {
-                // Новая логика для навигации по хлебным крошкам
+                // Навигация по хлебным крошкам
                 if (pathIndex === 'ROOT' || pathIndex === 0) {
-                    // Возврат в корень
-                    this.setState({
-                        items: this.props.items,
-                        currentItems: this.props.items.slice(0, this.state.pageSize),
-                        currentPath: [this.state.currentPath[0]],
-                        currentPage: 1,
-                        isSearchMode: false,
-                        prevPathBeforeSearch: null
-                    });
-                    return;
-                }
+                    itemsToUse = this.props.items;
+                    newPath = [this.state.currentPath[0]];
+                } else {
+                    // Реконструкция пути
+                    let currentMenu = this.props.items;
+                    newPath = [this.state.currentPath[0]];
 
-                // 1. Начинаем с корневого уровня
-                let currentMenu = this.props.items;
-                const newPath = [this.state.currentPath[0]]; // Корневой элемент
+                    for (let i = 1; i <= pathIndex; i++) {
+                        const pathItem = this.state.currentPath[i];
+                        if (!pathItem || !currentMenu[pathItem.index]) {
+                            console.error('Invalid navigation path');
+                            return;
+                        }
 
-                // 2. Реконструируем путь до нужного уровня
-                for (let i = 1; i <= pathIndex; i++) {
-                    const pathItem = this.state.currentPath[i];
-                    if (!pathItem || !currentMenu[pathItem.index]) {
-                        console.error('Invalid navigation path');
-                        return;
+                        newPath.push(pathItem);
+                        currentMenu = currentMenu[pathItem.index].children;
                     }
 
-                    // 3. Добавляем текущий уровень в путь
-                    newPath.push(pathItem);
-
-                    // 4. Переходим на следующий уровень
-                    currentMenu = currentMenu[pathItem.index].children;
+                    itemsToUse = currentMenu || [];
                 }
-
-                // 5. Обновляем состояние
-                this.setState({
-                    items: currentMenu || [],
-                    currentItems: (currentMenu || []).slice(0, this.state.pageSize),
-                    currentPath: newPath,
-                    currentPage: 1,
-                    isSearchMode: false,
-                    prevPathBeforeSearch: null
-                });
             }
+
+            this.setState({
+                items: itemsToUse,
+                currentItems: itemsToUse.slice(0, this.state.pageSize),
+                currentPath: newPath,
+                currentPage: 1,
+                isSearchMode: false,
+                prevPathBeforeSearch: null
+            });
         } catch (error) {
             console.error('Navigation error:', error);
             // Сброс к корневому уровню при ошибке
@@ -302,7 +306,8 @@ class _ProductsMenu extends React.Component {
                                                 id: item.id,
                                                 price: item.price,
                                                 discount: item.discount,
-                                                title: item.title
+                                                title: item.title,
+                                                stop: item.stop
                                             }}
                                             onClick={() => {
                                                 if (window.orderAddItem) {

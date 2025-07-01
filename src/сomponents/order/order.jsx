@@ -1,6 +1,6 @@
-import { Card, Col, Layout, Row, Typography, Input, Button } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
 import React from 'react';
+import { Card, Col, Layout, Row, Typography, Input, Button, Space, Result } from 'antd';
+import { ArrowRightOutlined, SearchOutlined, CheckCircleFilled, CheckOutlined, SmileOutlined, EditOutlined, FormOutlined } from '@ant-design/icons';
 import _ProductTable from "./products_list";
 import _OrderHeader from "./order_header";
 import _OrderData from "./order_data";
@@ -10,6 +10,8 @@ import _PromoMenu from "./menu/promo/promo_menu";
 import OrderAdditionalInfo from "./orderAdditionalInfo";
 import { componentRules } from './componentRules';
 import OrderAddressBlock from "./orderAddressBlock";
+import PromoMenu from "./menu/promo/promo_menu";
+
 const { Search } = Input;
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -26,24 +28,38 @@ class Order extends React.Component {
                     items: [],
                     summary: 0,
                     total: 0,
-                    deliveryPrice: 0
+                    deliveryPrice: 0,
+                    client: {}
                 }),
                 additionalParams: new OrderAdditionalInfo(),
                 menuType: 'products',
                 menuSearchQuery: '',
-                menuCollapsed: false
+                productsCollapsed: false,
+                promoCollapsed: true,
+                productsFilled: false,
+                promosFilled: false,
+                existingOrder: false,
+                selectedPromoItems: []
             };
         } else {
             const parsedData = JSON.parse(this.props.order_str);
+            const existingOrder = parsedData.id != null && parsedData.id !== "";
+
             this.state = {
                 order_data: new _OrderData({
                     ...parsedData,
-                    items: parsedData.items || []
+                    items: parsedData.items || [],
+                    client: parsedData.client || {}
                 }),
                 additionalParams: new OrderAdditionalInfo(JSON.parse(this.props.additionalParams)),
                 menuType: 'products',
                 menuSearchQuery: '',
-                menuCollapsed: false
+                productsCollapsed: existingOrder,
+                promoCollapsed: existingOrder,
+                productsFilled: false,
+                promosFilled: false,
+                existingOrder: existingOrder,
+                selectedPromoItems: []
             };
         }
     }
@@ -91,10 +107,21 @@ class Order extends React.Component {
         this.setState({ order_data: newOrderData });
     };
 
-    updateClient = (clientData) => {
-        const newOrderData = { ...this.state.order_data };
-        newOrderData.client = clientData;
-        this.setState({ order_data: newOrderData });
+    updateClient = async (clientData) => {
+        return new Promise(resolve => {
+            this.setState(prevState => ({
+                order_data: {
+                    ...prevState.order_data,
+                    client: {
+                        ...(prevState.order_data.client || {}),
+                        ...clientData
+                    }
+                }
+            }), () => {
+                console.log('Client data updated:', this.state.order_data.client);
+                resolve();
+            });
+        });
     };
 
     addOrUpdateItem = (product_title, product_id, price) => {
@@ -108,7 +135,8 @@ class Order extends React.Component {
                 items[existingIndex] = {
                     ...items[existingIndex],
                     count: items[existingIndex].count + 1,
-                    total: (items[existingIndex].count + 1) * price
+                    total: (items[existingIndex].count + 1) * price,
+                    total_with_discount: (items[existingIndex].count + 1) * price
                 };
             } else {
                 items.push({
@@ -117,6 +145,7 @@ class Order extends React.Component {
                     count: 1,
                     price,
                     total: price,
+                    total_with_discount: price,
                     product_id,
                     promo_id: null
                 });
@@ -190,6 +219,10 @@ class Order extends React.Component {
         this.setState({ order_data: newOrderData });
     };
 
+    handlePromoItemsChange = (selectedPromoItems) => {
+        this.setState({ selectedPromoItems });
+    };
+
     componentDidMount() {
         window.get_order_data = () => {
             return JSON.stringify(this.state.order_data);
@@ -216,7 +249,7 @@ class Order extends React.Component {
                         ...data,
                         items: data.items || this.state.order_data.items
                     })
-                }, this.updateSummary);
+                });
             } catch (e) {
                 console.error('Update error:', e);
             }
@@ -238,6 +271,19 @@ class Order extends React.Component {
             this.setState({ additionalParams: newAdditionalParams });
         };
 
+        window.updateAdditionalParams = (paramsData) => {
+            try {
+                const parsedParams = JSON.parse(paramsData);
+                const newAdditionalParams = new OrderAdditionalInfo(parsedParams);
+
+                this.setState({
+                    additionalParams: newAdditionalParams
+                });
+            } catch (e) {
+                console.error('Failed to parse additional params:', e);
+            }
+        };
+
         window.set_client_phone = (phone) => {
             if (window.clientSelectorSetPhone) {
                 window.clientSelectorSetPhone(phone);
@@ -256,11 +302,25 @@ class Order extends React.Component {
             }
         };
 
+        window.getSelectedPromoItems = () => {
+            return JSON.stringify(this.state.selectedPromoItems);
+        };
+
+        window.cleanupOrderFunctions = () => {
+            delete window.getSelectedPromoItems;
+        };
+    }
+
+    componentWillUnmount() {
+        delete window.updateAdditionalParams;
+        if (window.cleanupOrderFunctions) {
+            window.cleanupOrderFunctions();
+        }
     }
 
     render() {
         let menuComponent;
-        if (this.state.menuType == 'products') {
+        if (this.state.menuType === 'products') {
             menuComponent = (
                 <div>
                     <div style={{
@@ -272,72 +332,89 @@ class Order extends React.Component {
                         alignItems: 'center',
                         overflow: 'hidden'
                     }}>
-                        <Text strong style={{ color: '#595959' }}>МЕНЮ ТОВАРОВ</Text>
-                        <Search
-                            placeholder="Поиск по меню"
-                            allowClear
-                            enterButton={<SearchOutlined />}
-                            size="middle"
-                            onSearch={this.handleMenuSearch}
-                            onChange={(e) => this.handleMenuSearch(e.target.value)}
-                            style={{ width: 200 }}
-                            disabled={this.isComponentDisabled('productsMenu')}
-                        />
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <Text strong style={{ color: '#595959' }}>ТОВАРЫ</Text>
+                            {this.state.productsFilled && (
+                                <CheckCircleFilled style={{ color: '#52c41a', marginLeft: 8 }} />
+                            )}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Search
+                                placeholder="Поиск по меню"
+                                allowClear
+                                enterButton={<SearchOutlined />}
+                                size="middle"
+                                onSearch={this.handleMenuSearch}
+                                onChange={(e) => this.handleMenuSearch(e.target.value)}
+                                style={{ width: 200 }}
+                            />
+                            <Button
+                                type="primary"
+                                href="#"
+                                data-button-id="products-confirm"
+                                style={{
+                                    marginLeft: 8,
+                                    fontWeight: 500,
+                                    boxShadow: '0 2px 0 rgba(0, 0, 0, 0.045)'
+                                }}
+                                icon={<ArrowRightOutlined />}
+                                onClick={() => this.setState({
+                                    productsCollapsed: true,
+                                    promoCollapsed: false,
+                                    menuType: 'promo',
+                                    productsFilled: true
+                                })}
+                            >
+                                Перейти к акциям
+                            </Button>
+                        </div>
+                    </div>
+                    <_ProductsMenu
+                        items={this.state.additionalParams.menu}
+                        searchQuery={this.state.menuSearchQuery}
+                        disabled={this.isComponentDisabled('productsMenu')}
+                    />
+                </div>
+            );
+        } else if (this.state.menuType === 'promo') {
+            menuComponent = (
+                <div>
+                    <div style={{
+                        padding: '3px 12px',
+                        background: '#fafafa',
+                        borderBottom: '1px solid #f0f0f0',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        overflow: 'hidden'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <Text strong style={{ color: '#595959' }}>АКЦИИ</Text>
+                            {this.state.promosFilled && (
+                                <CheckCircleFilled style={{ color: '#52c41a', marginLeft: 8 }} />
+                            )}
+                        </div>
                         <Button
                             type="primary"
                             href="#"
-                            data-button-id="products-confirm"
-                            onClick={() => this.setState({ menuCollapsed: true })}
+                            data-button-id="promo-confirm"
+                            style={{
+                                fontWeight: 500,
+                                boxShadow: '0 2px 0 rgba(0, 0, 0, 0.045)'
+                            }}
+                            icon={<CheckOutlined />}
+                            onClick={() => this.setState({
+                                promoCollapsed: true,
+                                productsCollapsed: true,
+                                promosFilled: true
+                            })}
                         >
-                            Подтвердить
+                            Подтвердить выбор
                         </Button>
                     </div>
-                    <div
-                        style={{
-                            pointerEvents: this.isComponentDisabled('productsMenu') ? 'none' : 'auto',
-                            opacity: this.isComponentDisabled('productsMenu') ? 0.5 : 1,
-                            cursor: this.isComponentDisabled('productsMenu') ? 'not-allowed' : 'default',
-                            visibility: this.isComponentHidden('productsMenu') ? 'hidden' : 'default',
-                        }}
-                    >
-                        <_ProductsMenu
-                            items={this.state.additionalParams.menu}
-                            searchQuery={this.state.menuSearchQuery}
-                        />
-                    </div>
-                </div>
-            );
-        } else if (this.state.menuType == 'promo') {
-            menuComponent = (
-                <div style={{
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column'
-                }}>
-                    <div style={{
-                        padding: '8px 12px',
-                        background: '#fafafa',
-                        borderBottom: '1px solid #f0f0f0',
-                        marginBottom: 8,
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                    }}>
-                        <Text strong style={{ color: '#595959' }}>АКЦИИ И ПРОМО</Text>
-                        <Search
-                            placeholder="Поиск по акциям"
-                            allowClear
-                            enterButton={<SearchOutlined />}
-                            size="middle"
-                            onSearch={this.handleMenuSearch}
-                            onChange={(e) => this.handleMenuSearch(e.target.value)}
-                            style={{ width: 200 }}
-                        />
-                    </div>
-                    <_PromoMenu
-                        items={this.state.additionalParams.promoList}
-                        searchQuery={this.state.menuSearchQuery}
-                        style={{ width: '100%' }}
+                    <PromoMenu
+                        promotions={this.state.additionalParams.promoList}
+                        onGiftsChange={this.handlePromoItemsChange}
                     />
                 </div>
             );
@@ -363,9 +440,16 @@ class Order extends React.Component {
                         updatePackage={this.updatePackageType}
                         updateScheduledStatus={this.updateScheduledStatus}
                         updateScheduledTime={this.updateScheduledTime}
+                        updateClient={this.updateClient}
                         disabled={this.isComponentDisabled('orderHeader')}
                         hidden={this.isComponentHidden('orderHeader')}
                     />
+
+                    {/*/!* Отладочная информация *!/*/}
+                    {/*<div style={{ padding: '10px', background: '#f0f0f0', margin: '10px' }}>*/}
+                    {/*    <Text strong>Текущие данные клиента:</Text>*/}
+                    {/*    <pre>{JSON.stringify(this.state.order_data.client, null, 2)}</pre>*/}
+                    {/*</div>*/}
 
                     <Row gutter={[12, 12]} style={{
                         margin: '0',
@@ -396,7 +480,7 @@ class Order extends React.Component {
                                 }}>
                                     <_ProductTable
                                         dataSource={this.state.order_data.items}
-                                        disabled={this.isComponentDisabled('productTable')}
+                                        disabled={this.isComponentDisabled('productTable') || this.state.productsFilled}
                                         hidden={this.isComponentHidden('productTable')}
                                     />
                                 </div>
@@ -478,25 +562,85 @@ class Order extends React.Component {
                                     display: 'flex',
                                     flexDirection: 'column'
                                 }}>
-                                    {this.state.menuCollapsed ? (
-                                        <div style={{
-                                            padding: '3px 12px',
-                                            background: '#fafafa',
-                                            borderBottom: '1px solid #f0f0f0',
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                            overflow: 'hidden'
-                                        }}>
-                                            <Text strong style={{ color: '#595959' }}>МЕНЮ ТОВАРОВ</Text>
-                                            <Button
-                                                type="primary"
-                                                onClick={() => this.setState({ menuCollapsed: false })}
-                                            >
-                                                Развернуть меню
-                                            </Button>
-                                        </div>
-                                    ) : (
+                                    {this.state.productsCollapsed && this.state.promoCollapsed && (
+                                        <>
+                                            <div style={{
+                                                padding: '3px 12px',
+                                                background: '#fafafa',
+                                                borderBottom: '1px solid #f0f0f0',
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center'
+                                            }}>
+                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                    <Text strong style={{ color: '#595959' }}>ТОВАРЫ</Text>
+                                                    {this.state.productsFilled && (
+                                                        <CheckCircleFilled style={{ color: '#40a9ff', marginLeft: 8 }} />
+                                                    )}
+                                                </div>
+                                                <Button
+                                                    disabled={this.isComponentDisabled('productsEditButton')}
+                                                    onClick={() => this.setState({
+                                                        productsCollapsed: false,
+                                                        promoCollapsed: true,
+                                                        menuType: 'products',
+                                                        productsFilled: false,
+                                                        promosFilled: false
+                                                    })}
+                                                >
+                                                    <FormOutlined />
+                                                    Изменить
+                                                </Button>
+                                            </div>
+                                            <div style={{
+                                                padding: '3px 12px',
+                                                background: '#fafafa',
+                                                borderBottom: '1px solid #f0f0f0',
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center'
+                                            }}>
+                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                    <Text strong style={{ color: '#595959' }}>АКЦИИ</Text>
+                                                    {this.state.promosFilled && (
+                                                        <CheckCircleFilled style={{ color: '#40a9ff', marginLeft: 8 }} />
+                                                    )}
+                                                </div>
+                                                <Button
+                                                    disabled={this.isComponentDisabled('promoEditButton')}
+                                                    onClick={() => this.setState({
+                                                        promoCollapsed: false,
+                                                        productsCollapsed: true,
+                                                        menuType: 'promo',
+                                                        promosFilled: false
+                                                    })}
+                                                >
+                                                    <FormOutlined />
+                                                    Изменить
+                                                </Button>
+                                            </div>
+
+                                            {!this.state.existingOrder && this.state.productsFilled && this.state.promosFilled && (
+                                                <div style={{
+                                                    flex: 1,
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    padding: '24px'
+                                                }}>
+                                                    <Result
+                                                        icon={<CheckOutlined style={{ color: '#40a9ff' }} />}
+                                                        title="Товары и акции заполнены!"
+                                                        subTitle="Вы можете продолжить оформление заказа"
+                                                        style={{ padding: 0 }}
+                                                    />
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+
+                                    {(this.state.menuType === 'products' && !this.state.productsCollapsed) ||
+                                    (this.state.menuType === 'promo' && !this.state.promoCollapsed) ? (
                                         <div style={{
                                             flex: 1,
                                             display: 'flex',
@@ -505,7 +649,7 @@ class Order extends React.Component {
                                         }}>
                                             {menuComponent}
                                         </div>
-                                    )}
+                                    ) : null}
                                 </div>
 
                                 <div style={{
@@ -516,11 +660,11 @@ class Order extends React.Component {
                                 }}>
                                     <StatusButtons
                                         order_data={this.state.order_data}
-                                        printDisabed={this.isComponentDisabled('statusButtonsPrint')}
+                                        printDisabed={this.isComponentDisabled('statusButtonsPrint') || (!this.state.existingOrder & (!this.state.productsFilled || !this.state.promosFilled))}
                                         printHidden={this.isComponentHidden('statusButtonsPrint')}
-                                        payDisabed={this.isComponentDisabled('statusButtonsPay')}
+                                        payDisabed={this.isComponentDisabled('statusButtonsPay') || (!this.state.existingOrder & (!this.state.productsFilled || !this.state.promosFilled))}
                                         payHidden={this.isComponentHidden('statusButtonsPay')}
-                                        nextDisabed={this.isComponentDisabled('statusButtonsNext')}
+                                        nextDisabed={this.isComponentDisabled('statusButtonsNext') || (!this.state.existingOrder & (!this.state.productsFilled || !this.state.promosFilled))}
                                         nextHidden={this.isComponentHidden('statusButtonsNext')}
                                     />
                                 </div>

@@ -35,7 +35,7 @@ export const componentRules = {
         hidden: (orderData) => false
     },
     addressBlock: {
-        disabled: (orderData) => false,
+        disabled: (orderData) => orderData.client.phone === null,
         hidden: (orderData) => orderData.package != 'delivery'
     },
     addressFields: {
@@ -46,6 +46,14 @@ export const componentRules = {
     },
     courierFields: {
         disabled: (orderData) => orderData.status != '3.Ожидает',
+        hidden: (orderData) => false
+    },
+    promoEditButton: {
+        disabled: (orderData) => orderData.id != '',
+        hidden: (orderData) => false
+    },
+    productsEditButton: {
+        disabled: (orderData) => orderData.id != '',
         hidden: (orderData) => false
     }
     // ... другие компоненты

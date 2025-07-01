@@ -1,6 +1,15 @@
 import React from 'react';
 import { Space, Table, Tag, Typography, Popover, Button, Dropdown, Menu } from 'antd';
-import { FilterOutlined, GlobalOutlined, HomeOutlined, Loading3QuartersOutlined, DeleteOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import {
+    FilterOutlined,
+    GlobalOutlined,
+    HomeOutlined,
+    Loading3QuartersOutlined,
+    DeleteOutlined,
+    CheckCircleOutlined,
+    FieldTimeOutlined
+} from "@ant-design/icons";
+import { debounce } from 'lodash';
 
 const { Text } = Typography;
 
@@ -11,8 +20,12 @@ class OrdersTable extends React.Component {
             dataSource: [],
             isLoading: false,
             tableHeight: 600,
-            statusFilter: ['temporary', 'in_progress'] // Фильтры по умолчанию
+            statusFilter: ['temporary', 'in_progress'],
+            scheduledFilter: false
         };
+
+        this.updateTableHeight = this.updateTableHeight.bind(this);
+        this.handleResize = debounce(this.updateTableHeight, 100);
     }
 
     renderStatusFilter = () => {
@@ -26,36 +39,19 @@ class OrdersTable extends React.Component {
                 onDeselect={({ selectedKeys }) => this.handleStatusFilterChange(selectedKeys)}
                 style={{ padding: '8px 0' }}
             >
-                <Menu.Item key="temporary" style={{ padding: '12px 16px' }}>
-                    Временные
-                </Menu.Item>
-                <Menu.Item key="in_progress" style={{ padding: '12px 16px' }}>
-                    В работе
-                </Menu.Item>
-                <Menu.Item key="completed" style={{ padding: '12px 16px' }}>
-                    Выполненные
-                </Menu.Item>
-                <Menu.Item key="deleted" style={{ padding: '12px 16px' }}>
-                    Удаленные
-                </Menu.Item>
+                <Menu.Item key="temporary" style={{ padding: '12px 16px' }}>Временные</Menu.Item>
+                <Menu.Item key="in_progress" style={{ padding: '12px 16px' }}>В работе</Menu.Item>
+                <Menu.Item key="completed" style={{ padding: '12px 16px' }}>Выполненные</Menu.Item>
+                <Menu.Item key="deleted" style={{ padding: '12px 16px' }}>Удаленные</Menu.Item>
             </Menu>
         );
 
         return (
-            <Dropdown
-                overlay={menu}
-                trigger={['click']}
-                overlayStyle={{ minWidth: '200px' }}
-            >
+            <Dropdown overlay={menu} trigger={['click']} overlayStyle={{ minWidth: '200px' }}>
                 <Button
                     size="large"
                     icon={<FilterOutlined />}
-                    style={{
-                        height: '40px',
-                        padding: '0 16px',
-                        fontSize: '16px',
-                        marginRight: '8px'
-                    }}
+                    style={{ height: '40px', padding: '0 16px', fontSize: '16px', marginRight: '8px' }}
                 >
                     Фильтр
                 </Button>
@@ -70,7 +66,9 @@ class OrdersTable extends React.Component {
     filterOrdersByStatus = (orders) => {
         const { statusFilter } = this.state;
 
-        if (!statusFilter || statusFilter.length === 0) {
+        // Если нет фильтров или выбраны все возможные статусы - возвращаем все заказы
+        if (!statusFilter || statusFilter.length === 0 ||
+            statusFilter.length === 4 /* 4 - это общее количество фильтров */) {
             return orders;
         }
 
@@ -78,17 +76,13 @@ class OrdersTable extends React.Component {
             const isDeleted = order.deleted;
             const status = order.orderStatus;
 
-            // Если выбран фильтр удаленных и заказ удален - показываем
-            if (statusFilter.includes('deleted') && isDeleted) {
-                return true;
-            }
+            // Если выбран фильтр "Удаленные" и заказ удален - включаем его
+            if (statusFilter.includes('deleted') && isDeleted) return true;
 
-            // Если заказ удален, но фильтр удаленных не выбран - не показываем
-            if (isDeleted && !statusFilter.includes('deleted')) {
-                return false;
-            }
+            // Если заказ удален, но фильтр "Удаленные" не выбран - исключаем его
+            if (isDeleted) return false;
 
-            // Проверяем остальные фильтры для неудаленных заказов
+            // Проверяем соответствие остальным фильтрам
             let matchesFilter = false;
 
             if (statusFilter.includes('temporary') && status === 'Временной') {
@@ -96,12 +90,8 @@ class OrdersTable extends React.Component {
             }
 
             if (statusFilter.includes('in_progress') && [
-                '1.Заказан',
-                '2.Кухня',
-                '2,5.Комплектация',
-                '3.Ожидает',
-                '4.В пути',
-                '5.Доставлен'
+                '1.Заказан', '2.Кухня', '2,5.Комплектация',
+                '3.Ожидает', '4.В пути', '5.Доставлен'
             ].includes(status)) {
                 matchesFilter = true;
             }
@@ -117,23 +107,22 @@ class OrdersTable extends React.Component {
     componentDidMount() {
         this.setupWindowMethods();
         this.updateTableHeight();
-        window.addEventListener('resize', this.updateTableHeight);
+        window.addEventListener('resize', this.handleResize);
     }
 
     componentWillUnmount() {
-        window.removeEventListener('resize', this.updateTableHeight);
+        window.removeEventListener('resize', this.handleResize);
+        this.handleResize.cancel();
     }
 
-    updateTableHeight = () => {
+    updateTableHeight() {
         const height = window.innerHeight - 165;
         this.setState({ tableHeight: Math.max(height, 300) });
     }
 
     setupWindowMethods = () => {
-        window.list_AddItem = this.addOrder;
-        window.list_RemoveItem = this.removeOrder;
-        window.list_EditItem = this.editOrder;
         window.list_LoadAllItems = this.loadAllOrders;
+        window.setScheduledFilterButtonState = this.setScheduledFilterButtonState;
     }
 
     openOrder = (e) => {
@@ -142,10 +131,8 @@ class OrdersTable extends React.Component {
 
     loadAllOrders = (ordersJson) => {
         this.setState({ isLoading: true });
-
         try {
             const orders = typeof ordersJson === 'string' ? JSON.parse(ordersJson) : ordersJson;
-
             if (!Array.isArray(orders)) {
                 console.error('list_LoadAllItems ожидает массив заказов или JSON-строку');
                 return;
@@ -165,29 +152,23 @@ class OrdersTable extends React.Component {
                 paid: order.paid || false
             }));
 
-            this.setState({
-                dataSource: formattedOrders,
-                isLoading: false
-            });
+            this.setState({ dataSource: formattedOrders, isLoading: false });
         } catch (error) {
             console.error('Ошибка загрузки заказов:', error);
             this.setState({ isLoading: false });
         }
     }
 
+    setScheduledFilterButtonState = (isPrimary) => {
+        this.setState({ scheduledFilter: isPrimary });
+    }
+
     formatOrderDate = (dateString) => {
         if (!dateString) return '';
-
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return dateString;
-
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const hours = date.getHours().toString().padStart(2, '0');
-            const minutes = date.getMinutes().toString().padStart(2, '0');
-
-            return `${day}.${month} ${hours}:${minutes}`;
+            return `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
         } catch (e) {
             console.error('Ошибка форматирования даты:', e);
             return dateString;
@@ -206,25 +187,13 @@ class OrdersTable extends React.Component {
             '6.Деньги сдал': { color: '#D2F0D3', textColor: '#57B55D', text: '● Деньги сдал' },
             '7.На удаление': { color: '#F3E1D0', textColor: '#795C40', text: '● На удаление' },
         };
-
         return statusMap[orderStatus] || { color: 'geekblue', textColor: 'black', text: `●${orderStatus}` };
     }
 
-
     cleanStatusText = (status) => {
         if (!status) return '';
-
-        // Регулярное выражение для удаления:
-        // ^ - начало строки
-        // [\d,]+ - одна или более цифр или запятых
-        // \.? - необязательная точка
-        // \s* - необязательные пробелы
         let cleaned = status.replace(/^[\d,]+\.?\s*/, '');
-
-        // Дополнительные замены для читаемости
-        cleaned = cleaned.replace('ТТ', 'торговую точку');
-
-        return cleaned;
+        return cleaned.replace('ТТ', 'торговую точку');
     };
 
     renderCellContent = (content, record) => {
@@ -243,7 +212,6 @@ class OrdersTable extends React.Component {
         }
         return <div style={{ width: '100%', textAlign: 'center' }}>{content}</div>;
     }
-
 
     renderNumberCell = (_, { orderNumber, id, deleted, paid }) => {
         return (
@@ -311,30 +279,10 @@ class OrdersTable extends React.Component {
         );
     }
 
-    render() {
-        const { dataSource, isLoading, tableHeight, statusFilter } = this.state;
-        const filteredData = this.filterOrdersByStatus(dataSource);
+    getColumns = () => {
+        const { scheduledFilter } = this.state;
 
-        const statusFilters = [
-            {
-                text: 'Текущие',
-                value: 'in_progress',
-            },
-            {
-                text: 'Временные',
-                value: 'temporary',
-            },
-            {
-                text: 'Выполненные',
-                value: 'completed',
-            },
-            {
-                text: 'Удаленные',
-                value: 'deleted',
-            },
-        ];
-
-        const columns = [
+        return [
             {
                 title: 'Дата',
                 dataIndex: 'orderDate',
@@ -352,16 +300,31 @@ class OrdersTable extends React.Component {
                 render: this.renderNumberCell
             },
             {
-                title: 'Статус',
+                title: () => (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        Статус
+                        <Button
+                            href="#"
+                            data-button-id="menu-sheduled-orders"
+                            size='small'
+                            icon={<FieldTimeOutlined />}
+                            type={scheduledFilter ? 'primary' : 'default'}
+                        >
+                            Временные
+                        </Button>
+                    </div>
+                ),
                 dataIndex: 'orderStatus',
                 key: 'orderStatus',
                 width: 180,
-                filters: statusFilters,
-                filteredValue: statusFilter,
-                onFilter: (value, record) => {
-                    // Фильтрация реализована в filterOrdersByStatus
-                    return true;
-                },
+                filters: [
+                    { text: 'Текущие', value: 'in_progress' },
+                    { text: 'Временные', value: 'temporary' },
+                    { text: 'Выполненные', value: 'completed' },
+                    { text: 'Удаленные', value: 'deleted' },
+                ],
+                filteredValue: this.state.statusFilter,
+                onFilter: () => true,
                 render: this.renderStatusTag
             },
             {
@@ -409,27 +372,13 @@ class OrdersTable extends React.Component {
                 render: (_, { orderAddress, orderOnlineID, orderPackage, deleted }) => (
                     <Space size='small'>
                         {orderPackage === 'Доставка' && (
-                            <Popover
-                                content={<div style={{ width: 130 }}>{orderAddress}</div>}
-                                title="Адрес"
-                                trigger="click"
-                            >
-                                <HomeOutlined style={{
-                                    color: deleted ? '#FF7875' : '#1890ff',
-                                    fontSize: '20px'
-                                }} />
+                            <Popover content={<div style={{ width: 130 }}>{orderAddress}</div>} title="Адрес" trigger="click">
+                                <HomeOutlined style={{ color: deleted ? '#FF7875' : '#1890ff', fontSize: '20px' }} />
                             </Popover>
                         )}
                         {orderOnlineID && (
-                            <Popover
-                                content={<div style={{ width: 130 }}>{orderOnlineID}</div>}
-                                title="№ онлайн заказа"
-                                trigger="click"
-                            >
-                                <GlobalOutlined style={{
-                                    color: deleted ? '#FF7875' : '#1890ff',
-                                    fontSize: '20px'
-                                }} />
+                            <Popover content={<div style={{ width: 130 }}>{orderOnlineID}</div>} title="№ онлайн заказа" trigger="click">
+                                <GlobalOutlined style={{ color: deleted ? '#FF7875' : '#1890ff', fontSize: '20px' }} />
                             </Popover>
                         )}
                     </Space>
@@ -442,13 +391,19 @@ class OrdersTable extends React.Component {
                 hidden: true
             },
         ].filter(item => !item.hidden);
+    }
+
+    render() {
+        const { dataSource, isLoading, tableHeight } = this.state;
+        const filteredData = this.filterOrdersByStatus(dataSource);
 
         return (
             <div style={{
                 height: `${tableHeight+8}px`,
                 overflow: 'hidden',
                 display: 'flex',
-                flexDirection: 'column'
+                flexDirection: 'column',
+                maxWidth: '98vw',
             }}>
                 <Table
                     size="middle"
@@ -460,16 +415,21 @@ class OrdersTable extends React.Component {
                             </Space>
                         )
                     }}
-                    columns={columns}
+                    columns={this.getColumns()}
                     dataSource={filteredData}
                     bordered
                     pagination={false}
-                    scroll={{ y: tableHeight - 40 }}
+                    scroll={{
+                        y: tableHeight - 40,
+                        x: 'max-content'
+                    }}
                     style={{
                         flex: 1,
-                        overflowX: 'auto'
+                        overflowX: 'auto',
+                        width: '100%',
+                        tableLayout: 'fixed'
                     }}
-                    onChange={(pagination, filters, sorter) => {
+                    onChange={(pagination, filters) => {
                         if (filters.orderStatus) {
                             this.handleStatusFilterChange(filters.orderStatus);
                         }
@@ -480,6 +440,9 @@ class OrdersTable extends React.Component {
                                 ...props.style,
                                 padding: '4px 8px',
                                 verticalAlign: 'middle',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
                                 ...(props.record?.deleted ? {
                                     background: '#FFF2F0',
                                     borderBottom: '1px solid #FFCCC7',

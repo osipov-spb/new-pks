@@ -8,13 +8,11 @@ const _PackageSwitch = ({ updatePackage, initialPackageType = 'in_store' }) => {
 
     const handleMenuClick = (e) => {
         setPackageType(e.key);
-        // Вызываем callback для обновления package в родительском компоненте
         if (updatePackage) {
             updatePackage(e.key);
         }
         setVisible(false);
     };
-
 
     const handleVisibleChange = (flag) => {
         setVisible(flag);
@@ -22,14 +20,23 @@ const _PackageSwitch = ({ updatePackage, initialPackageType = 'in_store' }) => {
 
     const menu = (
         <Menu onClick={handleMenuClick}>
-            <Menu.Item key="in_store" icon={<ShopOutlined />}>
-                Зал
+            <Menu.Item
+                key="in_store"
+                icon={<ShopOutlined />}
+            >
+                <a data-button-id='package-switch-in_store'>Зал</a>
             </Menu.Item>
-            <Menu.Item key="take_away" icon={<CarryOutOutlined />}>
-                На вынос
+            <Menu.Item
+                key="take_away"
+                icon={<CarryOutOutlined/>}
+            >
+                <a data-button-id='package-switch-take_away'>На вынос</a>
             </Menu.Item>
-            <Menu.Item key="delivery" icon={<RocketOutlined />}>
-                Доставка
+            <Menu.Item
+                key="delivery"
+                icon={<RocketOutlined/>}
+            >
+                <a data-button-id='package-switch-delivery'>Доставка</a>
             </Menu.Item>
         </Menu>
     );
@@ -52,6 +59,15 @@ const _PackageSwitch = ({ updatePackage, initialPackageType = 'in_store' }) => {
         }
     };
 
+    const getButtonDataId = () => {
+        switch(packageType) {
+            case 'in_store': return 'package-switch-in_store';
+            case 'take_away': return 'package-switch-take_away';
+            case 'delivery': return 'package-switch-delivery';
+            default: return '';
+        }
+    };
+
     return (
         <Dropdown
             overlay={menu}
@@ -62,6 +78,8 @@ const _PackageSwitch = ({ updatePackage, initialPackageType = 'in_store' }) => {
             <Button
                 type="default"
                 icon={getButtonIcon()}
+                // href="#"
+                // data-button-id={getButtonDataId()}
                 style={{ minWidth: '120px' }}
             >
                 {getButtonText()}
