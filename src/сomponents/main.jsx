@@ -1,7 +1,6 @@
 import React from "react";
 import OrdersList from "./list/orders_list";
 import Order from "./order/order";
-import Alert from "./common/alert";
 
 class Main extends React.Component {
     constructor(props) {
@@ -119,12 +118,6 @@ class Main extends React.Component {
         return (
             <>
                 {this.renderPageContent()}
-                <Alert />
-
-                {/* Скрытый элемент для отладки */}
-                <div style={{ display: 'none' }}>
-                    Loaded projects: {this.state.projects.length}
-                </div>
             </>
         );
     }

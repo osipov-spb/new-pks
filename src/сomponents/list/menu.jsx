@@ -1,20 +1,21 @@
-import {Button, Col, Row, Space, Typography, Modal} from "antd";
+import { Button, Col, Row, Space, Typography, Modal } from "antd";
 import {
     ClockCircleOutlined,
-    CompassOutlined, FieldTimeOutlined,
+    CompassOutlined,
+    FieldTimeOutlined,
     FilterOutlined,
     InfoCircleOutlined,
     PlusOutlined,
     StopOutlined
 } from "@ant-design/icons";
-import React, {useState} from "react";
+import React, { useState } from "react";
 import _FunctionsButton from "./buttons/functions";
 import Motivation from "./motivation/motivation";
 import _Header from "./header";
 
-const {Text} = Typography;
+const { Text } = Typography;
 
-const _Menu = ({ projects = [] }) => { // Добавляем пропс projects
+const _Menu = ({ projects = [] }) => {
     const [size, setSize] = useState('large');
     const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -36,18 +37,18 @@ const _Menu = ({ projects = [] }) => { // Добавляем пропс projects
 
     return (
         <>
-            <Row align="bottom">
+            <Row align="middle" gutter={16} style={{ marginBottom: 16 }}>
                 <Col span={18}>
-                    <Space direction="vertical" size="large">
-                        <_Header/>
-                        <Space size="small">
+                    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                        <_Header />
+                        <Space size="small" wrap>
                             {projects.length == 1 ? (
                                 <Button
                                     type="primary"
                                     onClick={createOrderOnClick}
                                     href="#"
                                     data-button-id={`menu-create-order-project-${projects[0].id}`}
-                                    icon={<PlusOutlined/>}
+                                    icon={<PlusOutlined />}
                                     size={size}
                                 >
                                     Создать заказ
@@ -56,28 +57,35 @@ const _Menu = ({ projects = [] }) => { // Добавляем пропс projects
                                 <Button
                                     type="primary"
                                     onClick={createOrderOnClick}
-                                    icon={<PlusOutlined/>}
+                                    icon={<PlusOutlined />}
                                     size={size}
                                 >
                                     Создать заказ
                                 </Button>
                             )}
 
-                            <_FunctionsButton/>
-                            <Button href="#" data-button-id="menu-info" icon={<InfoCircleOutlined/>} size={size}>
+                            <_FunctionsButton />
+                            <Button href="#" data-button-id="menu-info" icon={<InfoCircleOutlined />} size={size}>
                                 Инфо
                             </Button>
-                            <Button href="#" data-button-id="menu-maps" icon={<CompassOutlined/>} size={size}>
+                            <Button href="#" data-button-id="menu-maps" icon={<CompassOutlined />} size={size}>
                                 Карты
                             </Button>
-                            <Button href="#" data-button-id="menu-stop" icon={<StopOutlined/>} size={size} danger>
+                            <Button href="#" data-button-id="menu-stop" icon={<StopOutlined />} size={size} danger>
                                 Стоп
                             </Button>
                         </Space>
                     </Space>
                 </Col>
                 <Col span={6}>
-                    <Motivation/>
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        height: '90px',
+                        width: '100%'
+                    }}>
+                        <Motivation />
+                    </div>
                 </Col>
             </Row>
 

@@ -409,10 +409,17 @@ class OrdersTable extends React.Component {
                     size="middle"
                     locale={{
                         emptyText: (
-                            <Space>
-                                <Loading3QuartersOutlined spin style={{ fontSize: 18, color: '#1890ff' }} />
-                                <Text>{isLoading ? 'Загрузка заказов...' : 'Список заказов пуст'}</Text>
-                            </Space>
+                            <div style={{
+                                // marginBottom: '17px', // Отступ от нижнего края
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center'
+                            }}>
+                                <Space>
+                                    <Loading3QuartersOutlined spin style={{ fontSize: 18, color: '#1890ff' }} />
+                                    <Text>{isLoading ? 'Загрузка заказов...' : 'Список заказов пока пуст'}</Text>
+                                </Space>
+                            </div>
                         )
                     }}
                     columns={this.getColumns()}

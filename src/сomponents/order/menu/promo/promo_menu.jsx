@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Typography, Badge, Popover, Select, Tag, Space, Empty } from 'antd';
 import { GiftOutlined, InfoCircleOutlined, FrownOutlined } from '@ant-design/icons';
 
@@ -7,6 +7,16 @@ const { Option } = Select;
 
 const PromoMenu = ({ promotions, onGiftsChange }) => {
     const [selectedGifts, setSelectedGifts] = useState([]);
+
+    // Фильтруем акции, оставляя только те, у которых available > 0
+    const availablePromotions = useMemo(() => {
+        return promotions?.filter(promo => promo.available > 0) || [];
+    }, [promotions]);
+
+    // Получаем ID выбранных акций
+    const selectedPromoIds = useMemo(() => {
+        return [...new Set(selectedGifts.map(gift => gift.promoId))];
+    }, [selectedGifts]);
 
     const handleGiftSelect = (gift, promoId, selectorIndex) => {
         setSelectedGifts(prev => {
@@ -17,13 +27,27 @@ const PromoMenu = ({ promotions, onGiftsChange }) => {
         });
     };
 
+    // Проверка, должна ли акция быть заблокирована
+    const isPromoDisabled = (promo) => {
+        return selectedPromoIds.some(selectedId =>
+            promo.incompatible?.includes(selectedId) ||
+            (availablePromotions.find(p => p.id === selectedId)?.incompatible?.includes(promo.id)
+            ));
+    };
+
+    // Проверка, должен ли конкретный подарок быть заблокирован
+    const isGiftDisabled = (gift, promo) => {
+        if (!selectedGifts.length) return false;
+        return isPromoDisabled(promo);
+    };
+
     // Отправляем изменения в родительский компонент
     useEffect(() => {
         if (onGiftsChange) {
-            const formattedGifts = formatSelectedGifts(selectedGifts, promotions);
+            const formattedGifts = formatSelectedGifts(selectedGifts, availablePromotions);
             onGiftsChange(formattedGifts);
         }
-    }, [selectedGifts, promotions, onGiftsChange]);
+    }, [selectedGifts, availablePromotions, onGiftsChange]);
 
     // Форматирование выбранных подарков
     const formatSelectedGifts = (gifts, allPromotions) => {
@@ -55,8 +79,22 @@ const PromoMenu = ({ promotions, onGiftsChange }) => {
         return Object.values(resultMap);
     };
 
+    // Форматирование текста информации об акции
+    const formatInfoContent = (info) => {
+        return (
+            <div style={{
+                whiteSpace: 'pre-wrap',
+                maxWidth: '400px',
+                fontSize: '13px',
+                lineHeight: '1.5'
+            }}>
+                {info}
+            </div>
+        );
+    };
+
     // Проверка на пустой список акций
-    if (!promotions || promotions.length === 0) {
+    if (!availablePromotions || availablePromotions.length === 0) {
         return (
             <div style={{
                 height: '500px',
@@ -86,100 +124,123 @@ const PromoMenu = ({ promotions, onGiftsChange }) => {
             flexDirection: 'column',
             overflow: 'hidden'
         }}>
-            {/* Scrollable content */}
             <div style={{
                 flex: 1,
                 overflowY: 'auto',
                 padding: '8px'
             }}>
                 <Space direction="vertical" size={8} style={{ width: '100%' }}>
-                    {promotions.map(promo => (
-                        <div key={promo.id} style={{
-                            marginBottom: '8px',
-                            padding: '8px',
-                            border: '1px solid #f0f0f0',
-                            borderRadius: '4px',
-                            background: '#fff'
-                        }}>
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                marginBottom: '6px',
-                                alignItems: 'center'
+                    {availablePromotions.map(promo => {
+                        const disabled = isPromoDisabled(promo);
+
+                        return (
+                            <div key={promo.id} style={{
+                                marginBottom: '8px',
+                                padding: '8px',
+                                border: `1px solid ${disabled ? '#d9d9d9' : '#f0f0f0'}`,
+                                borderRadius: '4px',
+                                background: disabled ? '#f5f5f5' : '#fff',
+                                opacity: disabled ? 0.6 : 1,
+                                pointerEvents: disabled ? 'none' : 'auto'
                             }}>
-                                <Text strong style={{ fontSize: '13px' }}>
-                                    {promo.title}
-                                    <Popover content={promo.info} title="Информация об акции">
-                                        <InfoCircleOutlined style={{
-                                            color: '#1890ff',
-                                            marginLeft: '6px',
-                                            cursor: 'pointer',
-                                            fontSize: '14px'
-                                        }} />
-                                    </Popover>
-                                </Text>
-                                <Tag color="orange" style={{ margin: 0, fontSize: '12px', padding: '0 6px' }}>
-                                    <GiftOutlined style={{ fontSize: '12px' }} /> {promo.available}
-                                </Tag>
-                            </div>
-
-                            <Space direction="vertical" size={6} style={{ width: '100%' }}>
-                                {Array.from({ length: promo.available }).map((_, index) => {
-                                    const selectedGift = selectedGifts.find(
-                                        g => g.promoId === promo.id && g.selectorIndex === index
-                                    );
-
-                                    return (
-                                        <Select
-                                            key={index}
-                                            style={{
-                                                width: '100%',
-                                                height: '32px',
-                                                fontSize: '13px'
-                                            }}
-                                            placeholder={`Подарок ${index + 1}`}
-                                            value={selectedGift?.id}
-                                            onChange={value => {
-                                                const gift = promo.items.find(item => item.id === value);
-                                                handleGiftSelect(gift, promo.id, index);
-                                            }}
-                                            onClear={() => handleGiftSelect(null, promo.id, index)}
-                                            allowClear
-                                            dropdownMatchSelectWidth={false}
-                                            dropdownStyle={{ minWidth: '250px', fontSize: '13px' }}
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    marginBottom: '6px',
+                                    alignItems: 'center'
+                                }}>
+                                    <Text strong style={{ fontSize: '13px' }}>
+                                        {promo.title}
+                                        {disabled && (
+                                            <Tag color="red" style={{ marginLeft: '6px', fontSize: '11px' }}>
+                                                Несовместимо
+                                            </Tag>
+                                        )}
+                                        <Popover
+                                            content={formatInfoContent(promo.info)}
+                                            title="Информация об акции"
+                                            overlayStyle={{ maxWidth: '450px' }}
                                         >
-                                            {promo.items.map(item => (
-                                                <Option key={`${item.id}-${index}`} value={item.id}>
-                                                    <div style={{
-                                                        display: 'flex',
-                                                        justifyContent: 'space-between',
-                                                        alignItems: 'center',
-                                                        gap: '12px'
-                                                    }}>
-                                                        <span style={{
-                                                            flex: 1,
-                                                            overflow: 'hidden',
-                                                            textOverflow: 'ellipsis',
-                                                            whiteSpace: 'nowrap'
-                                                        }}>
-                                                            {item.title}
-                                                        </span>
-                                                        <span style={{
-                                                            color: '#52c41a',
-                                                            fontWeight: '500',
-                                                            whiteSpace: 'nowrap'
-                                                        }}>
-                                                            {item.price} ₽
-                                                        </span>
-                                                    </div>
-                                                </Option>
-                                            ))}
-                                        </Select>
-                                    );
-                                })}
-                            </Space>
-                        </div>
-                    ))}
+                                            <InfoCircleOutlined style={{
+                                                color: '#1890ff',
+                                                marginLeft: '6px',
+                                                cursor: 'pointer',
+                                                fontSize: '14px'
+                                            }} />
+                                        </Popover>
+                                    </Text>
+                                    <Tag
+                                        color={disabled ? 'default' : 'orange'}
+                                        style={{ margin: 0, fontSize: '12px', padding: '0 6px' }}
+                                    >
+                                        <GiftOutlined style={{ fontSize: '12px' }} /> {promo.available}
+                                    </Tag>
+                                </div>
+
+                                {!disabled && (
+                                    <Space direction="vertical" size={6} style={{ width: '100%' }}>
+                                        {Array.from({ length: promo.available }).map((_, index) => {
+                                            const selectedGift = selectedGifts.find(
+                                                g => g.promoId === promo.id && g.selectorIndex === index
+                                            );
+
+                                            return (
+                                                <Select
+                                                    key={index}
+                                                    style={{
+                                                        width: '100%',
+                                                        height: '32px',
+                                                        fontSize: '13px'
+                                                    }}
+                                                    placeholder={`Выберите товар`}
+                                                    value={selectedGift?.id}
+                                                    onChange={value => {
+                                                        const gift = promo.items.find(item => item.id === value);
+                                                        handleGiftSelect(gift, promo.id, index);
+                                                    }}
+                                                    onClear={() => handleGiftSelect(null, promo.id, index)}
+                                                    allowClear
+                                                    dropdownMatchSelectWidth={false}
+                                                    dropdownStyle={{ minWidth: '250px', fontSize: '13px' }}
+                                                >
+                                                    {promo.items.map(item => (
+                                                        <Option
+                                                            key={`${item.id}-${index}`}
+                                                            value={item.id}
+                                                            disabled={isGiftDisabled(item, promo)}
+                                                        >
+                                                            <div style={{
+                                                                display: 'flex',
+                                                                justifyContent: 'space-between',
+                                                                alignItems: 'center',
+                                                                gap: '12px'
+                                                            }}>
+                                                                <span style={{
+                                                                    flex: 1,
+                                                                    overflow: 'hidden',
+                                                                    textOverflow: 'ellipsis',
+                                                                    whiteSpace: 'nowrap'
+                                                                }}>
+                                                                    {item.title}
+                                                                </span>
+                                                                <span style={{
+                                                                    color: '#52c41a',
+                                                                    fontWeight: '500',
+                                                                    whiteSpace: 'nowrap'
+                                                                }}>
+                                                                    {item.price} ₽
+                                                                </span>
+                                                            </div>
+                                                        </Option>
+                                                    ))}
+                                                </Select>
+                                            );
+                                        })}
+                                    </Space>
+                                )}
+                            </div>
+                        );
+                    })}
                 </Space>
             </div>
         </div>

@@ -1,23 +1,56 @@
+/* motivation.css */
+.motivation-carousel-container {
+    height: 80px;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 0 12px;
+}
+
+.compact-motivation-carousel {
+    height: 80px !important;
+}
+
+.compact-motivation-carousel .slick-slide {
+    height: 80px !important;
+    line-height: 80px !important;
+}
 
 .carousel-slide {
-    display: table-cell;
-    vertical-align: middle;
-    text-align: center;
-    line-height: 80px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
     height: 80px;
-    background-color: white;
-    color: #fff;
 }
 
-.customCarousel .ant-carousel,
-.customCarousel .slick-slider,
-.customCarousel .slick-list,
-.customCarousel .slick-track {
-    height: 80px !important;
-    max-width: 100%;
+.compact-progress .ant-progress-inner {
+    width: 50px !important;
+    height: 50px !important;
+    font-size: 12px !important;
+    line-height: 50px !important;
 }
 
-.customCarousel .slick-slide > div:first-child {
-    height: 80px !important;
-    max-width: 100%;
+.compact-progress .ant-progress-text {
+    font-size: 12px !important;
+}
+
+.leader-icon {
+    color: #ffc53d;
+    font-size: 16px;
+}
+
+.trend-up {
+    color: #52c41a;
+}
+
+.trend-down {
+    color: #f5222d;
+}
+
+.trend-neutral {
+    color: #faad14;
+}
+
+.place-value {
+    font-size: 16px;
 }

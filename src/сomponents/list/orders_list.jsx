@@ -10,7 +10,7 @@ const OrdersList = ({ projects }) => { // Принимаем projects как п�
         <Layout className="layout">
             <Content style={{ padding: '20px' }}>
                 <Space direction="vertical" size='small'>
-                    <_Menu projects={projects} /> {/* Передаем projects в _Menu */}
+                    <_Menu projects={projects} />
                     <_Table/>
                 </Space>
             </Content>

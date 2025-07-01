@@ -1,72 +1,143 @@
-import {Card, Progress, Space, Typography, Carousel, Radio, Row, Col} from 'antd'
-import React, {useState} from 'react';
-import Divider from "../divider";
+import React, { useState, useEffect } from 'react';
+import { Progress, Typography, Tooltip, Space } from 'antd';
+import { CrownOutlined, TrophyOutlined, RiseOutlined, FallOutlined } from '@ant-design/icons';
 
-import "./motivation.css"
+const { Text } = Typography;
 
-const {Text, Title} = Typography;
+const metrics = [
+    {
+        key: 'plan',
+        label: 'Выполнение плана',
+        render: (state) => (
+            <Space>
+            <Progress
+                steps={7}
+                percent={state.planCompletion}
+                // width={30}
+                // strokeColor={state.planCompletion >= 100 ? '#52c41a' : '#1890ff'}
+                // format={() => `${state.planCompletion}%`}
+            />
+            </Space>
+        )
+    },
+    {
+        key: 'leader',
+        label: 'Лидер продаж',
+        render: (state) => (
+            <Tooltip title={state.leader || '—'}>
+                <Space>
+                    <CrownOutlined style={{ color: '#ffc53d', fontSize: 20 }} />
+                    <Text ellipsis style={{ maxWidth: 100 }}>
+                        {state.leader ? `${state.leader.split(',')[0]}` : '—'}
+                    </Text>
+                </Space>
+            </Tooltip>
+        )
+    },
+    {
+        key: 'place',
+        label: 'Ваше место',
+        render: (state) => (
+            <Space>
+                <TrophyOutlined style={{ fontSize: 20 }} />
+                <Text strong>#{state.place || '—'}</Text>
+            </Space>
+        )
+    },
+    {
+        key: 'trend',
+        label: 'Тенденция',
+        render: (state) => {
+            const Icon = state.trend > 0
+                ? <RiseOutlined style={{ color: '#52c41a', fontSize: 20 }} />
+                : <FallOutlined style={{ color: '#f5222d', fontSize: 20 }} />;
 
-const contentStyle = {
-    height: '100px', color: 'black', lineHeight: '100px', textAlign: 'center', background: 'white', width: '300px'
-};
-
-const wrapper_style = {
-    height: '50px', width: '100%', backgroundColor: 'white', textAlign: 'center',
-};
-
-const style = {
-    background: '#0092ff',
-    padding: '8px 0',
-};
-
-class Motivation extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {}
-    }
-
-
-    componentDidMount() {
-        const _plan_completion = 0
-        const _leader = ""
-        const _place = 0
-        const _trend = 0
-
-        this.setState({
-            plan_completion: _plan_completion, leader: _leader, place: _place, trend: _trend, dotPosition: 'left'
-        })
-
-        window.motivation_SetData = (_plan_completion, _leader, _place, _trend) => {
-            this.setState(({
-                plan_completion: _plan_completion, leader: _leader, place: _place, trend: _trend
-            }));
-            return true
+            return (
+                <Space>
+                    {Icon}
+                    <Text strong>{Math.abs(state.trend)}%</Text>
+                </Space>
+            );
         }
     }
+];
 
-    render() {
-        return (<div className='customCarousel'>
-            <Carousel autoplay autoplaySpeed={10000} dots={false} dotPosition='right'>
-                <div className='carousel-slide'>
-                    <Space size='middle' direction="horizontal"><Text>Выполнение плана</Text><Progress type="circle"
-                                                                                                       percent={this.state.plan_completion}
-                                                                                                       width={45}/></Space>
-                </div>
-                <div className='carousel-slide'>
-                    <Space direction="horizontal"><Text>Лидер продаж: <Text
-                        type="secondary">{this.state.leader}</Text></Text></Space>
-                </div>
-                <div className='carousel-slide'>
-                    <Space direction="horizontal"><Text>Ваше место: <Text
-                        type="secondary">{this.state.place}</Text></Text></Space>
-                </div>
-                <div className='carousel-slide'>
-                    <Space direction="horizontal"><Text>Тенденция: <Text
-                        type="secondary">{this.state.trend}</Text></Text></Space>
-                </div>
-            </Carousel>
-        </div>)
-    }
-}
+const Motivation = () => {
+    const [state, setState] = useState({
+        planCompletion: 0,
+        leader: "",
+        place: 0,
+        trend: 0,
+        activeMetric: 0
+    });
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setState(prev => ({
+                ...prev,
+                activeMetric: (prev.activeMetric + 1) % metrics.length
+            }));
+        }, 5000);
+
+        window.motivation_SetData = (planCompletion, leader, place, trend) => {
+            setState({
+                planCompletion,
+                leader,
+                place,
+                trend,
+                activeMetric: 0
+            });
+            return true;
+        };
+
+        window.motivation_SetData(50, "Т01, Тестовая", 1, 80);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    const currentMetric = metrics[state.activeMetric];
+
+    return (
+        <div style={{
+            height: '100%', // Занимает всю доступную высоту
+            minHeight: '90px', // Минимальная высота как у кнопок
+            width: '190px',
+            background: '#fff',
+            borderRadius: 6,
+            padding: '0 12px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-end', // Выравнивание по нижнему краю
+            alignItems: 'center',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            textAlign: 'center',
+            marginBottom: 0 // Убираем возможный отступ снизу
+        }}>
+            <div style={{
+                marginBottom: '14px', // Отступ от нижнего края
+                width: '100%'
+            }}>
+                <Text type="secondary" style={{
+                    fontSize: 13,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: 'block'
+                }}>
+                    {currentMetric.label}
+                </Text>
+            </div>
+
+            <div style={{
+                marginBottom: '17px', // Отступ от нижнего края
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+                {currentMetric.render(state)}
+            </div>
+        </div>
+    );
+};
 
 export default Motivation;
