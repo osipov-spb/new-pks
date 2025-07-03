@@ -8,14 +8,16 @@ const PaymentForm = () => {
     const [change, setChange] = useState(0);
     const [paymentType, setPaymentType] = useState('cash');
     const [isOn, setIsOn] = useState(false);
+    const [showPayLaterButton, setShowPayLaterButton] = useState(true);
 
     useEffect(() => {
-        window.payment_form_open = (total) => {
+        window.payment_form_open = (total, showPayLater = true) => {
             setTotal(total);
             setCashInput(0);
             setChange(0);
             setPaymentType('cash');
             setIsOn(true);
+            setShowPayLaterButton(showPayLater);
         };
 
         window.payment_form_close = () => {
@@ -66,8 +68,8 @@ const PaymentForm = () => {
                 style={{
                     minWidth: '120px',
                     height: '35px',
-                    background: '#13c2c2',
-                    borderColor: '#13c2c2',
+                    // background: '#13c2c2',
+                    // borderColor: '#13c2c2',
                     fontWeight: 500,
                     margin: '4px'
                 }}
@@ -252,18 +254,20 @@ const PaymentForm = () => {
                         </Button>
                     </div>
 
-                    <Button
-                        block
-                        href="#"
-                        data-button-id="prodeed_no_payment"
-                        onClick={() => setIsOn(false)}
-                        style={{
-                            // height: '48px',
-                            margin: '4px 4px 0'
-                        }}
-                    >
-                        Оплатить позже
-                    </Button>
+                    {showPayLaterButton && (
+                        <Button
+                            block
+                            href="#"
+                            data-button-id="prodeed_no_payment"
+                            onClick={() => setIsOn(false)}
+                            style={{
+                                // height: '48px',
+                                margin: '4px 4px 0'
+                            }}
+                        >
+                            Оплатить позже
+                        </Button>
+                    )}
                 </div>
             </Modal>
         </>

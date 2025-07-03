@@ -40,7 +40,7 @@ class _Header extends React.Component {
                 }}
             >
                 <ShoppingFilled style={{ marginRight: 8, color: "#1890ff" }} />
-                <Text style={{'fontSize': '18px'}}>Заказы <ShopFilled style={{ marginLeft: 30, marginRight: 8, color: "#1890ff" }}/>{this.state.subtitle}</Text>
+                <Text style={{'fontSize': '18px'}}>Заказы <ShopFilled style={{ marginLeft: 15, marginRight: 8, color: "#1890ff" }}/>{this.state.subtitle}</Text>
 
                 <div style={{
                     position: "absolute",

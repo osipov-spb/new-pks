@@ -95,15 +95,17 @@ class Order extends React.Component {
     updateScheduledStatus = (isScheduled) => {
         const newOrderData = { ...this.state.order_data };
         newOrderData.scheduled = isScheduled;
+        // Если сбрасываем флаг scheduled, то и время тоже нужно сбросить
+        if (!isScheduled) {
+            newOrderData.scheduledTime = null;
+        }
         this.setState({ order_data: newOrderData });
     };
 
     updateScheduledTime = (time) => {
         const newOrderData = { ...this.state.order_data };
         newOrderData.scheduledTime = time ? time.format() : null;
-        if (time) {
-            newOrderData.scheduled = true;
-        }
+        newOrderData.scheduled = !!time; // Явно устанавливаем scheduled в true/false
         this.setState({ order_data: newOrderData });
     };
 
@@ -355,7 +357,9 @@ class Order extends React.Component {
                                 style={{
                                     marginLeft: 8,
                                     fontWeight: 500,
-                                    boxShadow: '0 2px 0 rgba(0, 0, 0, 0.045)'
+                                    boxShadow: '0 2px 0 rgba(0, 0, 0, 0.045)',
+                                    background: '#73d13d',
+                                    borderColor: '#73d13d',
                                 }}
                                 icon={<ArrowRightOutlined />}
                                 onClick={() => this.setState({
@@ -400,7 +404,9 @@ class Order extends React.Component {
                             data-button-id="promo-confirm"
                             style={{
                                 fontWeight: 500,
-                                boxShadow: '0 2px 0 rgba(0, 0, 0, 0.045)'
+                                boxShadow: '0 2px 0 rgba(0, 0, 0, 0.045)',
+                                background: '#73d13d',
+                                borderColor: '#73d13d',
                             }}
                             icon={<CheckOutlined />}
                             onClick={() => this.setState({

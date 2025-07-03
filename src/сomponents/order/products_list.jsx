@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table, Typography, InputNumber, Button, Popconfirm, message, Row, Col } from 'antd';
-import { Loading3QuartersOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Loading3QuartersOutlined, DeleteOutlined, EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import './products_list.css';
 
 const { Text } = Typography;
@@ -8,6 +8,9 @@ const { Text } = Typography;
 class _ProductTable extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            showHiddenItems: false
+        };
     }
 
     handleCountChange = (lineNumber, value) => {
@@ -25,6 +28,12 @@ class _ProductTable extends React.Component {
         window.orderEditItem?.(lineNumber, 'count', value);
     };
 
+    toggleHiddenItems = () => {
+        this.setState(prevState => ({
+            showHiddenItems: !prevState.showHiddenItems
+        }));
+    };
+
     componentDidMount() {
         if (window.orderLoadItems && this.props.dataSource) {
             window.orderLoadItems(this.props.dataSource);
@@ -33,6 +42,11 @@ class _ProductTable extends React.Component {
 
     render() {
         const { dataSource = [] } = this.props;
+        const { showHiddenItems } = this.state;
+
+        const filteredDataSource = showHiddenItems
+            ? dataSource
+            : dataSource.filter(item => !item.hide);
 
         const columns = [
             {
@@ -48,12 +62,13 @@ class _ProductTable extends React.Component {
                 key: 'lineNumber',
                 width: 35,
                 fixed: 'left',
-                render: (_, { lineNumber }) => (
+                render: (_, { lineNumber, hide }) => (
                     <div style={{
                         fontSize: '13px',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
-                        textOverflow: 'ellipsis'
+                        textOverflow: 'ellipsis',
+                        opacity: hide ? 0.5 : 1
                     }}>{lineNumber}</div>
                 )
             },
@@ -69,12 +84,13 @@ class _ProductTable extends React.Component {
                 dataIndex: 'product_title',
                 key: 'product_title',
                 width: 130,
-                render: (_, { product_title }) => (
+                render: (_, { product_title, hide }) => (
                     <div style={{
                         fontSize: '10px',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
-                        textOverflow: 'ellipsis'
+                        textOverflow: 'ellipsis',
+                        opacity: hide ? 0.5 : 1
                     }}>{product_title}</div>
                 )
             },
@@ -92,7 +108,7 @@ class _ProductTable extends React.Component {
                 width: 55,
                 render: (_, record) => (
                     <InputNumber
-                        disabled={this.props.disabled}
+                        disabled={this.props.disabled || record.hide}
                         min={1}
                         max={99}
                         value={record.count}
@@ -103,7 +119,7 @@ class _ProductTable extends React.Component {
                             }
                         }}
                         size="small"
-                        style={{ width: '40px',  fontSize: '11px'}}
+                        style={{ width: '40px',  fontSize: '11px', opacity: record.hide ? 0.5 : 1 }}
                         precision={0}
                         parser={(value) => {
                             return parseInt(value.replace(/[^\d]/g, '')) || 1;
@@ -126,8 +142,8 @@ class _ProductTable extends React.Component {
                 dataIndex: 'price',
                 key: 'price',
                 width: 55,
-                render: (_, { price }) => (
-                    <div style={{ fontSize: '11px' }}>{price} ₽</div>
+                render: (_, { price, hide }) => (
+                    <div style={{ fontSize: '11px', opacity: hide ? 0.5 : 1 }}>{price} ₽</div>
                 )
             },
             {
@@ -141,10 +157,11 @@ class _ProductTable extends React.Component {
                 dataIndex: 'total',
                 key: 'total',
                 width: 55,
-                render: (_, { total, total_with_discount }) => {
+                render: (_, { total, total_with_discount, hide }) => {
+                    const style = { fontSize: '11px', opacity: hide ? 0.5 : 1 };
                     if (total_with_discount < total) {
                         return (
-                            <div style={{ fontSize: '11px' }}>
+                            <div style={style}>
                                 <div style={{ textDecoration: 'line-through', color: '#999' }}>
                                     {total} ₽
                                 </div>
@@ -155,7 +172,7 @@ class _ProductTable extends React.Component {
                         );
                     }
                     return (
-                        <div style={{ fontSize: '11px' }}>{total} ₽</div>
+                        <div style={style}>{total} ₽</div>
                     );
                 }
             },
@@ -166,7 +183,8 @@ class _ProductTable extends React.Component {
                 fixed: 'right',
                 render: (_, record) => (
                     <div style={{
-                        pointerEvents: this.props.disabled ? 'none' : 'auto'
+                        pointerEvents: this.props.disabled ? 'none' : 'auto',
+                        opacity: record.hide ? 0.5 : 1
                     }}>
                         <Popconfirm
                             title="Удалить позицию?"
@@ -175,7 +193,7 @@ class _ProductTable extends React.Component {
                             cancelText="Нет"
                         >
                             <Button
-                                disabled={this.props.disabled}
+                                disabled={this.props.disabled || record.hide}
                                 icon={<DeleteOutlined />}
                                 size="small"
                                 danger
@@ -208,6 +226,15 @@ class _ProductTable extends React.Component {
                     <Col>
                         <Text strong style={{ color: '#595959' }}>СПИСОК ТОВАРОВ</Text>
                     </Col>
+                    <Col>
+                        <Button
+                            icon={showHiddenItems ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                            size="small"
+                            type="text"
+                            onClick={this.toggleHiddenItems}
+                            title={showHiddenItems ? 'Скрыть элементы' : 'Показать скрытые элементы'}
+                        />
+                    </Col>
                 </Row>
                 <div style={{
                     flex: 1,
@@ -224,7 +251,7 @@ class _ProductTable extends React.Component {
                         }}
                         pagination={false}
                         columns={columns}
-                        dataSource={dataSource}
+                        dataSource={filteredDataSource}
                         bordered
                         rowKey="lineNumber"
                         scroll={{
@@ -233,13 +260,13 @@ class _ProductTable extends React.Component {
                         style={{
                             flex: 1,
                             overflow: 'hidden',
-                            // Скрываем скроллбар полностью
                             '&::-webkit-scrollbar': {
                                 display: 'none'
                             },
                             '-ms-overflow-style': 'none',
                             'scrollbar-width': 'none'
                         }}
+                        rowClassName={(record) => record.hide ? 'hidden-row' : ''}
                     />
                 </div>
             </div>

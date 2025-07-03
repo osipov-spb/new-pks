@@ -45,7 +45,7 @@ export const componentRules = {
         hidden: (orderData) => false
     },
     courierFields: {
-        disabled: (orderData) => orderData.status != '3.Ожидает',
+        disabled: (orderData) => (orderData.status != '3.Ожидает') & (orderData.status != '4.В пути'),
         hidden: (orderData) => false
     },
     promoEditButton: {

@@ -85,7 +85,8 @@ class StatusButtons extends React.Component {
                                     height: '35px',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    justifyContent: 'flex-start'
+                                    justifyContent: 'flex-start',
+                                    fontWeight: 500
                                 }}
                             >
                                 Закрыть
@@ -103,7 +104,8 @@ class StatusButtons extends React.Component {
                                     height: '35px',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    justifyContent: 'flex-start'
+                                    justifyContent: 'flex-start',
+                                    fontWeight: 500
                                 }}
                             >
                                 Закрыть
@@ -121,6 +123,7 @@ class StatusButtons extends React.Component {
                         <Button
                             key='save-order-button'
                             href="#"
+                            type="primary"
                             {...(!this.props.nextDisabed && { "data-button-id": "order-proceed" })}
                             disabled={this.props.nextDisabed}
                             style={{
@@ -130,6 +133,10 @@ class StatusButtons extends React.Component {
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
                                 visibility: this.props.nextHidden ? 'hidden' : 'visible',
+                                fontWeight: 500,
+                                boxShadow: '0 2px 0 rgba(0, 0, 0, 0.045)',
+                                background: !this.props.nextDisabed ? '#73d13d' : 'default',
+                                borderColor: !this.props.nextDisabed ? '#73d13d' : 'default'
                             }}
                         >
                             Далее

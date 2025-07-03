@@ -1,14 +1,6 @@
 import React from 'react';
-import { Button, Row, Col, Space, Typography, Modal, TimePicker, DatePicker } from "antd";
-import {
-    ClockCircleOutlined,
-    FileOutlined,
-    PercentageOutlined,
-    ProfileOutlined,
-    RollbackOutlined,
-    CheckOutlined,
-    CloseOutlined
-} from "@ant-design/icons";
+import { Button, Row, Col, Space, Typography, Modal, DatePicker } from "antd";
+import { ClockCircleOutlined, ProfileOutlined, RollbackOutlined } from "@ant-design/icons";
 import moment from 'moment';
 import _OrderTitle from "./order_title";
 import _PackageSwitch from "./buttons/package_switch";
@@ -17,77 +9,85 @@ import PromoCodeModal from "./cert/cert";
 
 const { Text } = Typography;
 
+const isEmptyDate = (date) => {
+    return date && date.year() === 1 && date.month() === 0 && date.date() === 1;
+};
+
 class _OrderHeader extends React.Component {
     constructor(props) {
         super(props);
+        const initialDate = props.order_data.scheduledTime ? moment(props.order_data.scheduledTime) : null;
+
         this.state = {
-            isTemporaryOrder: props.order_data.scheduled || false,
-            isBSO: false,
             showDateTimePicker: false,
-            selectedDateTime: props.order_data.scheduledTime ? moment(props.order_data.scheduledTime) : null
+            selectedDateTime: isEmptyDate(initialDate) ? null : initialDate,
+            isTemporaryOrder: props.order_data.scheduled && !isEmptyDate(initialDate)
         };
     }
 
-    handleDateTimeConfirm = () => {
-        if (this.state.selectedDateTime) {
-            this.setState({
-                isTemporaryOrder: true,
-                showDateTimePicker: false
-            });
-            this.props.updateScheduledStatus(true);
-            this.props.updateScheduledTime(this.state.selectedDateTime);
-        }
-    };
-
-    handleDateTimeClear = () => {
+    handleOpenDateTimePicker = () => {
         this.setState({
-            selectedDateTime: null,
-            isTemporaryOrder: false,
-            showDateTimePicker: false
+            showDateTimePicker: true,
+            tempDateTime: this.state.selectedDateTime || moment().add(1, 'hour').startOf('hour')
         });
-        this.props.updateScheduledStatus(false);
-        this.props.updateScheduledTime(null);
     };
 
     handleDateTimeChange = (date) => {
-        this.setState({ selectedDateTime: date });
-        if (date) {
-            this.props.updateScheduledTime(date);
-            this.props.updateScheduledStatus(true);
+        if (isEmptyDate(date)) {
+            this.setState({ tempDateTime: null });
+            return;
         }
+        this.setState({ tempDateTime: date });
     };
 
-    handleTimeChange = (time) => {
-        const { selectedDateTime } = this.state;
-        let newDateTime = selectedDateTime || moment();
+    handleDateTimeConfirm = () => {
+        const { tempDateTime } = this.state;
 
-        if (time) {
-            newDateTime = newDateTime.set({
-                hour: time.hour(),
-                minute: time.minute(),
-                second: 0
-            });
+        if (!tempDateTime || isEmptyDate(tempDateTime)) {
+            this.handleDateTimeClear();
+            return;
         }
 
-        this.setState({ selectedDateTime: newDateTime });
-        this.props.updateScheduledTime(newDateTime);
+        this.setState({
+            showDateTimePicker: false,
+            selectedDateTime: tempDateTime,
+            isTemporaryOrder: true
+        });
+
         this.props.updateScheduledStatus(true);
+        this.props.updateScheduledTime(tempDateTime);
     };
 
-    componentDidUpdate(prevProps) {
-        if (prevProps.order_data.scheduled !== this.props.order_data.scheduled ||
-            prevProps.order_data.scheduledTime !== this.props.order_data.scheduledTime) {
-            const { scheduled, scheduledTime } = this.props.order_data;
-            this.setState({
-                isTemporaryOrder: scheduled || false,
-                selectedDateTime: scheduledTime ? moment(scheduledTime) : null
-            });
+    handleDateTimeClear = () => {
+        // Сбрасываем состояние сразу
+        this.setState({
+            showDateTimePicker: false,
+            selectedDateTime: null,
+            isTemporaryOrder: false,
+            tempDateTime: null
+        }, () => {
+            // После обновления состояния вызываем колбэки
+            this.props.updateScheduledStatus(false);
+            this.props.updateScheduledTime(null);
+        });
+    };
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+        const nextDate = nextProps.order_data.scheduledTime ? moment(nextProps.order_data.scheduledTime) : null;
+
+        if (nextProps.order_data.scheduledTime !== prevState.prevScheduledTime) {
+            return {
+                prevScheduledTime: nextProps.order_data.scheduledTime,
+                selectedDateTime: isEmptyDate(nextDate) ? null : nextDate,
+                isTemporaryOrder: nextProps.order_data.scheduled && !isEmptyDate(nextDate)
+            };
         }
+        return null;
     }
 
     render() {
-        const { isTemporaryOrder, selectedDateTime } = this.state;
-        const { order_data, updatePackage, updateClient } = this.props;
+        const { isTemporaryOrder, selectedDateTime, showDateTimePicker, tempDateTime } = this.state;
+        const { order_data, updatePackage, updateClient, disabled, hidden } = this.props;
 
         return (
             <div style={{
@@ -96,102 +96,100 @@ class _OrderHeader extends React.Component {
                 borderBottom: '1px solid #f0f0f0'
             }}>
                 <div style={{ marginBottom: 8 }}>
-                    <_OrderTitle
-                        order_number={order_data.order_number}
-                        deleted={order_data.deleted}
-                        status={order_data.status}
-                        date={order_data.date}
-                        project={order_data.project}
-                    />
+                    <_OrderTitle {...order_data} />
                 </div>
 
-                <div style={{
-                    pointerEvents: this.props.disabled ? 'none' : 'auto',
-                    opacity: this.props.disabled ? 0.5 : 1,
-                    cursor: this.props.disabled ? 'not-allowed' : 'default',
-                    visibility: this.props.hidden ? 'hidden' : 'default',
-                }}>
-                    <Row align="middle" justify="space-between">
-                        <Col>
-                            <Space size={6} wrap>
-                                <_PackageSwitch
-                                    size="middle"
-                                    updatePackage={updatePackage}
-                                    initialPackageType={order_data.package}
-                                />
+                <Row align="middle" justify="space-between">
+                    <Col style={{
+                        pointerEvents: disabled ? 'none' : 'auto',
+                        opacity: disabled ? 0.5 : 1,
+                        cursor: disabled ? 'not-allowed' : 'default',
+                        visibility: hidden ? 'hidden' : 'default',
+                    }}>
+                        <Space size={6} wrap>
+                            <_PackageSwitch
+                                size="middle"
+                                updatePackage={updatePackage}
+                                initialPackageType={order_data.package}
+                            />
 
-                                <Button
-                                    size="middle"
-                                    type={isTemporaryOrder ? 'primary' : 'default'}
-                                    icon={<ClockCircleOutlined />}
-                                    onClick={() => this.setState({ showDateTimePicker: true })}
-                                >
-                                    {isTemporaryOrder && selectedDateTime ? (
-                                        selectedDateTime.format('DD.MM.YYYY HH:mm')
-                                    ) : (
-                                        'Временной'
-                                    )}
-                                </Button>
+                            <Button
+                                size="middle"
+                                type={isTemporaryOrder ? 'primary' : 'default'}
+                                icon={<ClockCircleOutlined />}
+                                onClick={this.handleOpenDateTimePicker}
+                            >
+                                {isTemporaryOrder && selectedDateTime ? (
+                                    selectedDateTime.format('DD.MM.YYYY HH:mm')
+                                ) : (
+                                    'Временной'
+                                )}
+                            </Button>
 
-                                <PromoCodeModal size="middle" />
-                                <NumberInputPadModal
-                                    size="middle"
-                                    clientData={order_data.client}
-                                    onClientChange={updateClient}
-                                />
-                            </Space>
-                        </Col>
+                            <PromoCodeModal size="middle" />
+                            <NumberInputPadModal
+                                size="middle"
+                                clientData={order_data.client}
+                                onClientChange={updateClient}
+                            />
+                        </Space>
+                    </Col>
 
-                        <Col>
-                            <Space size={6}>
-                                <Button size="middle" icon={<ProfileOutlined />}>Акт</Button>
-                                <Button size="middle" icon={<RollbackOutlined />}>Возврат</Button>
-                            </Space>
-                        </Col>
-                    </Row>
-                </div>
+                    <Col style={{
+                        pointerEvents: !disabled ? 'none' : 'auto',
+                        opacity: !disabled ? 0.5 : 1,
+                        cursor: !disabled ? 'not-allowed' : 'default',
+                        visibility: hidden ? 'hidden' : 'default',
+                    }}>
+                        <Space size={6}>
+                            <Button size="middle" icon={<ProfileOutlined />} href="#" data-button-id="order-write-down-act">Акт списания</Button>
+                            <Button size="middle" icon={<RollbackOutlined />}>Возврат</Button>
+                        </Space>
+                    </Col>
+                </Row>
 
                 <Modal
-                    title="Укажите дату и время"
-                    visible={this.state.showDateTimePicker}
+                    title="Укажите дату и время доставки"
+                    visible={showDateTimePicker}
                     onCancel={() => this.setState({ showDateTimePicker: false })}
                     footer={[
                         <Button
                             key="clear"
-                            icon={<CloseOutlined />}
-                            onClick={this.handleDateTimeClear}
                             danger
+                            onClick={this.handleDateTimeClear}
                         >
                             Очистить
                         </Button>,
                         <Button
                             key="confirm"
                             type="primary"
-                            icon={<CheckOutlined />}
                             onClick={this.handleDateTimeConfirm}
-                            disabled={!this.state.selectedDateTime}
+                            disabled={!tempDateTime || isEmptyDate(tempDateTime)}
                         >
                             Подтвердить
                         </Button>
                     ]}
                     width={400}
                 >
-                    <Space direction="vertical" style={{ width: '100%' }}>
-                        <DatePicker
-                            style={{ width: '100%' }}
-                            placeholder="ДД.ММ.ГГГГ"
-                            onChange={this.handleDateTimeChange}
-                            value={this.state.selectedDateTime}
-                            format="DD.MM.YYYY"
-                        />
-                        <TimePicker
-                            style={{ width: '100%' }}
-                            placeholder="ЧЧ:ММ"
-                            onChange={this.handleTimeChange}
-                            value={this.state.selectedDateTime}
-                            format="HH:mm"
-                        />
-                    </Space>
+                    <DatePicker
+                        showTime={{
+                            format: 'HH:mm',
+                            minuteStep: 15,
+                            showNow: true,
+                            hideDisabledOptions: true,
+                            use12Hours: false
+                        }}
+                        format="DD.MM.YYYY HH:mm"
+                        style={{ width: '100%' }}
+                        onChange={this.handleDateTimeChange}
+                        value={tempDateTime && !isEmptyDate(tempDateTime) ? tempDateTime : null}
+                        placeholder="Выберите дату и время"
+                        disabledDate={(current) => current && current < moment().startOf('day')}
+                        onOk={(value) => {
+                            this.handleDateTimeChange(value);
+                        }}
+                        allowClear={false}
+                    />
                 </Modal>
             </div>
         );

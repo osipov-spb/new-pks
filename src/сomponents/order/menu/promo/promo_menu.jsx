@@ -149,37 +149,48 @@ const PromoMenu = ({ promotions, onGiftsChange }) => {
                                     marginBottom: '6px',
                                     alignItems: 'center'
                                 }}>
-                                    <Text strong style={{ fontSize: '13px' }}>
+                                    <Text strong style={{fontSize: '13px'}}>
                                         {promo.title}
                                         {disabled && (
-                                            <Tag color="red" style={{ marginLeft: '6px', fontSize: '11px' }}>
+                                            <Tag color="red" style={{marginLeft: '6px', fontSize: '11px'}}>
                                                 Несовместимо
                                             </Tag>
                                         )}
+
+                                    </Text>
+                                    <div>
                                         <Popover
                                             content={formatInfoContent(promo.info)}
                                             title="Информация об акции"
-                                            overlayStyle={{ maxWidth: '450px' }}
+                                            overlayStyle={{maxWidth: '450px'}}
                                         >
-                                            <InfoCircleOutlined style={{
-                                                color: '#1890ff',
-                                                marginLeft: '6px',
-                                                cursor: 'pointer',
-                                                fontSize: '14px'
-                                            }} />
+                                            <Tag
+                                            // color={disabled ? 'default' : 'orange'}
+                                            style={{margin: 0, fontSize: '12px', padding: '0 6px'}}
+                                            >
+
+                                                <InfoCircleOutlined style={{
+                                                    color: '#1890ff',
+                                                    marginRight: '6px',
+                                                    marginLeft: '0px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '15px'
+                                                }}/>
+                                                Условия
+                                            </Tag>
                                         </Popover>
-                                    </Text>
-                                    <Tag
-                                        color={disabled ? 'default' : 'orange'}
-                                        style={{ margin: 0, fontSize: '12px', padding: '0 6px' }}
-                                    >
-                                        <GiftOutlined style={{ fontSize: '12px' }} /> {promo.available}
-                                    </Tag>
+                                        <Tag
+                                            color={disabled ? 'default' : 'orange'}
+                                            style={{margin: 0, fontSize: '12px', padding: '0 6px', marginLeft: '6px'}}
+                                        >
+                                            <GiftOutlined style={{fontSize: '12px'}}/> {promo.available}
+                                        </Tag>
+                                    </div>
                                 </div>
 
                                 {!disabled && (
-                                    <Space direction="vertical" size={6} style={{ width: '100%' }}>
-                                        {Array.from({ length: promo.available }).map((_, index) => {
+                                    <Space direction="vertical" size={6} style={{width: '100%'}}>
+                                        {Array.from({length: promo.available}).map((_, index) => {
                                             const selectedGift = selectedGifts.find(
                                                 g => g.promoId === promo.id && g.selectorIndex === index
                                             );
@@ -201,7 +212,7 @@ const PromoMenu = ({ promotions, onGiftsChange }) => {
                                                     onClear={() => handleGiftSelect(null, promo.id, index)}
                                                     allowClear
                                                     dropdownMatchSelectWidth={false}
-                                                    dropdownStyle={{ minWidth: '250px', fontSize: '13px' }}
+                                                    // dropdownStyle={{ minWidth: '250px', fontSize: '13px' }}
                                                 >
                                                     {promo.items.map(item => (
                                                         <Option
