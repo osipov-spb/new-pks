@@ -149,7 +149,11 @@ class Order extends React.Component {
                     total: price,
                     total_with_discount: price,
                     product_id,
-                    promo_id: null
+                    promo_id: null,
+                    hide: false,
+                    composition: false,
+                    promo_uid: ""
+
                 });
             }
 
@@ -326,7 +330,7 @@ class Order extends React.Component {
             menuComponent = (
                 <div>
                     <div style={{
-                        padding: '3px 12px',
+                        padding: '4px 8px',
                         background: '#fafafa',
                         borderBottom: '1px solid #f0f0f0',
                         display: 'flex',
@@ -459,18 +463,18 @@ class Order extends React.Component {
 
                     <Row gutter={[12, 12]} style={{
                         margin: '0',
-                        padding: '6px',
+                        padding: '0px',
                         flex: 1,
                         display: 'flex'
                     }}>
-                        <Col xs={24} md={10} style={{ display: 'flex', flexDirection: 'column' }}>
+                        <Col xs={24} md={11} style={{ display: 'flex', flexDirection: 'column', paddingLeft: '0px'}}>
                             <Card
                                 bordered={false}
                                 style={{
                                     boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                                     flex: 1,
                                     display: 'flex',
-                                    flexDirection: 'column'
+                                    flexDirection: 'column',
                                 }}
                                 bodyStyle={{
                                     padding: 0,
@@ -544,7 +548,7 @@ class Order extends React.Component {
                             </Card>
                         </Col>
 
-                        <Col xs={24} md={14} style={{ display: 'flex', flexDirection: 'column' }}>
+                        <Col xs={24} md={13} style={{ display: 'flex', flexDirection: 'column', paddingRight: '0px' }}>
                             <Card
                                 bordered={false}
                                 style={{
@@ -613,6 +617,8 @@ class Order extends React.Component {
                                                     )}
                                                 </div>
                                                 <Button
+                                                    href="#"
+                                                    data-button-id="products-confirm"
                                                     disabled={this.isComponentDisabled('promoEditButton')}
                                                     onClick={() => this.setState({
                                                         promoCollapsed: false,

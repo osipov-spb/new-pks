@@ -23,11 +23,11 @@ export const componentRules = {
         hidden: (orderData) => false
     },
     statusButtonsPay: {
-        disabled: (orderData) => orderData.paid,
+        disabled: (orderData) => orderData.paid || orderData.total===0,
         hidden: (orderData) => false
     },
     statusButtonsNext: {
-        disabled: (orderData) => false,
+        disabled: (orderData) => orderData.total===0,
         hidden: (orderData) => false
     },
     productTable: {
@@ -35,7 +35,7 @@ export const componentRules = {
         hidden: (orderData) => false
     },
     addressBlock: {
-        disabled: (orderData) => orderData.client.phone === null,
+        disabled: (orderData) => !orderData.client.phone,
         hidden: (orderData) => orderData.package != 'delivery'
     },
     addressFields: {

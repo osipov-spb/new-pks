@@ -13,34 +13,42 @@ class StatusButtons extends React.Component {
         super(props);
         this.state = {
             isConfirmModalVisible: false,
-            initialOrderData: props.order_data ? { ...props.order_data } : null
+            initialOrderData: this.normalizeOrderData(props.order_data)
         };
     }
 
+    // Удаляем componentDidUpdate, чтобы initialOrderData не обновлялся автоматически
+
+    // Добавляем метод для ручного обновления начальных данных
+    updateInitialData = () => {
+        this.setState({
+            initialOrderData: this.normalizeOrderData(this.props.order_data)
+        });
+    };
+
     showConfirmModal = () => {
-        const { order_data } = this.props;
+        const currentData = this.normalizeOrderData(this.props.order_data);
         const { initialOrderData } = this.state;
 
-        const hasChanges = !isEqual(order_data, initialOrderData);
+        const hasChanges = !isEqual(currentData, initialOrderData);
 
         if (hasChanges) {
             this.setState({ isConfirmModalVisible: true });
         } else {
-            // Если изменений не было, сразу выполняем действие закрытия
-            window.location.href = "#";
-            if (typeof this.props.onClose === 'function') {
-                this.props.onClose();
-            }
+            this.handleClose();
         }
     };
 
-    handleConfirmClose = () => {
-        // Выполняем действие закрытия
+    normalizeOrderData = (data) => {
+        if (!data) return {};
+        return { ...data };
+    }
+
+    handleClose = () => {
         window.location.href = "#";
         if (typeof this.props.onClose === 'function') {
             this.props.onClose();
         }
-        this.setState({ isConfirmModalVisible: false });
     };
 
     handleCancelClose = () => {
@@ -48,9 +56,9 @@ class StatusButtons extends React.Component {
     };
 
     render() {
-        const { order_data } = this.props;
+        const currentData = this.normalizeOrderData(this.props.order_data);
         const { isConfirmModalVisible, initialOrderData } = this.state;
-        const hasChanges = !isEqual(order_data, initialOrderData);
+        const hasChanges = !isEqual(currentData, initialOrderData);
 
         return (
             <div>
@@ -154,14 +162,14 @@ class StatusButtons extends React.Component {
                             Нет
                         </Button>,
                         <Button
-                            href="#"
-                            data-button-id="order-back-confirm"
                             key="submit"
                             type="primary"
                             danger
+                            href="#"
+                            data-button-id="order-back-confirm"
                         >
                             Да
-                        </Button>,
+                        </Button>
                     ]}
                 >
                     <p>Вы действительно хотите прервать оформление заказа?</p>

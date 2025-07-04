@@ -261,7 +261,7 @@ class _ProductsMenu extends React.Component {
                             style={{
                                 boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                             }}
-                            bodyStyle={{padding: '10px'}}
+                            bodyStyle={{padding: '8px'}}
                         >
                             <div style={{display: 'flex', alignItems: 'center', flexWrap: 'wrap'}}>
                                 {currentPath && currentPath.map((item, index) => item && (
@@ -282,10 +282,10 @@ class _ProductsMenu extends React.Component {
                             overflowY: 'auto',
                             display: 'grid',
                             gridTemplateColumns: `repeat(auto-fill, minmax(125px, 1fr))`, // Адаптивные колонки
-                            padding: '10px',
+                            padding: '5px',
                             overflowX: 'hidden', // Запрещаем горизонтальный скролл
-                            gap: '10px', // Добавляем отступы между элементами
-                            width: 'calc(100% - 20px)', // Учитываем padding
+                            gap: '5px', // Добавляем отступы между элементами
+                            width: 'calc(100% - 5px)', // Учитываем padding
                             boxSizing: 'border-box' // Учитываем padding в общей ширине
                         }}>
                             {filteredItems.map((item, index) => item && (

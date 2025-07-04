@@ -7,6 +7,7 @@ import _PackageSwitch from "./buttons/package_switch";
 import NumberInputPadModal from "./clientSelector/clientSelector";
 import PromoCodeModal from "./cert/cert";
 
+
 const { Text } = Typography;
 
 const isEmptyDate = (date) => {
@@ -90,8 +91,11 @@ class _OrderHeader extends React.Component {
         const { order_data, updatePackage, updateClient, disabled, hidden } = this.props;
 
         return (
+
             <div style={{
-                padding: '8px 12px',
+                paddingTop: '8px',
+                paddingRight: '2px',
+                paddingBottom: '8px',
                 background: '#fff',
                 borderBottom: '1px solid #f0f0f0'
             }}>

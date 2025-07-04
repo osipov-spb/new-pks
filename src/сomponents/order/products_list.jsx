@@ -73,7 +73,7 @@ class _ProductTable extends React.Component {
                 )
             },
             {
-                title: ()=>{
+                title: () => {
                     return <div style={{
                         fontSize: '12px',
                         whiteSpace: 'nowrap',
@@ -87,15 +87,22 @@ class _ProductTable extends React.Component {
                 render: (_, { product_title, hide }) => (
                     <div style={{
                         fontSize: '10px',
-                        whiteSpace: 'nowrap',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
-                        opacity: hide ? 0.5 : 1
-                    }}>{product_title}</div>
+                        lineHeight: '1.2',
+                        maxHeight: '2.4em', // 2 строки (1.2 * 2)
+                        opacity: hide ? 0.5 : 1,
+                        wordBreak: 'break-word'
+                    }}>
+                        {product_title}
+                    </div>
                 )
             },
             {
-                title: ()=>{
+                title: () => {
                     return <div style={{
                         fontSize: '12px',
                         whiteSpace: 'nowrap',
@@ -105,29 +112,65 @@ class _ProductTable extends React.Component {
                 },
                 dataIndex: 'count',
                 key: 'count',
-                width: 55,
+                width: 70, // Немного увеличил ширину для лучшего отображения
                 render: (_, record) => (
-                    <InputNumber
-                        disabled={this.props.disabled || record.hide}
-                        min={1}
-                        max={99}
-                        value={record.count}
-                        onChange={(value) => this.handleCountChange(record.lineNumber, value)}
-                        onBlur={() => {
-                            if (!record.count || record.count < 1) {
-                                window.orderEditItem?.(record.lineNumber, 'count', 1);
-                            }
-                        }}
-                        size="small"
-                        style={{ width: '40px',  fontSize: '11px', opacity: record.hide ? 0.5 : 1 }}
-                        precision={0}
-                        parser={(value) => {
-                            return parseInt(value.replace(/[^\d]/g, '')) || 1;
-                        }}
-                        formatter={(value) => {
-                            return `${value}`.replace(/[^\d]/g, '');
-                        }}
-                    />
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '4px'
+                    }}>
+                        <Button
+                            disabled={this.props.disabled || record.hide}
+                            size="small"
+                            type="text"
+                            style={{
+                                width: '20px',
+                                height: '20px',
+                                minWidth: '20px',
+                                padding: 0,
+                                lineHeight: '20px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}
+                            onClick={() => {
+                                const newValue = Math.max(1, (record.count || 1) - 1);
+                                this.handleCountChange(record.lineNumber, newValue);
+                            }}
+                        >
+                            -
+                        </Button>
+                        <div style={{
+                            minWidth: '20px',
+                            textAlign: 'center',
+                            fontSize: '13px',
+                            opacity: record.hide ? 0.5 : 1
+                        }}>
+                            {record.count}
+                        </div>
+                        <Button
+                            disabled={this.props.disabled || record.hide}
+                            size="small"
+                            type="text"
+                            style={{
+                                width: '20px',
+                                height: '20px',
+                                minWidth: '20px',
+                                padding: 0,
+                                lineHeight: '20px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}
+                            onClick={() => {
+                                const newValue = Math.min(99, (record.count || 1) + 1);
+                                this.handleCountChange(record.lineNumber, newValue);
+                            }}
+                        >
+                            +
+                        </Button>
+                    </div>
                 )
             },
             {
@@ -255,7 +298,7 @@ class _ProductTable extends React.Component {
                         bordered
                         rowKey="lineNumber"
                         scroll={{
-                            y: 'calc(100vh - 400px)'
+                            y: 'calc(100vh - 420px)'
                         }}
                         style={{
                             flex: 1,

@@ -83,14 +83,28 @@ class _OrderTitle extends React.Component {
 
     formatDate = (dateString) => {
         if (!dateString) return 'Нет данных';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('ru-RU', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+
+        // Если дата уже в нужном формате, просто возвращаем её
+        if (typeof dateString === 'string' && dateString.match(/^\d{2}\.\d{2}\.\d{4}, \d{2}:\d{2}$/)) {
+            return dateString;
+        }
+
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return dateString;
+
+            // Форматируем дату вручную без учета часового пояса
+            const day = date.getUTCDate().toString().padStart(2, '0');
+            const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+            const year = date.getUTCFullYear();
+            const hours = date.getUTCHours().toString().padStart(2, '0');
+            const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+
+            return `${day}.${month}.${year}, ${hours}:${minutes}`;
+        } catch (e) {
+            console.error('Ошибка форматирования даты:', e);
+            return dateString;
+        }
     };
 
     render() {

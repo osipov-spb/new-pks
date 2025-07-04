@@ -233,7 +233,7 @@ const NumberInputPadModal = ({ clientData, onClientChange }) => {
                                 block
                                 disabled={inputValue.length < 11 || isLoading}
                                 href="#"
-                                data-button-id="client-confirm-number"
+                                data-button-id={!(inputValue.length < 11 || isLoading) ? "client-confirm-number" : undefined}
                                 loading={isLoading}
                             >
                                 Продолжить

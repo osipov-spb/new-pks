@@ -237,7 +237,7 @@ const PaymentForm = () => {
                             type="primary"
                             block
                             href="#"
-                            data-button-id="payment_confirm"
+                            data-button-id={!(paymentType === 'cash' && cashInput < total) ? "payment_confirm" : undefined}
                             onClick={() => {
                                 const returnData = {paymentType, operationType: 'income'};
                                 setIsOn(false);

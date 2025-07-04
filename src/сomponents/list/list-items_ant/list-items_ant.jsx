@@ -165,10 +165,24 @@ class OrdersTable extends React.Component {
 
     formatOrderDate = (dateString) => {
         if (!dateString) return '';
+
+        // Если дата уже в нужном формате (например, "01.01 12:30"), просто возвращаем её
+        if (typeof dateString === 'string' && dateString.match(/^\d{2}\.\d{2} \d{2}:\d{2}$/)) {
+            return dateString;
+        }
+
         try {
+            // Разбираем дату как UTC, чтобы избежать преобразования в локальный часовой пояс
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return dateString;
-            return `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+
+            // Форматируем дату без учета часового пояса
+            const day = date.getUTCDate().toString().padStart(2, '0');
+            const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+            const hours = date.getUTCHours().toString().padStart(2, '0');
+            const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+
+            return `${day}.${month} ${hours}:${minutes}`;
         } catch (e) {
             console.error('Ошибка форматирования даты:', e);
             return dateString;

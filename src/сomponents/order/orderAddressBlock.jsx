@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Typography, Modal, Spin, Input, Pagination, Space } from 'antd';
-import { SearchOutlined, UserOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import {SearchOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined} from '@ant-design/icons';
 
 const { Text } = Typography;
 
@@ -214,7 +214,10 @@ class OrderAddressBlock extends React.Component {
                             >
                                 <EnvironmentOutlined style={{ color: '#1890ff' }} />
                                 <Text style={{ fontSize: '13px' }}>
-                                    {[address.street, address.house, address.buildingNumber, address.apartment]
+                                    {[address.street,
+                                        !address.house ? null : 'д. ' + address.house,
+                                        !address.buildingNumber ? null : 'к. ' + address.buildingNumber,
+                                        !address.apartment ? null : 'кв. ' + address.apartment]
                                         .filter(Boolean)
                                         .join(', ')}
                                 </Text>
