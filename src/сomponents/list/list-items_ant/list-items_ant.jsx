@@ -440,6 +440,7 @@ class OrdersTable extends React.Component {
                     dataSource={filteredData}
                     bordered
                     pagination={false}
+                    showSorterTooltip={false}
                     scroll={{
                         y: tableHeight - 40,
                         x: 'max-content'
