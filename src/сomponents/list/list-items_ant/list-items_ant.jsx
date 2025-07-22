@@ -21,54 +21,54 @@ class OrdersTable extends React.Component {
             isLoading: false,
             tableHeight: 600,
             statusFilter: ['temporary', 'in_progress'],
-            scheduledFilter: false
+            scheduledFilter: false,
+            filterDropdownVisible: false,
+            selectedFilterKeys: ['temporary', 'in_progress']
         };
 
         this.updateTableHeight = this.updateTableHeight.bind(this);
         this.handleResize = debounce(this.updateTableHeight, 100);
-    }
-
-    renderStatusFilter = () => {
-        const { statusFilter } = this.state;
-
-        const menu = (
-            <Menu
-                multiple
-                selectedKeys={statusFilter}
-                onSelect={({ selectedKeys }) => this.handleStatusFilterChange(selectedKeys)}
-                onDeselect={({ selectedKeys }) => this.handleStatusFilterChange(selectedKeys)}
-                style={{ padding: '8px 0' }}
-            >
-                <Menu.Item key="temporary" style={{ padding: '12px 16px' }}>Временные</Menu.Item>
-                <Menu.Item key="in_progress" style={{ padding: '12px 16px' }}>В работе</Menu.Item>
-                <Menu.Item key="completed" style={{ padding: '12px 16px' }}>Выполненные</Menu.Item>
-                <Menu.Item key="deleted" style={{ padding: '12px 16px' }}>Удаленные</Menu.Item>
-            </Menu>
-        );
-
-        return (
-            <Dropdown overlay={menu} trigger={['click']} overlayStyle={{ minWidth: '200px' }}>
-                <Button
-                    size="large"
-                    icon={<FilterOutlined />}
-                    style={{ height: '40px', padding: '0 16px', fontSize: '16px', marginRight: '8px' }}
-                >
-                    Фильтр
-                </Button>
-            </Dropdown>
-        );
+        this.filterDropdownRef = React.createRef();
     }
 
     handleStatusFilterChange = (selectedFilters) => {
-        this.setState({ statusFilter: selectedFilters });
+        this.setState({
+            statusFilter: selectedFilters,
+            selectedFilterKeys: selectedFilters
+        });
+    }
+
+    // Новая функция для подтверждения фильтров
+    confirmStatusFilters = () => {
+        this.setState(prevState => ({
+            statusFilter: prevState.selectedFilterKeys,
+            filterDropdownVisible: false
+        }));
+    };
+
+    // Функция для сброса фильтров
+    resetStatusFilters = () => {
+        const defaultFilters = ['temporary', 'in_progress'];
+        this.setState({
+            selectedFilterKeys: defaultFilters,
+            statusFilter: defaultFilters,
+            filterDropdownVisible: false
+        });
+    };
+
+    // Функция для обновления выбранных фильтров (без подтверждения)
+    updateSelectedFilters = (selectedKeys) => {
+        this.setState({ selectedFilterKeys: selectedKeys });
+    }
+
+    setFilterDropdownVisible = (visible) => {
+        this.setState({ filterDropdownVisible: visible });
     }
 
     filterOrdersByStatus = (orders) => {
         const { statusFilter } = this.state;
 
-        // Если нет фильтров или выбраны все возможные статусы - возвращаем все заказы
-        if (!statusFilter || statusFilter.length === 0 ||
-            statusFilter.length === 4 /* 4 - это общее количество фильтров */) {
+        if (!statusFilter || statusFilter.length === 0 || statusFilter.length === 4) {
             return orders;
         }
 
@@ -76,13 +76,9 @@ class OrdersTable extends React.Component {
             const isDeleted = order.deleted;
             const status = order.orderStatus;
 
-            // Если выбран фильтр "Удаленные" и заказ удален - включаем его
             if (statusFilter.includes('deleted') && isDeleted) return true;
-
-            // Если заказ удален, но фильтр "Удаленные" не выбран - исключаем его
             if (isDeleted) return false;
 
-            // Проверяем соответствие остальным фильтрам
             let matchesFilter = false;
 
             if (statusFilter.includes('temporary') && status === 'Временной') {
@@ -123,6 +119,17 @@ class OrdersTable extends React.Component {
     setupWindowMethods = () => {
         window.list_LoadAllItems = this.loadAllOrders;
         window.setScheduledFilterButtonState = this.setScheduledFilterButtonState;
+        window.getCurrentStatusFilters = this.getCurrentStatusFilters;
+        window.confirmStatusFilters = this.confirmStatusFilters;
+        window.resetStatusFilters = this.resetStatusFilters;
+        window.setFilterDropdownVisible = this.setFilterDropdownVisible;
+    }
+
+    getCurrentStatusFilters = () => {
+        const { filterDropdownVisible, selectedFilterKeys, statusFilter } = this.state;
+
+        return filterDropdownVisible ? JSON.stringify(selectedFilterKeys) : JSON.stringify(statusFilter)
+        ;
     }
 
     openOrder = (e) => {
@@ -166,17 +173,14 @@ class OrdersTable extends React.Component {
     formatOrderDate = (dateString) => {
         if (!dateString) return '';
 
-        // Если дата уже в нужном формате (например, "01.01 12:30"), просто возвращаем её
         if (typeof dateString === 'string' && dateString.match(/^\d{2}\.\d{2} \d{2}:\d{2}$/)) {
             return dateString;
         }
 
         try {
-            // Разбираем дату как UTC, чтобы избежать преобразования в локальный часовой пояс
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return dateString;
 
-            // Форматируем дату без учета часового пояса
             const day = date.getUTCDate().toString().padStart(2, '0');
             const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
             const hours = date.getUTCHours().toString().padStart(2, '0');
@@ -294,7 +298,7 @@ class OrdersTable extends React.Component {
     }
 
     getColumns = () => {
-        const { scheduledFilter } = this.state;
+        const { scheduledFilter, filterDropdownVisible } = this.state;
 
         return [
             {
@@ -339,6 +343,111 @@ class OrdersTable extends React.Component {
                 ],
                 filteredValue: this.state.statusFilter,
                 onFilter: () => true,
+                filterDropdownVisible: filterDropdownVisible,
+                onFilterDropdownVisibleChange: (visible) => {
+                    this.setFilterDropdownVisible(visible);
+                    if (!visible) {
+                        // При закрытии dropdown сбрасываем выбранные фильтры к активным
+                        this.setState({ selectedFilterKeys: this.state.statusFilter });
+                    }
+                },
+                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                    // Используем selectedKeys из параметров вместо this.state.selectedFilterKeys
+                    const currentSelectedKeys = selectedKeys || this.state.selectedFilterKeys;
+
+                    return (
+                        <div style={{ padding: 8 }}>
+                            <Menu
+                                multiple
+                                style={{ border: 0 }}
+                                selectedKeys={currentSelectedKeys}
+                                onSelect={({ selectedKeys: newSelectedKeys }) => {
+                                    setSelectedKeys(newSelectedKeys);
+                                    this.setState({ selectedFilterKeys: newSelectedKeys });
+                                }}
+                                onDeselect={({ selectedKeys: newSelectedKeys }) => {
+                                    setSelectedKeys(newSelectedKeys);
+                                    this.setState({ selectedFilterKeys: newSelectedKeys });
+                                }}
+                            >
+                                <Menu.Item key="in_progress">Текущие</Menu.Item>
+                                <Menu.Item key="temporary">Временные</Menu.Item>
+                                <Menu.Item key="completed">Выполненные</Menu.Item>
+                                <Menu.Item key="deleted">Удаленные</Menu.Item>
+                            </Menu>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
+                                <button
+                                    type="button"
+                                    data-1c-button-id="filter-reset"
+                                    onClick={(e) => {
+                                        const defaultFilters = ['temporary', 'in_progress'];
+                                        setSelectedKeys(defaultFilters);
+                                        this.setState({
+                                            selectedFilterKeys: defaultFilters,
+                                            statusFilter: defaultFilters,
+                                            filterDropdownVisible: false
+                                        });
+
+                                        // Имитация клика для 1С
+                                        const temp = document.createElement('a');
+                                        temp.href = '#';
+                                        temp.setAttribute('data-button-id', 'filter-reset');
+                                        temp.style.display = 'none';
+                                        document.body.appendChild(temp);
+                                        temp.click();
+                                        document.body.removeChild(temp);
+                                    }}
+                                    style={{
+                                        padding: '4px 5px',
+                                        fontSize: '13px',
+                                        borderRadius: '2px',
+                                        height: '30px',
+                                        background: 'transparent',
+                                        border: '1px solid #d9d9d9',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Сбросить
+                                </button>
+
+                                <button
+                                    type="button"
+                                    data-1c-button-id="filter-completed"
+                                    onClick={(e) => {
+                                        confirm();
+                                        this.setState({
+                                            statusFilter: currentSelectedKeys,
+                                            filterDropdownVisible: false
+                                        });
+
+                                        // Имитация клика для 1С
+                                        const temp = document.createElement('a');
+                                        temp.href = '#';
+                                        temp.setAttribute('data-button-id', 'filter-completed');
+                                        temp.style.display = 'none';
+                                        document.body.appendChild(temp);
+                                        temp.click();
+                                        document.body.removeChild(temp);
+                                    }}
+                                    style={{
+                                        padding: '4px 15px',
+                                        fontSize: '13px',
+                                        borderRadius: '2px',
+                                        marginLeft: '6px',
+                                        height: '30px',
+                                        background: '#1890ff',
+                                        color: 'white',
+                                        border: '1px solid #1890ff',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    OK
+                                </button>
+                            </div>
+                        </div>
+                    );
+                },
                 render: this.renderStatusTag
             },
             {
@@ -413,7 +522,7 @@ class OrdersTable extends React.Component {
 
         return (
             <div style={{
-                height: `${tableHeight+8}px`,
+                height: `${tableHeight+10}px`,
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
@@ -424,7 +533,6 @@ class OrdersTable extends React.Component {
                     locale={{
                         emptyText: (
                             <div style={{
-                                // marginBottom: '17px', // Отступ от нижнего края
                                 display: 'flex',
                                 justifyContent: 'center',
                                 alignItems: 'center'

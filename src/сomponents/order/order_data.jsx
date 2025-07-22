@@ -19,6 +19,7 @@ class _OrderData {
             paid: false,
             courier: null,
             deleted: false,
+            refund: false,
             items: []
 
         }
@@ -41,6 +42,7 @@ class _OrderData {
         this.paid = ord_data.paid;
         this.courier = ord_data.courier;
         this.deleted = ord_data.deleted;
+        this.refund = ord_data.refund;
         this.items = ord_data.items;
     }
 

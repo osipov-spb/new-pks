@@ -307,7 +307,8 @@ class _ProductsMenu extends React.Component {
                                                 price: item.price,
                                                 discount: item.discount,
                                                 title: item.title,
-                                                stop: item.stop
+                                                stop: item.stop,
+                                                composite: item.composite
                                             }}
                                             onClick={() => {
                                                 if (window.orderAddItem) {

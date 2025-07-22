@@ -526,29 +526,39 @@ class Order extends React.Component {
                                     <div style={{
                                         display: 'flex',
                                         flexDirection: 'column',
-                                        gap: '8px',
-                                        padding: '12px',
-                                        background: '#fafafa',
-                                        borderRadius: '4px'
+                                        gap: '10px',
+                                        padding: '20px',
+                                        background: 'white',
+                                        borderRadius: '12px',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                                     }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                            <Text strong>Итого:</Text>
+                                        <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                            <Text>Итого:</Text>
                                             <Text>{this.state.order_data.summary || 0} ₽</Text>
                                         </div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                            <Text strong>Доставка:</Text>
+                                        <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                            <Text>Доставка:</Text>
                                             <Text>{this.state.order_data.deliveryPrice || 0} ₽</Text>
                                         </div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                            <Text strong>К оплате:</Text>
-                                            <Text strong>{this.state.order_data.total || 0} ₽</Text>
+                                        <div style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            marginTop: '8px',
+                                            paddingTop: '12px',
+                                            borderTop: '1px solid #f1f1f1'
+                                        }}>
+                                            <Text strong style={{fontSize: '16px'}}>К оплате:</Text>
+                                            <Text strong style={{
+                                                fontSize: '16px',
+                                                color: '#28a745'
+                                            }}>{this.state.order_data.total || 0} ₽</Text>
                                         </div>
                                     </div>
                                 </div>
                             </Card>
                         </Col>
 
-                        <Col xs={24} md={13} style={{ display: 'flex', flexDirection: 'column', paddingRight: '0px' }}>
+                        <Col xs={24} md={13} style={{display: 'flex', flexDirection: 'column', paddingRight: '0px'}}>
                             <Card
                                 bordered={false}
                                 style={{

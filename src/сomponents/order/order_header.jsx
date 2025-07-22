@@ -7,7 +7,6 @@ import _PackageSwitch from "./buttons/package_switch";
 import NumberInputPadModal from "./clientSelector/clientSelector";
 import PromoCodeModal from "./cert/cert";
 
-
 const { Text } = Typography;
 
 const isEmptyDate = (date) => {
@@ -22,7 +21,8 @@ class _OrderHeader extends React.Component {
         this.state = {
             showDateTimePicker: false,
             selectedDateTime: isEmptyDate(initialDate) ? null : initialDate,
-            isTemporaryOrder: props.order_data.scheduled && !isEmptyDate(initialDate)
+            isTemporaryOrder: props.order_data.scheduled && !isEmptyDate(initialDate),
+            showRefundModal: false
         };
     }
 
@@ -60,17 +60,23 @@ class _OrderHeader extends React.Component {
     };
 
     handleDateTimeClear = () => {
-        // Сбрасываем состояние сразу
         this.setState({
             showDateTimePicker: false,
             selectedDateTime: null,
             isTemporaryOrder: false,
             tempDateTime: null
         }, () => {
-            // После обновления состояния вызываем колбэки
             this.props.updateScheduledStatus(false);
             this.props.updateScheduledTime(null);
         });
+    };
+
+    showRefundConfirm = () => {
+        this.setState({ showRefundModal: true });
+    };
+
+    handleRefundCancel = () => {
+        this.setState({ showRefundModal: false });
     };
 
     static getDerivedStateFromProps(nextProps, prevState) {
@@ -87,11 +93,10 @@ class _OrderHeader extends React.Component {
     }
 
     render() {
-        const { isTemporaryOrder, selectedDateTime, showDateTimePicker, tempDateTime } = this.state;
+        const { isTemporaryOrder, selectedDateTime, showDateTimePicker, tempDateTime, showRefundModal } = this.state;
         const { order_data, updatePackage, updateClient, disabled, hidden } = this.props;
 
         return (
-
             <div style={{
                 paddingTop: '8px',
                 paddingRight: '2px',
@@ -147,7 +152,14 @@ class _OrderHeader extends React.Component {
                     }}>
                         <Space size={6}>
                             <Button size="middle" icon={<ProfileOutlined />} href="#" data-button-id="order-write-down-act">Акт списания</Button>
-                            <Button size="middle" icon={<RollbackOutlined />}>Возврат</Button>
+                            <div style={{
+                                pointerEvents: order_data.refund ? 'none' : 'auto',
+                                opacity: order_data.refund ? 0.5 : 1,
+                                cursor: order_data.refund ? 'not-allowed' : 'default',
+                                visibility: hidden ? 'hidden' : 'default',
+                            }}>
+                            <Button size="middle" icon={<RollbackOutlined />} onClick={this.showRefundConfirm}>Возврат</Button>
+                            </div>
                         </Space>
                     </Col>
                 </Row>
@@ -194,6 +206,28 @@ class _OrderHeader extends React.Component {
                         }}
                         allowClear={false}
                     />
+                </Modal>
+
+                <Modal
+                    title="Подтверждение возврата"
+                    visible={showRefundModal}
+                    onCancel={this.handleRefundCancel}
+                    footer={[
+                        <Button key="cancel" onClick={this.handleRefundCancel}>
+                            Отмена
+                        </Button>,
+                        <Button
+                            key="confirm"
+                            type="primary"
+                            href="#"
+                            data-button-id="order-refund"
+                            onClick={this.handleRefundCancel}
+                        >
+                            Да
+                        </Button>
+                    ]}
+                >
+                    <p>Вы уверены, что желаете произвести возврат продажи?</p>
                 </Modal>
             </div>
         );

@@ -1,6 +1,5 @@
 import React from "react";
-import { Button, Tag, Row, Col } from 'antd';
-import {CloseOutlined, PercentageOutlined} from "@ant-design/icons";
+import { Button, Tag } from 'antd';
 
 class ItemButton extends React.Component {
     constructor(props) {
@@ -12,7 +11,8 @@ class ItemButton extends React.Component {
                 price: 0,
                 discount: false,
                 title: 'Без названия',
-                stop: false
+                stop: false,
+                composite: false
             }
         };
     }
@@ -78,26 +78,29 @@ class ItemButton extends React.Component {
         const { data } = this.state;
         const hasDiscount = Boolean(data.discount);
         const isStopped = Boolean(data.stop);
+        const isComposite = Boolean(data.composite);
 
         return (
             <Button
-                onClick={isStopped ? null : this.handleClick}
+                onClick={isStopped || isComposite ? null : this.handleClick}
+                href={isComposite ? "#" : undefined}
+                data-button-id={isComposite ? `open-composite-form-id-${data.id}` : undefined}
                 style={{
                     height: '80px',
                     width: '125px',
                     margin: '4px',
-                    padding: '6px 6px 4px 6px',
+                    padding: '6px 6px 26px 6px', // Увеличиваем нижний padding для места под абсолютный блок
                     border: isStopped ? '1px solid #ffa39e' : '1px solid #e8e8e8',
                     backgroundColor: isStopped ? '#fff1f0' : '#fff',
-                    display: 'grid',
-                    gridTemplateRows: '1fr auto',
-                    gap: '4px',
+                    display: 'block',
                     cursor: isStopped ? 'not-allowed' : 'pointer',
                     boxShadow: 'none',
                     borderRadius: 0,
-                    position: 'relative'
+                    position: 'relative',
+                    overflow: 'hidden'
                 }}
             >
+                {/* Полоска стоп-листа */}
                 {isStopped && (
                     <div style={{
                         position: 'absolute',
@@ -109,50 +112,98 @@ class ItemButton extends React.Component {
                     }} />
                 )}
 
+                {/* Блок названия (занимает всю доступную высоту) */}
                 <div style={{
-                    fontSize: '11px',
-                    lineHeight: '1.2',
-                    textAlign: 'left',
-                    alignSelf: 'start',
-                    color: isStopped ? '#8c8c8c' : '#595959',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
                     borderBottom: '1px solid #f0f0f0',
                     paddingBottom: '4px'
                 }}>
-                    <this.BreakString text={data.title} />
+                    <div style={{
+                        fontSize: '11px',
+                        lineHeight: '1.2',
+                        textAlign: 'left',
+                        color: isStopped ? '#8c8c8c' : '#595959',
+                        width: '100%'
+                    }}>
+                        <this.BreakString text={data.title} />
+                    </div>
                 </div>
 
+                {/* Блок цены и тегов (абсолютное позиционирование) */}
                 <div style={{
+                    position: 'absolute',
+                    bottom: '4px',
+                    left: '6px',
+                    right: '4px',
+                    height: '20px',
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'center'
+                    alignItems: 'flex-end'
                 }}>
-                <span style={{
-                    fontSize: '13px',
-                    fontWeight: '500',
-                    color: isStopped ? '#8c8c8c' : '#262626'
-                }}>
-                    {data.price} ₽
-                </span>
-                    {hasDiscount && !isStopped && (
-                        <span style={{
-                            fontSize: '10px',
-                            color: '#1890ff',
-                            border: '1px solid #1890ff',
-                            borderRadius: '2px',
-                            padding: '0 3px'
-                        }}>
-                        акция
+                    <span style={{
+                        fontSize: '13px',
+                        fontWeight: '500',
+                        color: isStopped ? '#8c8c8c' : '#262626',
+                        lineHeight: '20px'
+                    }}>
+                        {data.price} ₽
                     </span>
-                    )}
-                    {isStopped && (
-                        <Tag color="red" style={{ margin: 0, padding: '0 3px', fontSize: '10px' }}>
-                            стоп
-                        </Tag>
-                    )}
+
+                    <div style={{
+                        display: 'flex',
+                        // gap: '2px'
+                    }}>
+                        {hasDiscount && !isStopped && (
+                            <Tag style={{
+                                margin: 0,
+                                marginLeft: '2px',
+                                padding: '0 2px',
+                                fontSize: '9px',
+                                height: '20px',
+                                lineHeight: '16px',
+                                border: '1px solid #1890ff',
+                                color: '#1890ff',
+                                background: 'transparent',
+                                borderRadius: '2px'
+                            }}>
+                                акция
+                            </Tag>
+                        )}
+                        {isStopped && (
+                            <Tag color="red" style={{
+                                margin: 0,
+                                marginLeft: '2px',
+                                padding: '0 2px',
+                                fontSize: '9px',
+                                height: '20px',
+                                lineHeight: '16px',
+                                borderRadius: '2px'
+                            }}>
+                                стоп
+                            </Tag>
+                        )}
+                        {isComposite && !isStopped && (
+                            <Tag color="blue" style={{
+                                margin: 0,
+                                marginLeft: '2px',
+                                padding: '0 2px',
+                                fontSize: '9px',
+                                height: '20px',
+                                lineHeight: '16px',
+                                borderRadius: '2px'
+                            }}>
+                                сборка
+                            </Tag>
+                        )}
+                    </div>
                 </div>
             </Button>
         );
     }
 }
+
 
 export default ItemButton;
