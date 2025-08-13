@@ -20,6 +20,9 @@ class _OrderData {
             courier: null,
             deleted: false,
             refund: false,
+            prepaid: false,
+            bsoDate: null,
+            bsoNumber: '',
             items: []
 
         }
@@ -43,6 +46,9 @@ class _OrderData {
         this.courier = ord_data.courier;
         this.deleted = ord_data.deleted;
         this.refund = ord_data.refund;
+        this.prepaid = ord_data.prepaid;
+        this.bsoDate = ord_data.bsoDate;
+        this.bsoNumber = ord_data.bsoNumber;
         this.items = ord_data.items;
     }
 

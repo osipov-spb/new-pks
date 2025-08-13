@@ -23,11 +23,11 @@ export const componentRules = {
         hidden: (orderData) => false
     },
     statusButtonsPay: {
-        disabled: (orderData) => orderData.paid || orderData.total===0,
+        disabled: (orderData) => orderData.paid || orderData.total===0 || orderData.refund,
         hidden: (orderData) => false
     },
     statusButtonsNext: {
-        disabled: (orderData) => orderData.total===0,
+        disabled: (orderData) => orderData.refund,
         hidden: (orderData) => false
     },
     productTable: {

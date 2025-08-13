@@ -1,12 +1,13 @@
 import React, { useState, useCallback, useMemo, memo, useEffect } from 'react';
-import { Input, Button, Row, Col, Modal, Select, DatePicker, Form, Spin, Tag } from 'antd';
-import { PhoneOutlined, DeleteOutlined, UserOutlined, PercentageOutlined, ManOutlined, WomanOutlined, MailOutlined } from '@ant-design/icons';
+import { Input, Button, Row, Col, Modal, Select, DatePicker, Form, Spin, Tag, Tabs } from 'antd';
+import { PhoneOutlined, DeleteOutlined, UserOutlined, PercentageOutlined, ManOutlined, WomanOutlined, MailOutlined, IdcardOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import 'moment/locale/ru';
 
 moment.locale('ru');
 
 const { Option } = Select;
+const { TabPane } = Tabs;
 
 const NumberInputPadModal = ({ clientData, onClientChange }) => {
     const [inputValue, setInputValue] = useState(clientData?.phone || '+7');
@@ -19,34 +20,69 @@ const NumberInputPadModal = ({ clientData, onClientChange }) => {
     const [form] = Form.useForm();
     const [formValues, setFormValues] = useState({});
     const [isFormInitiallyValid, setIsFormInitiallyValid] = useState(false);
+    const [activeSearchMode, setActiveSearchMode] = useState('phone');
+    const [showTabs, setShowTabs] = useState(true);
 
-    const handleNumberClick = useCallback((number) => {
-        setInputValue(prev => prev.length < 16 ? prev + number : prev);
-    }, []);
+    const numberPadLayout = useMemo(() => {
+        return [
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9],
+            [
+                activeSearchMode === 'phone' ? '+' : '+',
+                '0',
+                <DeleteOutlined key="delete" />
+            ]
+        ];
+    }, [activeSearchMode]);
+
+    const handleInputChange = useCallback((e) => {
+        if (activeSearchMode === 'phone') {
+            // Для телефона разрешаем только цифры и +
+            setInputValue(e.target.value.replace(/[^0-9+]/g, ''));
+        } else {
+            // Для карты разрешаем любые символы
+            setInputValue(e.target.value);
+        }
+    }, [activeSearchMode]);
+
+    const handleNumberClick = useCallback((value) => {
+        setInputValue(prev => {
+            if (activeSearchMode === 'phone') {
+                return prev.length < 16 ? prev + value : prev;
+            }
+            return prev.length < 20 ? prev + value : prev;
+        });
+    }, [activeSearchMode]);
 
     const handleDeleteClick = useCallback(() => {
-        setInputValue(prev => prev.length > 2 ? prev.slice(0, -1) : prev);
-    }, []);
+        setInputValue(prev => prev.length > (activeSearchMode === 'phone' ? 2 : 0) ? prev.slice(0, -1) : prev);
+    }, [activeSearchMode]);
 
     const handlePhoneFocus = useCallback(() => {
         setShowNumberPad(true);
         setShowAdditionalFields(false);
     }, []);
 
-    const handleConfirmPhone = useCallback(() => {
-        if (inputValue.length >= 11) {
+    const handleConfirmInput = useCallback(() => {
+        if (
+            (activeSearchMode === 'phone' && inputValue.length >= 11) ||
+            (activeSearchMode === 'card' && inputValue.length >= 4)
+        ) {
             setIsLoading(true);
             setShowNumberPad(false);
         }
-    }, [inputValue]);
+    }, [inputValue, activeSearchMode]);
 
     const onFinish = useCallback(async (values) => {
         setIsLoading(true);
         try {
             const clientData = {
                 ...values,
-                phone: inputValue,
-                birthDate: values.birthDate ? values.birthDate.toISOString() : null
+                phone: activeSearchMode === 'phone' ? inputValue : undefined,
+                cardNumber: activeSearchMode === 'card' ? inputValue : undefined,
+                birthDate: values.birthDate ? values.birthDate.toISOString() : null,
+                searchMode: activeSearchMode
             };
             if (onClientChange) {
                 await onClientChange(clientData);
@@ -55,7 +91,7 @@ const NumberInputPadModal = ({ clientData, onClientChange }) => {
         } finally {
             setIsLoading(false);
         }
-    }, [inputValue, onClientChange]);
+    }, [inputValue, onClientChange, activeSearchMode]);
 
     const onValuesChange = useCallback((changedValues, allValues) => {
         setFormValues(allValues);
@@ -63,34 +99,36 @@ const NumberInputPadModal = ({ clientData, onClientChange }) => {
 
     const isFormValid = useMemo(() => {
         return (
-            inputValue.length >= 11 &&
+            ((activeSearchMode === 'phone' && inputValue.length >= 11) ||
+                (activeSearchMode === 'card' && inputValue.length >= 4)) &&
             formValues.name &&
             formValues.gender
         );
-    }, [inputValue, formValues]);
+    }, [inputValue, formValues, activeSearchMode]);
 
     useEffect(() => {
         window.clientSelectorFillFormData = (data) => {
             setIsLoading(true);
+            setShowTabs(false);
+            let parsedData;
             try {
-                const parsedData = JSON.parse(data);
+                parsedData = typeof data === 'string' ? JSON.parse(data) : data;
                 console.log('Filling form with:', parsedData);
 
                 setInitialFormData(parsedData);
                 setIsNewClient(!!parsedData.newClient);
 
                 const formData = {
-                    name: parsedData.name,
-                    discount: parsedData.discount,
-                    gender: parsedData.gender,
-                    advertising: parsedData.advertising,
+                    name: parsedData.name || '',
+                    discount: parsedData.discount || '',
+                    gender: parsedData.gender || '',
+                    advertising: parsedData.advertising || '',
                     birthDate: parsedData.birthDate ? moment(parsedData.birthDate) : null,
-                    email: parsedData.email,
+                    email: parsedData.email || '',
                 };
 
-                // Проверяем, заполнены ли обязательные поля
                 const initiallyValid = (
-                    parsedData.phone?.length >= 11 &&
+                    (parsedData.phone?.length >= 11 || parsedData.cardNumber?.length >= 4) &&
                     parsedData.name &&
                     parsedData.gender
                 );
@@ -98,17 +136,20 @@ const NumberInputPadModal = ({ clientData, onClientChange }) => {
                 setIsFormInitiallyValid(initiallyValid);
                 setFormValues(formData);
 
+                setActiveSearchMode('phone');
                 if (parsedData.phone) {
                     setInputValue(parsedData.phone);
-                    const newData = { phone: parsedData.phone };
+                    const newData = { phone: parsedData.phone, searchMode: 'phone' };
                     if (onClientChange) {
                         onClientChange(newData);
                     }
+                } else {
+                    setInputValue('+7');
                 }
 
                 form.setFieldsValue(formData);
 
-                if (parsedData.phone?.length >= 11) {
+                if ((parsedData.phone?.length >= 11) || (parsedData.cardNumber?.length >= 4)) {
                     setShowAdditionalFields(true);
                     setShowNumberPad(false);
                 }
@@ -121,10 +162,11 @@ const NumberInputPadModal = ({ clientData, onClientChange }) => {
 
         window.clientSelectorSetPhone = (phone) => {
             setInputValue(phone);
+            setActiveSearchMode('phone');
             if (phone && phone.length >= 11) {
                 setShowAdditionalFields(true);
                 setShowNumberPad(false);
-                const newData = { phone };
+                const newData = { phone, searchMode: 'phone' };
                 if (onClientChange) {
                     onClientChange(newData);
                 }
@@ -135,8 +177,10 @@ const NumberInputPadModal = ({ clientData, onClientChange }) => {
             const values = form.getFieldsValue();
             const currentData = {
                 ...values,
-                phone: inputValue,
-                birthDate: values.birthDate ? values.birthDate.toISOString() : null
+                phone: activeSearchMode === 'phone' ? inputValue : undefined,
+                cardNumber: activeSearchMode === 'card' ? inputValue : undefined,
+                birthDate: values.birthDate ? values.birthDate.toISOString() : null,
+                searchMode: activeSearchMode
             };
 
             let action;
@@ -165,7 +209,12 @@ const NumberInputPadModal = ({ clientData, onClientChange }) => {
             delete window.clientSelectorSaveAndGetFormData;
             delete window.clientSelectorCloseForm;
         };
-    }, [form, inputValue, onClientChange, isNewClient, initialFormData]);
+    }, [form, inputValue, onClientChange, isNewClient, initialFormData, activeSearchMode]);
+
+    const handleTabChange = (key) => {
+        setActiveSearchMode(key);
+        setInputValue(key === 'phone' ? '+7' : '');
+    };
 
     return (
         <>
@@ -174,7 +223,10 @@ const NumberInputPadModal = ({ clientData, onClientChange }) => {
                     setIsModalVisible(true);
                     setShowAdditionalFields(false);
                     setShowNumberPad(true);
-            }}
+                    setActiveSearchMode('phone');
+                    setInputValue('+7');
+                    setShowTabs(true);
+                }}
                 icon={<UserOutlined />}
             >
                 {clientData?.phone || 'Гость'}
@@ -187,19 +239,28 @@ const NumberInputPadModal = ({ clientData, onClientChange }) => {
                     setIsModalVisible(false);
                     setShowAdditionalFields(false);
                     setShowNumberPad(true);
+                    setActiveSearchMode('phone');
+                    setInputValue('+7');
                 }}
                 footer={null}
                 width={500}
                 destroyOnClose
+                bodyStyle={{ paddingTop: 0 }}
             >
                 <Spin spinning={isLoading} tip="Загрузка данных...">
                     <div style={{ marginBottom: 16 }}>
+                        {showTabs && (
+                            <Tabs activeKey={activeSearchMode} onChange={handleTabChange}>
+                                <TabPane tab={<span><PhoneOutlined />Телефон</span>} key="phone" />
+                                <TabPane tab={<span><IdcardOutlined />Карта</span>} key="card" />
+                            </Tabs>
+                        )}
                         <Input
                             value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value.replace(/[^0-9+]/g, ''))}
+                            onChange={handleInputChange}  // Используем новый обработчик
                             onFocus={handlePhoneFocus}
-                            prefix={<PhoneOutlined />}
-                            placeholder="+7 (___) ___-__-__"
+                            prefix={activeSearchMode === 'phone' ? <PhoneOutlined /> : <IdcardOutlined />}
+                            placeholder={activeSearchMode === 'phone' ? '+7 (___) ___-__-__' : 'Номер карты'}
                             disabled={isLoading}
                         />
                     </div>
@@ -207,33 +268,46 @@ const NumberInputPadModal = ({ clientData, onClientChange }) => {
                     {showNumberPad ? (
                         <>
                             <Row gutter={[8, 8]} style={{ marginBottom: 16 }}>
-                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, '+', 0].map(num => (
-                                    <Col span={8} key={num}>
-                                        <Button
-                                            block
-                                            onClick={() => handleNumberClick(num)}
-                                            style={{ height: 48, fontSize: 18 }}
-                                        >
-                                            {num}
-                                        </Button>
-                                    </Col>
+                                {numberPadLayout.map((row, rowIndex) => (
+                                    <React.Fragment key={`row-${rowIndex}`}>
+                                        {row.map((item, colIndex) => (
+                                            <Col span={8} key={`col-${rowIndex}-${colIndex}`}>
+                                                <Button
+                                                    block
+                                                    onClick={() => {
+                                                        if (React.isValidElement(item)) {
+                                                            handleDeleteClick();
+                                                        } else {
+                                                            handleNumberClick(item);
+                                                        }
+                                                    }}
+                                                    style={{ height: 48, fontSize: 18 }}
+                                                    icon={React.isValidElement(item) ? item : null}
+                                                >
+                                                    {!React.isValidElement(item) && item}
+                                                </Button>
+                                            </Col>
+                                        ))}
+                                    </React.Fragment>
                                 ))}
-                                <Col span={8}>
-                                    <Button
-                                        block
-                                        icon={<DeleteOutlined />}
-                                        onClick={handleDeleteClick}
-                                        style={{ height: 48 }}
-                                    />
-                                </Col>
                             </Row>
                             <Button
                                 type="primary"
-                                onClick={handleConfirmPhone}
+                                onClick={handleConfirmInput}
                                 block
-                                disabled={inputValue.length < 11 || isLoading}
+                                disabled={
+                                    (activeSearchMode === 'phone' && inputValue.length < 11) ||
+                                    (activeSearchMode === 'card' && inputValue.length < 4) ||
+                                    isLoading
+                                }
                                 href="#"
-                                data-button-id={!(inputValue.length < 11 || isLoading) ? "client-confirm-number" : undefined}
+                                data-button-id={
+                                    !(
+                                        (activeSearchMode === 'phone' && inputValue.length < 11) ||
+                                        (activeSearchMode === 'card' && inputValue.length < 4) ||
+                                        isLoading
+                                    ) ? "client-confirm-number" : undefined
+                                }
                                 loading={isLoading}
                             >
                                 Продолжить

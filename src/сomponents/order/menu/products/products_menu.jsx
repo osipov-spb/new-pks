@@ -5,14 +5,19 @@ import ItemButton from "./item_button";
 import FolderButton from "./folder_button";
 import PropTypes from 'prop-types';
 
+// Глобальная ссылка на компонент
+let productsMenuInstance = null;
+
 class _ProductsMenu extends React.Component {
     constructor(props) {
         super(props);
+        productsMenuInstance = this;
+
         this.state = {
             currentPath: [{
                 level: 0,
                 index: 'ROOT',
-                title: 'Меню'
+                title: ''
             }],
             items: Array.isArray(props.items) ? props.items : [],
             currentPage: 1,
@@ -21,18 +26,18 @@ class _ProductsMenu extends React.Component {
             isSearchMode: false,
             prevPathBeforeSearch: null,
             pageSize: this.calculatePageSize(),
-            prevItems: null // Добавляем для отслеживания изменений
+            prevItems: null,
+            suggestions: []
         };
     }
 
+
     static getDerivedStateFromProps(nextProps, prevState) {
-        // Если пришли новые items и они отличаются от предыдущих
         if (Array.isArray(nextProps.items) &&
             JSON.stringify(nextProps.items) !== JSON.stringify(prevState.prevItems)) {
             return {
                 items: nextProps.items,
-                prevItems: nextProps.items, // Сохраняем новые items как предыдущие
-                // Не сбрасываем currentPath и другие состояния навигации
+                prevItems: nextProps.items,
                 currentItems: nextProps.items.slice(0, prevState.pageSize),
                 currentPage: 1,
                 isSearchMode: false,
@@ -43,21 +48,18 @@ class _ProductsMenu extends React.Component {
         return null;
     }
 
-    // Функция для расчета количества элементов на странице
     calculatePageSize = () => {
         const width = window.innerWidth;
-
-        if (width >= 1920) return 32; // Для очень широких экранов
-        if (width >= 1600) return 28;
+        if (width >= 1920) return 36;
+        if (width >= 1600) return 32;
         if (width >= 1366) return 24;
         if (width >= 1024) return 20;
         if (width >= 768) return 16;
-        return 4; // Для мобильных устройств
+        return 4;
     }
 
     searchItems = (query, items) => {
         let results = [];
-
         items.forEach(item => {
             if (item.folder && item.children) {
                 results = [...results, ...this.searchItems(query, item.children)];
@@ -65,11 +67,9 @@ class _ProductsMenu extends React.Component {
                 results.push(item);
             }
         });
-
         return results;
     }
 
-    // Обработчик изменения размера окна
     handleResize = () => {
         const newPageSize = this.calculatePageSize();
         if (newPageSize !== this.state.pageSize) {
@@ -83,22 +83,27 @@ class _ProductsMenu extends React.Component {
     }
 
     componentDidMount() {
-        // Инициализируем текущие элементы
+        this.updateContainerHeight();
+        window.addEventListener('resize', this.updateContainerHeight);
+
         this.setState({
             currentItems: (this.state.isSearchMode ? this.state.searchResults : this.state.items)
                 .slice(0, this.state.pageSize)
         });
+    }
 
-        // Добавляем обработчик изменения размера окна
-        window.addEventListener('resize', this.handleResize);
+    updateContainerHeight = () => {
+        if (this.containerRef) {
+            const height = this.containerRef.offsetHeight;
+            this.setState({ containerHeight: height });
+        }
     }
 
     componentWillUnmount() {
-        // Удаляем обработчик при размонтировании компонента
-        window.removeEventListener('resize', this.handleResize);
+        window.removeEventListener('resize', this.updateContainerHeight);
+        productsMenuInstance = null;
     }
 
-    // Обновляем методы, где используется pageSize
     changePage = (page) => {
         const start = (page - 1) * this.state.pageSize;
         const itemsToShow = this.state.isSearchMode ? this.state.searchResults : this.state.items;
@@ -114,7 +119,6 @@ class _ProductsMenu extends React.Component {
             let newPath = [...this.state.currentPath];
 
             if (!fromBreadcrumb) {
-                // Клик по папке
                 const clickedItem = this.state.currentItems.find(item => item && item.id === id);
                 if (!clickedItem || !clickedItem.children) return;
 
@@ -129,12 +133,10 @@ class _ProductsMenu extends React.Component {
 
                 itemsToUse = clickedItem.children;
             } else {
-                // Навигация по хлебным крошкам
                 if (pathIndex === 'ROOT' || pathIndex === 0) {
                     itemsToUse = this.props.items;
                     newPath = [this.state.currentPath[0]];
                 } else {
-                    // Реконструкция пути
                     let currentMenu = this.props.items;
                     newPath = [this.state.currentPath[0]];
 
@@ -163,14 +165,13 @@ class _ProductsMenu extends React.Component {
             });
         } catch (error) {
             console.error('Navigation error:', error);
-            // Сброс к корневому уровню при ошибке
             this.setState({
                 items: this.props.items,
                 currentItems: this.props.items.slice(0, this.state.pageSize),
                 currentPath: [{
                     level: 0,
                     index: 'ROOT',
-                    title: 'Меню'
+                    title: ''
                 }],
                 currentPage: 1,
                 isSearchMode: false,
@@ -180,15 +181,20 @@ class _ProductsMenu extends React.Component {
     };
 
     updatePath = (e, level) => {
-        // Просто вызываем openFolder с соответствующими параметрами
         this.openFolder(e, 0, true, level);
     };
 
-    // Обновляем componentDidUpdate для использования this.state.pageSize
+    handleItemClick = (item) => {
+        if (window.orderAddItem) {
+            window.orderAddItem(item.title, item.id, item.price);
+        } else {
+            console.error('orderAddItem function not found');
+        }
+    };
+
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.searchQuery !== this.props.searchQuery) {
             const query = this.props.searchQuery || '';
-
             if (query.trim() === '') {
                 this.setState({
                     isSearchMode: false,
@@ -197,9 +203,10 @@ class _ProductsMenu extends React.Component {
                     currentPath: this.state.prevPathBeforeSearch?.path || [{
                         level: 0,
                         index: 'ROOT',
-                        title: 'Меню'
+                        title: ''
                     }],
-                    prevPathBeforeSearch: null
+                    prevPathBeforeSearch: null,
+                    suggestions: []
                 });
             } else {
                 if (!this.state.isSearchMode) {
@@ -221,7 +228,8 @@ class _ProductsMenu extends React.Component {
                         level: 0,
                         index: 'ROOT',
                         title: `Результаты поиска: "${query}"`
-                    }]
+                    }],
+                    suggestions: []
                 });
             }
         }
@@ -234,37 +242,67 @@ class _ProductsMenu extends React.Component {
         }
     }
 
-    // Обновляем render для использования this.state.pageSize
+    static updateSuggestionsGlobal(menuString) {
+        try {
+            if (!productsMenuInstance) return;
+
+            const menuData = JSON.parse(menuString);
+            const extractProducts = (items) => {
+                let products = [];
+                items.forEach(item => {
+                    if (item.folder && item.children) {
+                        products = [...products, ...extractProducts(item.children)];
+                    } else if (!item.folder) {
+                        products.push(item);
+                    }
+                });
+                return products;
+            };
+
+            const menuItems = Array.isArray(menuData) ? menuData : (menuData.menu || []);
+            const suggestions = [...extractProducts(menuItems)]
+                .slice(0, 4);
+
+            productsMenuInstance.setState({ suggestions });
+        } catch (error) {
+            console.error('Error updating suggestions:', error);
+        }
+    }
+
     render() {
-        const { currentItems, currentPath, currentPage, items, isSearchMode, searchResults, pageSize } = this.state;
+        const { currentItems, currentPath, currentPage, items, isSearchMode,
+            searchResults, pageSize, suggestions } = this.state;
 
         const itemsToShow = isSearchMode ? searchResults : items;
         const filteredItems = isSearchMode
             ? currentItems.filter(item => item && !item.folder)
             : currentItems;
 
-        // Динамическое определение количества колонок в grid
-        const gridColumns = Math.min(Math.max(Math.floor(window.innerWidth / 150), 2), 6);
+        // Жесткие высоты для каждой секции
+        const HEADER_HEIGHT = 33;
+        const SUGGESTIONS_HEIGHT = 91;
+        const PAGINATION_HEIGHT = 38;
+        const MAIN_CONTENT_HEIGHT = `calc(71vh - ${HEADER_HEIGHT + SUGGESTIONS_HEIGHT + PAGINATION_HEIGHT}px)`;
 
         return (
             <div style={{
-                height: '100%',
+                height: '81vh',
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
-                width: '100%' // Добавляем явное ограничение по ширине
+                width: '100%'
             }}>
                 {!this.props.collapsed && (
                     <>
-                        <Card
-                            bordered={false}
-                            style={{
-                                boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-                            }}
-                            bodyStyle={{padding: '8px'}}
-                        >
+                        {/* Шапка с хлебными крошками */}
+                        <div style={{
+                            height: HEADER_HEIGHT,
+                            padding: '8px',
+                            borderBottom: '1px solid #f0f0f0',
+                            flexShrink: 0
+                        }}>
                             <div style={{display: 'flex', alignItems: 'center', flexWrap: 'wrap'}}>
-                                {currentPath && currentPath.map((item, index) => item && (
+                                {currentPath.map((item, index) => item && (
                                     <MenuBreadcrumb
                                         key={index}
                                         title={item.title}
@@ -276,31 +314,23 @@ class _ProductsMenu extends React.Component {
                                     />
                                 ))}
                             </div>
-                        </Card>
+                        </div>
 
+                        {/* Основной контент с жестко заданной высотой */}
                         <div style={{
+                            height: MAIN_CONTENT_HEIGHT,
                             overflowY: 'auto',
+                            padding: '2.5px',
                             display: 'grid',
-                            gridTemplateColumns: `repeat(auto-fill, minmax(125px, 1fr))`, // Адаптивные колонки
-                            padding: '5px',
-                            overflowX: 'hidden', // Запрещаем горизонтальный скролл
-                            gap: '5px', // Добавляем отступы между элементами
-                            width: 'calc(100% - 5px)', // Учитываем padding
-                            boxSizing: 'border-box' // Учитываем padding в общей ширине
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(126px, 1fr))',
+                            // gap: '5px',
+                            width: 'calc(100%-5px)', // Учитываем padding
+                            alignContent: 'flex-start'
                         }}>
                             {filteredItems.map((item, index) => item && (
-                                <div key={item.id} style={{
-                                    width: '100%',
-                                    minWidth: 0 // Важно для предотвращения "распирания"
-                                }}>
+                                <div key={item.id} style={{ minWidth: 0, padding:'2.5px'}}>
                                     {!item.folder ? (
                                         <ItemButton
-                                            style={{
-                                                width: '100%',
-                                                maxWidth: '125px',
-                                                padding: '4px',
-                                                boxSizing: 'border-box'
-                                            }}
                                             data={{
                                                 index: index,
                                                 id: item.id,
@@ -308,24 +338,13 @@ class _ProductsMenu extends React.Component {
                                                 discount: item.discount,
                                                 title: item.title,
                                                 stop: item.stop,
-                                                composite: item.composite
+                                                composite: item.composite,
+                                                suggestion: false
                                             }}
-                                            onClick={() => {
-                                                if (window.orderAddItem) {
-                                                    window.orderAddItem(item.title, item.id, item.price);
-                                                } else {
-                                                    console.error('orderAddItem function not found');
-                                                }
-                                            }}
+                                            onClick={() => this.handleItemClick(item)}
                                         />
                                     ) : !isSearchMode && (
                                         <FolderButton
-                                            style={{
-                                                width: '100%',
-                                                maxWidth: '125px', // Фиксированная максимальная ширина
-                                                padding: '4px',
-                                                boxSizing: 'border-box'
-                                            }}
                                             data={{
                                                 index: index,
                                                 id: item.id,
@@ -339,28 +358,89 @@ class _ProductsMenu extends React.Component {
                             ))}
                         </div>
 
-                        {itemsToShow.length > pageSize && (
+                        {/* Меню предложений */}
+                        {/*<div style={{*/}
+                        {/*    height: SUGGESTIONS_HEIGHT,*/}
+                        {/*    borderTop: '1px solid #f0f0f0',*/}
+                        {/*    padding: '8px',*/}
+                        {/*    flexShrink: 0,*/}
+                        {/*    overflow: 'hidden'*/}
+                        {/*}}>*/}
+                            {/*<div style={{*/}
+                            {/*    fontSize: '12px',*/}
+                            {/*    color: '#666',*/}
+                            {/*    marginBottom: '8px',*/}
+                            {/*    whiteSpace: 'nowrap',*/}
+                            {/*    overflow: 'hidden',*/}
+                            {/*    textOverflow: 'ellipsis'*/}
+                            {/*}}>*/}
+                            {/*    Рекомендуем попробовать:*/}
+                            {/*</div>*/}
+                        {/* Пагинация */}
+                        {/*{itemsToShow.length > pageSize && (*/}
+                        <div style={{
+                            height: PAGINATION_HEIGHT,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderTop: '1px solid #f0f0f0',
+                            flexShrink: 0,
+                            // paddingTop: '5px'
+                        }}>
+                            <Pagination
+                                current={currentPage}
+                                onChange={this.changePage}
+                                total={itemsToShow.length}
+                                pageSize={pageSize}
+                                showSizeChanger={false}
+                                showQuickJumper={false}
+                                size="middle"
+                            />
+                        </div>
+                        {/*)}*/}
+
                             <div style={{
-                                textAlign: 'center',
-                                padding: '8px',
-                                borderTop: '1px solid #f0f0f0'
+                                height: SUGGESTIONS_HEIGHT,
+                                overflowY: 'auto',
+                                padding: '2.5px',
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fill, minmax(126px, 1fr))',
+                                // gap: '5px',
+                                width: 'calc(100%-5px)', // Учитываем padding
+                                alignContent: 'flex-start',
+                                borderTop: '1px solid #f0f0f0',
                             }}>
-                                <Pagination
-                                    current={currentPage}
-                                    onChange={this.changePage}
-                                    total={itemsToShow.length}
-                                    pageSize={pageSize}
-                                    showSizeChanger={false}
-                                    showQuickJumper={false}
-                                />
+
+                                {suggestions.map(item => (
+                                    <div key={item.id} style={{ minWidth: 0, padding:'2.5px'}}>
+                                    <ItemButton
+                                        key={item.id}
+                                        data={{
+                                            id: item.id,
+                                            price: item.price,
+                                            discount: item.discount,
+                                            title: item.title,
+                                            stop: item.stop,
+                                            composite: item.composite,
+                                            suggestion: true
+                                        }}
+                                        onClick={() => this.handleItemClick(item)}
+                                    />
+                                    </div>
+                                ))}
+
                             </div>
-                        )}
+                        {/*</div>*/}
+
+
                     </>
                 )}
             </div>
         );
     }
 }
+
+window.updateSuggestions = _ProductsMenu.updateSuggestionsGlobal;
 
 _ProductsMenu.propTypes = {
     items: PropTypes.array.isRequired,

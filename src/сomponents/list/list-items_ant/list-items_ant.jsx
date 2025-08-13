@@ -7,7 +7,15 @@ import {
     Loading3QuartersOutlined,
     DeleteOutlined,
     CheckCircleOutlined,
-    FieldTimeOutlined
+    FieldTimeOutlined,
+    CalendarOutlined,
+    NumberOutlined,
+    ForwardOutlined,
+    ShoppingCartOutlined,
+    WalletOutlined,
+    CreditCardOutlined,
+    UserOutlined,
+    CheckOutlined, HourglassOutlined, ClockCircleOutlined, ShoppingOutlined, CarOutlined, CloseCircleOutlined
 } from "@ant-design/icons";
 import { debounce } from 'lodash';
 
@@ -76,7 +84,9 @@ class OrdersTable extends React.Component {
             const isDeleted = order.deleted;
             const status = order.orderStatus;
 
-            if (statusFilter.includes('deleted') && isDeleted) return true;
+            if (statusFilter.includes('deleted')
+                && (isDeleted || status === 'Отказ')
+                && (isDeleted || status === '8.Удален')) return true;
             if (isDeleted) return false;
 
             let matchesFilter = false;
@@ -87,7 +97,8 @@ class OrdersTable extends React.Component {
 
             if (statusFilter.includes('in_progress') && [
                 '1.Заказан', '2.Кухня', '2,5.Комплектация',
-                '3.Ожидает', '4.В пути', '5.Доставлен'
+                '3.Ожидает', '4.В пути', '5.Доставлен', '1.1 Ожидание оплаты',
+                'Возврат на ТТ', '1.2 Ожидание оплаты на точке клиентом'
             ].includes(status)) {
                 matchesFilter = true;
             }
@@ -156,7 +167,9 @@ class OrdersTable extends React.Component {
                 orderAddress: order.orderAddress || '',
                 orderOnlineID: order.orderOnlineID || '',
                 deleted: order.deleted || false,
-                paid: order.paid || false
+                paid: order.paid || false,
+                clientName : order.clientName || '',
+                clientPhone : order.clientPhone || ''
             }));
 
             this.setState({ dataSource: formattedOrders, isLoading: false });
@@ -195,15 +208,21 @@ class OrdersTable extends React.Component {
 
     getStatusTagConfig = (orderStatus) => {
         const statusMap = {
-            'Временной': { color: '#FFEED8', textColor: '#FFAD41', text: '● Временной' },
-            '1.Заказан': { color: '#F4E1FB', textColor: '#AB72C2', text: '● Заказан' },
-            '2.Кухня': { color: '#FBDBD7', textColor: '#EF7365', text: '● Кухня' },
-            '2,5.Комплектация': { color: '#FFF0EF', textColor: '#FC867D', text: '● Комплектация' },
-            '3.Ожидает': { color: '#DBF4FB', textColor: '#59B9D5', text: '● Ожидает' },
-            '4.В пути': { color: '#FFFAC5', textColor: '#C3B01E', text: '● В пути' },
-            '5.Доставлен': { color: '#EEFCF1', textColor: '#63B875', text: '● Доставлен' },
-            '6.Деньги сдал': { color: '#D2F0D3', textColor: '#57B55D', text: '● Деньги сдал' },
-            '7.На удаление': { color: '#F3E1D0', textColor: '#795C40', text: '● На удаление' },
+            'Временной': { color: '#FFEED8', textColor: '#000000', text: 'Временной', statusIcon: <ClockCircleOutlined style={{ color: '#d48806' }}/>},
+            '1.Заказан': { color: '#F4E1FB', textColor: '#000000', text: 'Заказан', statusIcon: <HourglassOutlined style={{ color: '#c41d7f' }}/> },
+            '2.Кухня': { color: '#FBDBD7', textColor: '#000000', text: 'Кухня', statusIcon: <HourglassOutlined style={{ color: '#d4380d' }}/>},
+            '2,5.Комплектация': { color: '#FFF0EF', textColor: '#000000', text: 'Комплектация', statusIcon: <ShoppingOutlined style={{ color: '#fa541c' }}/>},
+            '3.Ожидает': { color: '#DBF4FB', textColor: '#000000', text: 'Ожидает', statusIcon: <HourglassOutlined style={{ color: '#096dd9' }}/>},
+            '4.В пути': { color: '#FFFAC5', textColor: '#000000', text: 'В пути', statusIcon: <CarOutlined style={{ color: '#d48806' }}/>},
+            '5.Доставлен': { color: '#EEFCF1', textColor: '#000000', text: 'Доставлен', statusIcon: <CheckCircleOutlined style={{ color: '#52c41a' }}/>},
+            '6.Деньги сдал': { color: '#D2F0D3', textColor: '#000000', text: 'Деньги сдал', statusIcon: <CheckOutlined style={{ color: '#52c41a' }}/>},
+            '7.На удаление': { color: '#F3E1D0', textColor: '#000000', text: 'На удаление', statusIcon: <DeleteOutlined style={{ color: '#f5222d' }}/>},
+            '8.Удален': { color: '#F3E1D0', textColor: '#000000', text: 'Удален', statusIcon: <DeleteOutlined style={{ color: '#ff4d4f' }}/>},
+            'Отказ': { color: '#F3E1D0', textColor: '#000000', text: 'Отказ', statusIcon: <CloseCircleOutlined style={{ color: '#f5222d' }}/>},
+            '1.1 Ожидание оплаты': { color: '#e6fffb', textColor: '#000000', text: 'Ожидание оплаты', statusIcon: <HourglassOutlined style={{ color: '#08979c' }}/>},
+            'Возврат на ТТ': { color: '#F3E1D0', textColor: '#000000', text: 'Возврат на точку', statusIcon: <CarOutlined style={{ color: '#d48806' }}/>},
+            '1.2 Ожидание оплаты на точке клиентом': { color: '#e6fffb', textColor: '#000000', text: 'Ожидание оплаты на точке', statusIcon: <HourglassOutlined style={{ color: '#08979c' }}/>},
+
         };
         return statusMap[orderStatus] || { color: 'geekblue', textColor: 'black', text: `●${orderStatus}` };
     }
@@ -268,7 +287,7 @@ class OrdersTable extends React.Component {
     }
 
     renderStatusTag = (orderStatus, record) => {
-        const { color, textColor, text } = this.getStatusTagConfig(orderStatus);
+        const { color, textColor, text, statusIcon } = this.getStatusTagConfig(orderStatus);
         return (
             <Tag
                 color={color}
@@ -286,12 +305,16 @@ class OrdersTable extends React.Component {
                     opacity: record.deleted ? 0.7 : 1
                 }}
             >
+
                 <div style={{
                     color: record.deleted ? '#FF4D4F' : textColor,
                     width: '100%',
                     textAlign: 'center'
                 }}>
+                    <Space size='small'>
+                    {statusIcon}
                     {this.cleanStatusText(text)}
+                    </Space>
                 </div>
             </Tag>
         );
@@ -302,7 +325,16 @@ class OrdersTable extends React.Component {
 
         return [
             {
-                title: 'Дата',
+                title: () => {
+                    return  (
+                        <div style={{ display: 'flex', justifyContent: 'center', fontSize: '14px'}}>
+                            <Space size='small'>
+                                <CalendarOutlined/>
+                                <Text strong> Дата </Text>
+                            </Space>
+                        </div>
+                    )
+                },
                 dataIndex: 'orderDate',
                 key: 'orderDate',
                 width: 100,
@@ -310,7 +342,16 @@ class OrdersTable extends React.Component {
                 render: (dateString, record) => this.renderCellContent(this.formatOrderDate(dateString), record)
             },
             {
-                title: '№',
+                title: () => {
+                    return  (
+                        <div style={{ display: 'flex', justifyContent: 'center', fontSize: '14px'}}>
+                            <Space size='small'>
+                                <NumberOutlined/>
+                                <Text strong> Номер </Text>
+                            </Space>
+                        </div>
+                    )
+                },
                 dataIndex: 'orderNumber',
                 key: 'orderNumber',
                 width: 100,
@@ -319,8 +360,13 @@ class OrdersTable extends React.Component {
             },
             {
                 title: () => (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        Статус
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px'}}>
+                        <div>
+                            <Space size='small'>
+                                <ForwardOutlined />
+                                <Text strong> Статус </Text>
+                            </Space>
+                        </div>
                         <Button
                             href="#"
                             data-button-id="menu-sheduled-orders"
@@ -331,10 +377,11 @@ class OrdersTable extends React.Component {
                             Временные
                         </Button>
                     </div>
+
                 ),
                 dataIndex: 'orderStatus',
                 key: 'orderStatus',
-                width: 180,
+                width: 210,
                 filters: [
                     { text: 'Текущие', value: 'in_progress' },
                     { text: 'Временные', value: 'temporary' },
@@ -451,26 +498,70 @@ class OrdersTable extends React.Component {
                 render: this.renderStatusTag
             },
             {
-                title: 'Упаковка',
+                title: () => {
+                    return  (
+                        <div style={{ display: 'flex', justifyContent: 'center', fontSize: '14px'}}>
+                            <Space size='small'>
+                                <ShoppingCartOutlined/>
+                                <Text strong> Упаковка </Text>
+                            </Space>
+                        </div>
+                    )
+                },
                 dataIndex: 'orderPackage',
                 key: 'orderPackage',
-                width: 120,
+                width: 110,
                 sorter: (a, b) => a.orderPackage.localeCompare(b.orderPackage),
                 render: (text, record) => this.renderCellContent(text, record)
             },
+            // {
+            //     title: () => {
+            //         return  (
+            //             <div style={{ display: 'flex', justifyContent: 'center', fontSize: '14px'}}>
+            //                 <Space size='small'>
+            //                     <WalletOutlined/>
+            //                     <Text strong> Оплата </Text>
+            //                 </Space>
+            //             </div>
+            //         )
+            //     },
+            //     dataIndex: 'orderPaymentType',
+            //     key: 'orderPaymentType',
+            //     width: 110,
+            //     sorter: (a, b) => a.orderPaymentType.localeCompare(b.orderPaymentType),
+            //     render: (text, record) => this.renderCellContent(text, record)
+            // },
             {
-                title: 'Оплата',
-                dataIndex: 'orderPaymentType',
-                key: 'orderPaymentType',
-                width: 120,
-                sorter: (a, b) => a.orderPaymentType.localeCompare(b.orderPaymentType),
+                title: () => {
+                    return  (
+                        <div style={{ display: 'flex', justifyContent: 'center', fontSize: '14px'}}>
+                            <Space size='small'>
+                                <UserOutlined/>
+                                <Text strong> Клиент </Text>
+                            </Space>
+                        </div>
+                    )
+                },
+                dataIndex: 'clientPhone',
+                key: 'clientPhone',
+                width: 130,
+                // sorter: (a, b) => a.clientPhone.localeCompare(b.clientPhone),
                 render: (text, record) => this.renderCellContent(text, record)
             },
             {
-                title: 'Сумма',
+                title: () => {
+                    return  (
+                        <div style={{ display: 'flex', justifyContent: 'center', fontSize: '14px'}}>
+                            <Space size='small'>
+                                <CheckOutlined/>
+                                <Text strong> Сумма </Text>
+                            </Space>
+                        </div>
+                    )
+                },
                 dataIndex: 'orderTotal',
                 key: 'orderTotal',
-                width: 120,
+                width: 100,
                 sorter: (a, b) => a.orderTotal - b.orderTotal,
                 render: (text, record) => this.renderCellContent(`${text} ₽`, record)
             },
@@ -491,9 +582,40 @@ class OrdersTable extends React.Component {
                 title: '',
                 dataIndex: 'tags',
                 key: 'tags',
-                width: 80,
-                render: (_, { orderAddress, orderOnlineID, orderPackage, deleted }) => (
+                width: 90,
+                render: (_, { orderAddress, orderOnlineID, orderPackage, deleted, clientPhone, clientName, orderPaymentType }) => (
                     <Space size='small'>
+                        {orderPaymentType==='Наличные' && (
+                            <Popover content=
+                                         {
+                                             <div style={{width: 130}}>
+                                                 Наличные
+                                             </div>
+                                         } title="Способ оплаты" trigger="click">
+                                <WalletOutlined style={{ color: deleted ? '#FF7875' : '#1890ff', fontSize: '20px' }} />
+                            </Popover>
+                        )}
+                        {orderPaymentType==='Безнал' && (
+                            <Popover content=
+                                         {
+                                             <div style={{width: 130}}>
+                                                 Безнал
+                                             </div>
+                                         } title="Способ оплаты" trigger="click">
+                                <CreditCardOutlined style={{ color: deleted ? '#FF7875' : '#1890ff', fontSize: '20px' }} />
+                            </Popover>
+                        )}
+                        {/*{clientPhone && (*/}
+                        {/*    <Popover content=*/}
+                        {/*                 {*/}
+                        {/*                     <div style={{width: 180}}>*/}
+                        {/*                         Имя: {clientName}<br/>*/}
+                        {/*                         Телефон: {clientPhone}*/}
+                        {/*                     </div>*/}
+                        {/*                 } title="Клиент" trigger="click">*/}
+                        {/*        <UserOutlined style={{ color: deleted ? '#FF7875' : '#1890ff', fontSize: '20px' }} />*/}
+                        {/*    </Popover>*/}
+                        {/*)}*/}
                         {orderPackage === 'Доставка' && (
                             <Popover content={<div style={{ width: 130 }}>{orderAddress}</div>} title="Адрес" trigger="click">
                                 <HomeOutlined style={{ color: deleted ? '#FF7875' : '#1890ff', fontSize: '20px' }} />
@@ -526,7 +648,7 @@ class OrdersTable extends React.Component {
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
-                maxWidth: '98vw',
+                maxWidth: '98vw'
             }}>
                 <Table
                     size="middle"

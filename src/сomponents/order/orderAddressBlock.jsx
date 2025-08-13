@@ -132,6 +132,9 @@ class OrderAddressBlock extends React.Component {
                     <>
                         <div style={{ maxHeight: '400px', overflowY: 'auto', margin: '8px 0' }}>
                             {paginatedCouriers.map(courier => (
+                                <a href="#"
+                                   data-button-id={`select-courier-id-${courier.id}`}
+                                >
                                 <div
                                     key={courier.id}
                                     style={{
@@ -148,6 +151,7 @@ class OrderAddressBlock extends React.Component {
                                     <Text strong>{courier.name}</Text>
                                     {courier.phone && <Text type="secondary" style={{ marginLeft: '8px' }}>{courier.phone}</Text>}
                                 </div>
+                                </a>
                             ))}
                         </div>
 

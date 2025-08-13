@@ -1,10 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Dropdown, Menu, Tag } from 'antd';
 import { ShopOutlined, CarryOutOutlined, RocketOutlined } from '@ant-design/icons';
 
 const _PackageSwitch = ({ updatePackage, initialPackageType = 'in_store' }) => {
     const [packageType, setPackageType] = useState(initialPackageType);
     const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        // Добавляем функцию в window для внешнего управления
+        window.setPackageType = (type) => {
+            if (['in_store', 'take_away', 'delivery'].includes(type)) {
+                setPackageType(type);
+                if (updatePackage) {
+                    updatePackage(type);
+                }
+            } else {
+                console.warn(`Invalid package type: ${type}. Allowed values: in_store, take_away, delivery`);
+            }
+        };
+
+        // Очистка при размонтировании
+        return () => {
+            delete window.setPackageType;
+        };
+    }, [updatePackage]);
 
     const handleMenuClick = (e) => {
         setPackageType(e.key);
@@ -78,8 +97,6 @@ const _PackageSwitch = ({ updatePackage, initialPackageType = 'in_store' }) => {
             <Button
                 type="default"
                 icon={getButtonIcon()}
-                // href="#"
-                // data-button-id={getButtonDataId()}
                 style={{ minWidth: '120px' }}
             >
                 {getButtonText()}

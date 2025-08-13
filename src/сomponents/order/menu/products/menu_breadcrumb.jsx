@@ -52,10 +52,30 @@ const MenuBreadcrumb = ({ title = 'Меню', level = 0, itemIndex = 'ROOT', upd
                     }} />
                 </>
             ) : (
-                <Text strong style={{ color: '#595959', marginLeft: level === 0 ? 0 : '6px' }}>
-                    {level === 0 ? <HomeOutlined style={{ marginRight: '4px' }} /> : null}
-                    {title}
-                </Text>
+                <>
+                    {level === 0 ? (
+                        <HomeOutlined
+                            style={{
+                                fontSize: '14px',
+                                cursor: 'pointer',
+                                marginTop:'4px'
+                            }}
+                        />
+                    ) : (
+                        <Text strong
+                            style={{
+                                color: '#595959',
+                                cursor: 'pointer',
+                                padding: '0 4px',
+                                borderRadius: '4px',
+                                transition: 'all 0.2s',
+                                marginLeft: level === 0 ? 0 : '6px'
+                            }}
+                        >
+                            {title}
+                        </Text>
+                    )}
+                </>
             )}
         </Space>
     );

@@ -1,6 +1,8 @@
 import React from "react";
-import { Button, Tag, Row, Col } from 'antd';
+import {Button, Tag, Row, Col, Typography} from 'antd';
 import {FolderOpenOutlined, FolderOutlined, PercentageOutlined} from "@ant-design/icons";
+
+const { Text } = Typography;
 
 class FolderButton extends React.Component {
     constructor(props) {
@@ -79,37 +81,45 @@ class FolderButton extends React.Component {
                 onClick={this.handleClick}
                 style={{
                     height: '80px',
-                    width: '125px',
-                    margin: '4px',
+                    width: '126px',
+                    // margin: '4px',
                     padding: '6px 6px 4px 6px',
-                    border: '1px solid #e8e8e8',
-                    backgroundColor: '#fff',
+                    border: `1px solid ${data.discount ? '#ffd591' : '#d9d9d9'}`,
+                    backgroundColor: '#fafafa',
                     display: 'grid',
                     gridTemplateRows: '1fr auto',
                     gap: '4px',
                     cursor: 'pointer',
                     boxShadow: 'none',
-                    borderRadius: 0
+                    borderRadius: '4px', // вместо 0
                 }}
             >
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: '3px',
+                    backgroundColor: data.discount ? '#fa8c16' : '#8c8c8c'
+                }}/>
+
                 <div style={{
                     fontSize: '11px',
                     lineHeight: '1.2',
                     textAlign: 'left',
                     alignSelf: 'start',
                     color: '#595959',
-                    borderBottom: '1px solid #f0f0f0',
                     paddingBottom: '4px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'flex-start'
                 }}>
                     <FolderOutlined style={{
-                        fontSize: '14px',
-                        color: '#8c8c8c',
+                        fontSize: '18px',
+                        color: '#bfbfbf',
                         marginBottom: '4px'
-                    }} />
-                    <this.BreakString text={data.title} />
+                    }}/>
+                    <Text strong><this.BreakString text={data.title}/></Text>
                 </div>
 
                 <div style={{
@@ -120,19 +130,20 @@ class FolderButton extends React.Component {
                     <span style={{
                         fontSize: '11px',
                         color: '#8c8c8c',
-                        fontStyle: 'italic'
+                        fontStyle: 'italic',
+
                     }}>
-                        {data.itemsCount || 'папка'}
+                        {/*{data.itemsCount || 'папка'}*/}
                     </span>
-                    <span style={{
-                        fontSize: '10px',
-                        color: '#1890ff',
-                        border: '1px solid #1890ff',
-                        borderRadius: '2px',
-                        padding: '0 3px'
-                    }}>
-                        →
-                    </span>
+                    {/*<span style={{*/}
+                    {/*    fontSize: '10px',*/}
+                    {/*    color: '#1890ff',*/}
+                    {/*    border: '1px solid #1890ff',*/}
+                    {/*    borderRadius: '2px',*/}
+                    {/*    padding: '0 3px'*/}
+                    {/*}}>*/}
+                    {/*    →*/}
+                    {/*</span>*/}
                 </div>
             </Button>
         );

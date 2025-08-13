@@ -1,12 +1,24 @@
 import React from 'react';
-import { Card, Col, Layout, Row, Typography, Input, Button, Space, Result } from 'antd';
-import { ArrowRightOutlined, SearchOutlined, CheckCircleFilled, CheckOutlined, SmileOutlined, EditOutlined, FormOutlined } from '@ant-design/icons';
+import { Card, Col, Layout, Row, Typography, Input, Button, Space, Result, Divider } from 'antd';
+import {
+    ArrowRightOutlined,
+    SearchOutlined,
+    CheckCircleFilled,
+    CheckOutlined,
+    CloseOutlined,
+    FormOutlined,
+    ShoppingCartOutlined,
+    GiftOutlined,
+    CommentOutlined,
+    DollarOutlined,
+    EnvironmentOutlined,
+    UserOutlined
+} from '@ant-design/icons';
 import _ProductTable from "./products_list";
 import _OrderHeader from "./order_header";
 import _OrderData from "./order_data";
 import _ProductsMenu from "./menu/products/products_menu";
 import StatusButtons from "./buttons/status_buttons";
-import _PromoMenu from "./menu/promo/promo_menu";
 import OrderAdditionalInfo from "./orderAdditionalInfo";
 import { componentRules } from './componentRules';
 import OrderAddressBlock from "./orderAddressBlock";
@@ -14,7 +26,7 @@ import PromoMenu from "./menu/promo/promo_menu";
 
 const { Search } = Input;
 const { Content } = Layout;
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { TextArea } = Input;
 
 class Order extends React.Component {
@@ -91,6 +103,13 @@ class Order extends React.Component {
         newOrderData.package = packageType;
         this.setState({ order_data: newOrderData });
     };
+
+    updateBSOData = (date, number) =>{
+        const newOrderData = { ...this.state.order_data };
+        newOrderData.bsoDate = date;
+        newOrderData.bsoNumber = number;
+        this.setState({ order_data: newOrderData });
+    }
 
     updateScheduledStatus = (isScheduled) => {
         const newOrderData = { ...this.state.order_data };
@@ -262,9 +281,18 @@ class Order extends React.Component {
         };
 
         window.setPromoList = (promoList) => {
-            const newAdditionalParams = { ...this.state.additionalParams };
+            const newAdditionalParams = { ...this.state.additionalParams }
             newAdditionalParams.promoList = JSON.parse(promoList);
-            this.setState({ additionalParams: newAdditionalParams });
+            const filteredList = newAdditionalParams.promoList?.filter(promo => promo.available > 0) || []
+            if (!filteredList.length){
+                this.setState({
+                    additionalParams: newAdditionalParams,
+                    promoCollapsed: true,
+                    promosFilled: true
+                });
+            } else {
+                this.setState({ additionalParams: newAdditionalParams });
+            }
         };
 
         window.changeMenuType = (menuType) => {
@@ -339,7 +367,10 @@ class Order extends React.Component {
                         overflow: 'hidden'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <Text strong style={{ color: '#595959' }}>ТОВАРЫ</Text>
+                            <Space size='small'>
+                                <ShoppingCartOutlined style={{ color: '#1890ff' }} />
+                                <Text strong style={{ color: '#595959' }}>МЕНЮ</Text>
+                            </Space>
                             {this.state.productsFilled && (
                                 <CheckCircleFilled style={{ color: '#52c41a', marginLeft: 8 }} />
                             )}
@@ -373,7 +404,7 @@ class Order extends React.Component {
                                     productsFilled: true
                                 })}
                             >
-                                Перейти к акциям
+                                Продолжить
                             </Button>
                         </div>
                     </div>
@@ -397,7 +428,11 @@ class Order extends React.Component {
                         overflow: 'hidden'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <Text strong style={{ color: '#595959' }}>АКЦИИ</Text>
+                            <Space size='small'>
+                                <GiftOutlined style={{ color: '#faad14' }} />
+                                <Text strong style={{ color: '#595959' }}>АКЦИИ</Text>
+                            </Space>
+
                             {this.state.promosFilled && (
                                 <CheckCircleFilled style={{ color: '#52c41a', marginLeft: 8 }} />
                             )}
@@ -451,6 +486,7 @@ class Order extends React.Component {
                         updateScheduledStatus={this.updateScheduledStatus}
                         updateScheduledTime={this.updateScheduledTime}
                         updateClient={this.updateClient}
+                        updateBSOData={this.updateBSOData}
                         disabled={this.isComponentDisabled('orderHeader')}
                         hidden={this.isComponentHidden('orderHeader')}
                     />
@@ -467,7 +503,7 @@ class Order extends React.Component {
                         flex: 1,
                         display: 'flex'
                     }}>
-                        <Col xs={24} md={11} style={{ display: 'flex', flexDirection: 'column', paddingLeft: '0px'}}>
+                        <Col xs={24} md={11} style={{ display: 'flex', flexDirection: 'column', paddingLeft: '0px', paddingRight: '3px'}}>
                             <Card
                                 bordered={false}
                                 style={{
@@ -529,7 +565,7 @@ class Order extends React.Component {
                                         gap: '10px',
                                         padding: '20px',
                                         background: 'white',
-                                        borderRadius: '12px',
+                                        borderRadius: '0px',
                                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                                     }}>
                                         <div style={{display: 'flex', justifyContent: 'space-between'}}>
@@ -558,7 +594,7 @@ class Order extends React.Component {
                             </Card>
                         </Col>
 
-                        <Col xs={24} md={13} style={{display: 'flex', flexDirection: 'column', paddingRight: '0px'}}>
+                        <Col xs={24} md={13} style={{display: 'flex', flexDirection: 'column', paddingLeft: '3px', paddingRight: '0px'}}>
                             <Card
                                 bordered={false}
                                 style={{
@@ -593,9 +629,12 @@ class Order extends React.Component {
                                                 alignItems: 'center'
                                             }}>
                                                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                    <Text strong style={{ color: '#595959' }}>ТОВАРЫ</Text>
+                                                    <Space size='small'>
+                                                        <ShoppingCartOutlined style={{ color: '#1890ff' }} />
+                                                        <Text strong style={{ color: '#595959' }}>МЕНЮ</Text>
+                                                    </Space>
                                                     {this.state.productsFilled && (
-                                                        <CheckCircleFilled style={{ color: '#40a9ff', marginLeft: 8 }} />
+                                                        <CheckCircleFilled style={{ color: '#52c41a', marginLeft: 8 }} />
                                                     )}
                                                 </div>
                                                 <Button
@@ -621,9 +660,12 @@ class Order extends React.Component {
                                                 alignItems: 'center'
                                             }}>
                                                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                    <Text strong style={{ color: '#595959' }}>АКЦИИ</Text>
+                                                    <Space size='small'>
+                                                        <GiftOutlined style={{ color: '#faad14' }} />
+                                                        <Text strong style={{ color: '#595959' }}>АКЦИИ</Text>
+                                                    </Space>
                                                     {this.state.promosFilled && (
-                                                        <CheckCircleFilled style={{ color: '#40a9ff', marginLeft: 8 }} />
+                                                        <CheckCircleFilled style={{ color: '#52c41a', marginLeft: 8 }} />
                                                     )}
                                                 </div>
                                                 <Button
@@ -642,22 +684,40 @@ class Order extends React.Component {
                                                 </Button>
                                             </div>
 
-                                            {!this.state.existingOrder && this.state.productsFilled && this.state.promosFilled && (
-                                                <div style={{
-                                                    flex: 1,
-                                                    display: 'flex',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    padding: '24px'
-                                                }}>
-                                                    <Result
-                                                        icon={<CheckOutlined style={{ color: '#40a9ff' }} />}
-                                                        title="Товары и акции заполнены!"
-                                                        subTitle="Вы можете продолжить оформление заказа"
-                                                        style={{ padding: 0 }}
-                                                    />
-                                                </div>
-                                            )}
+                                            {!this.state.existingOrder && this.state.productsFilled
+                                                && this.state.promosFilled && (this.state.order_data.total!=0) && (
+                                                    <div style={{
+                                                        flex: 1,
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                        padding: '24px'
+                                                    }}>
+                                                        <Result
+                                                            icon={<CheckOutlined style={{ color: '#40a9ff' }} />}
+                                                            title="Товары и акции заполнены!"
+                                                            subTitle="Вы можете продолжить оформление заказа"
+                                                            style={{ padding: 0 }}
+                                                        />
+                                                    </div>
+                                                )}
+                                            {!this.state.existingOrder && this.state.productsFilled
+                                                && this.state.promosFilled && !this.state.order_data.total && (
+                                                    <div style={{
+                                                        flex: 1,
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                        padding: '24px'
+                                                    }}>
+                                                        <Result
+                                                            icon={<CloseOutlined style={{ color: '#ff7875' }} />}
+                                                            title="Список товаров не заполнен!"
+                                                            subTitle="Вернитесь к выбору товаров"
+                                                            style={{ padding: 0 }}
+                                                        />
+                                                    </div>
+                                                )}
                                         </>
                                     )}
 

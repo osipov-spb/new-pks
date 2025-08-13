@@ -1,6 +1,12 @@
 import React from 'react';
-import { Table, Typography, InputNumber, Button, Popconfirm, message, Row, Col } from 'antd';
-import { Loading3QuartersOutlined, DeleteOutlined, EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
+import {Table, Typography, InputNumber, Button, Popconfirm, message, Row, Col, Space} from 'antd';
+import {
+    Loading3QuartersOutlined,
+    DeleteOutlined,
+    EyeOutlined,
+    EyeInvisibleOutlined,
+    ShoppingCartOutlined, UnorderedListOutlined
+} from "@ant-design/icons";
 import './products_list.css';
 
 const { Text } = Typography;
@@ -53,6 +59,7 @@ class _ProductTable extends React.Component {
                 title: ()=>{
                     return <div style={{
                         fontSize: '12px',
+                        fontWeight: 'bold',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis'
@@ -65,17 +72,19 @@ class _ProductTable extends React.Component {
                 render: (_, { lineNumber, hide }) => (
                     <div style={{
                         fontSize: '13px',
+                        // fontWeight: 'bold',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         opacity: hide ? 0.5 : 1
-                    }}>{lineNumber}</div>
+                    }}><Text>{lineNumber}</Text></div>
                 )
             },
             {
                 title: () => {
                     return <div style={{
                         fontSize: '12px',
+                        fontWeight: 'bold',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis'
@@ -83,10 +92,11 @@ class _ProductTable extends React.Component {
                 },
                 dataIndex: 'product_title',
                 key: 'product_title',
-                width: 130,
+                width: 180,
                 render: (_, { product_title, hide }) => (
                     <div style={{
-                        fontSize: '10px',
+                        fontSize: '12px',
+                        // fontWeight: 'bold',
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
@@ -97,7 +107,9 @@ class _ProductTable extends React.Component {
                         opacity: hide ? 0.5 : 1,
                         wordBreak: 'break-word'
                     }}>
+                        <Text>
                         {product_title}
+                        </Text>
                     </div>
                 )
             },
@@ -105,6 +117,7 @@ class _ProductTable extends React.Component {
                 title: () => {
                     return <div style={{
                         fontSize: '12px',
+                        fontWeight: 'bold',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis'
@@ -117,6 +130,7 @@ class _ProductTable extends React.Component {
                     <div style={{
                         display: 'flex',
                         alignItems: 'center',
+                        // fontWeight: 'bold',
                         justifyContent: 'center',
                         gap: '4px'
                     }}>
@@ -142,12 +156,12 @@ class _ProductTable extends React.Component {
                             -
                         </Button>
                         <div style={{
-                            minWidth: '20px',
-                            textAlign: 'center',
-                            fontSize: '13px',
+                            // minWidth: '20px',
+                            // textAlign: 'center',
+                            // fontSize: '13px',
                             opacity: record.hide ? 0.5 : 1
                         }}>
-                            {record.count}
+                            <Text>{record.count}</Text>
                         </div>
                         <Button
                             disabled={this.props.disabled || record.hide}
@@ -173,26 +187,28 @@ class _ProductTable extends React.Component {
                     </div>
                 )
             },
+            // {
+            //     title: ()=>{
+            //         return <div style={{
+            //             fontSize: '12px',
+            //             fontWeight: 'bold',
+            //             whiteSpace: 'nowrap',
+            //             overflow: 'hidden',
+            //             textOverflow: 'ellipsis'
+            //         }}>Цена</div>
+            //     },
+            //     dataIndex: 'price',
+            //     key: 'price',
+            //     width: 55,
+            //     render: (_, { price, hide }) => (
+            //         <div style={{ fontSize: '11px', fontWeight: 'bold', opacity: hide ? 0.5 : 1 }}>{price} ₽</div>
+            //     )
+            // },
             {
                 title: ()=>{
                     return <div style={{
                         fontSize: '12px',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                    }}>Цена</div>
-                },
-                dataIndex: 'price',
-                key: 'price',
-                width: 55,
-                render: (_, { price, hide }) => (
-                    <div style={{ fontSize: '11px', opacity: hide ? 0.5 : 1 }}>{price} ₽</div>
-                )
-            },
-            {
-                title: ()=>{
-                    return <div style={{
-                        fontSize: '12px',
+                        fontWeight: 'bold',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden'
                     }}>Сумма</div>
@@ -201,21 +217,21 @@ class _ProductTable extends React.Component {
                 key: 'total',
                 width: 55,
                 render: (_, { total, total_with_discount, hide }) => {
-                    const style = { fontSize: '11px', opacity: hide ? 0.5 : 1 };
+                    const style = { fontSize: '12px', opacity: hide ? 0.5 : 1 };
                     if (total_with_discount < total) {
                         return (
                             <div style={style}>
-                                <div style={{ textDecoration: 'line-through', color: '#999' }}>
-                                    {total} ₽
+                                <div style={{ textDecoration: 'line-through', color: '#999', fontWeight: 'normal'  }}>
+                                    <Text>{total} ₽</Text>
                                 </div>
                                 <div>
-                                    {total_with_discount} ₽
+                                    <Text>{total_with_discount} ₽</Text>
                                 </div>
                             </div>
                         );
                     }
                     return (
-                        <div style={style}>{total} ₽</div>
+                        <div style={style}><Text>{total} ₽</Text></div>
                     );
                 }
             },
@@ -267,7 +283,10 @@ class _ProductTable extends React.Component {
                     }}
                 >
                     <Col>
-                        <Text strong style={{ color: '#595959' }}>СПИСОК ТОВАРОВ</Text>
+                        <Space size='small'>
+                            <UnorderedListOutlined style={{ color: '#1890ff' }} />
+                            <Text strong style={{ color: '#595959' }}>СОСТАВ ЗАКАЗА</Text>
+                        </Space>
                     </Col>
                     <Col>
                         <Button

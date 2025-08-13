@@ -1,312 +1,629 @@
-import {Button, Dropdown} from 'antd';
-import React, {useState} from 'react';
-import {SettingOutlined} from "@ant-design/icons";
+import React, { useState } from 'react';
+import {
+    Button,
+    Drawer,
+    Collapse,
+    List,
+    Typography,
+    Avatar,
+    Space,
+    Divider,
+    Badge,
+    Menu
+} from 'antd';
+import {
+    SettingOutlined,
+    UserOutlined,
+    TeamOutlined,
+    ShoppingOutlined,
+    LineChartOutlined,
+    LaptopOutlined,
+    CarOutlined,
+    ScheduleOutlined,
+    FileTextOutlined,
+    FileDoneOutlined,
+    FileExcelOutlined,
+    FileSyncOutlined,
+    FileSearchOutlined,
+    FileProtectOutlined,
+    FileAddOutlined,
+    FilePptOutlined,
+    AuditOutlined,
+    ContainerOutlined,
+    ToolOutlined,
+    SafetyOutlined,
+    GiftOutlined,
+    BarcodeOutlined,
+    StockOutlined,
+    SolutionOutlined,
+    WalletOutlined,
+    MoneyCollectOutlined,
+    CreditCardOutlined,
+    FundOutlined,
+    FormOutlined,
+    CheckCircleOutlined,
+    StopOutlined,
+    AlertOutlined,
+    ReconciliationOutlined,
+    BarChartOutlined,
+    DashboardOutlined,
+    BuildOutlined,
+    BugOutlined,
+    ShoppingCartOutlined,
+    KeyOutlined,
+    SwapOutlined,
+    PayCircleOutlined,
+    LockOutlined,
+    SkinOutlined,
+    DollarOutlined,
+    PlusSquareOutlined,
+    MinusSquareOutlined,
+    MenuOutlined,
+    FieldTimeOutlined,
+    DesktopOutlined, PoweroffOutlined
+} from '@ant-design/icons';
 
-const items = [
+const { Panel } = Collapse;
+const { Text } = Typography;
+
+// Стили для убирания синего цвета у ссылок
+const linkStyle = {
+    color: 'inherit',
+    textDecoration: 'none',
+    ':hover': {
+        color: 'inherit',
+        textDecoration: 'none'
+    }
+};
+
+const menuSections = [
     {
-        key: 'menu-functions-working-shift',
+        key: 'working-shift',
         label: 'Рабочая смена',
-        children: [
+        icon: <ScheduleOutlined />,
+        items: [
             {
-                key: 'menu-functions-working-shift-select-administrator',
-                label: <a data-button-id='menu-functions-working-shift-select-administrator'>Выбрать администратора</a>
+                label: 'Выбрать администратора',
+                icon: <UserOutlined />,
+                id: 'menu-functions-working-shift-select-administrator'
             },
             {
-                key: 'menu-functions-working-shift-open-shift',
-                label: <a data-button-id='menu-functions-working-shift-open-shift'>Открыть смену</a>
+                label: 'Открыть смену',
+                icon: <FileAddOutlined />,
+                id: 'menu-functions-working-shift-open-shift'
             },
             {
-                key: 'menu-functions-working-shift-financial-report',
-                label: <a data-button-id='menu-functions-working-shift-financial-report'>Финансовый отчет</a>
+                label: 'Финансовый отчет',
+                icon: <FundOutlined />,
+                id: 'menu-functions-working-shift-financial-report'
             },
             {
-                key: 'menu-functions-working-shift-x-report',
-                label: <a data-button-id='menu-functions-working-shift-x-report'>Отчет без гашения</a>
+                label: 'Отчет без гашения',
+                icon: <FileTextOutlined />,
+                id: 'menu-functions-working-shift-x-report'
             },
             {
-                key: 'menu-functions-working-shift-z-report',
-                label: <a data-button-id='menu-functions-working-shift-z-report'>Отчет с гашением</a>
+                label: 'Отчет с гашением',
+                icon: <FileDoneOutlined />,
+                id: 'menu-functions-working-shift-z-report'
             },
             {
-                key: 'menu-functions-working-shift-orders-register',
+                key: 'orders-register',
                 label: 'Реестр заказов',
-                children: [
+                icon: <ContainerOutlined />,
+                items: [
                     {
-                        key: 'menu-functions-working-shift-orders-register-orders-register',
-                        label: <a data-button-id='menu-functions-working-shift-orders-register-orders-register'>Реестр
-                            заказов</a>
+                        label: 'Реестр заказов',
+                        icon: <ContainerOutlined />,
+                        id: 'menu-functions-working-shift-orders-register-orders-register'
                     },
                     {
-                        key: 'menu-functions-working-shift-orders-register-orders-register-canceled',
-                        label: <a data-button-id='menu-functions-working-shift-orders-register-orders-register-canceled'>Реестр
-                            отмененных заказов</a>
+                        label: 'Реестр отмененных заказов',
+                        icon: <FileExcelOutlined />,
+                        id: 'menu-functions-working-shift-orders-register-orders-register-canceled'
                     }
                 ]
             }
-
         ]
     },
     {
-        key: 'menu-functions-cash',
+        key: 'cash',
         label: 'Касса',
-        children: [
+        icon: <DollarOutlined />,
+        items: [
             {
-                key: 'menu-functions-cash-cash-deposit',
-                label: <a data-button-id='menu-functions-cash-cash-deposit'>Внесение наличных</a>
+                label: 'Внесение наличных',
+                icon: <PlusSquareOutlined />,
+                id: 'menu-functions-cash-cash-deposit'
             },
             {
-                key: 'menu-functions-cash-cash-withdrawal',
-                label: <a data-button-id='menu-functions-cash-cash-withdrawal'>Изъятие наличных</a>
+                label: 'Изъятие наличных',
+                icon: <MinusSquareOutlined />,
+                id: 'menu-functions-cash-cash-withdrawal'
             },
             {
-                key: 'menu-functions-cash-money-movement',
-                label: <a data-button-id='menu-functions-cash-money-movement'>Перемещение ДС</a>
+                label: 'Перемещение ДС',
+                icon: <SwapOutlined />,
+                id: 'menu-functions-cash-money-movement'
             },
             {
-                key: 'menu-functions-cash-banking-terminal-report',
-                label: <a data-button-id='menu-functions-cash-banking-terminal-report'>Отчет по банковскому терминалу</a>
+                label: 'Отчет по банковскому терминалу',
+                icon: <CreditCardOutlined />,
+                id: 'menu-functions-cash-banking-terminal-report'
             },
             {
-                key: 'menu-functions-cash-banking-terminal-summary-receipt',
-                label: <a data-button-id='menu-functions-cash-banking-terminal-summary-receipt'>Сводный чек по банковскому терминалу</a>
+                label: 'Сводный чек по банковскому терминалу',
+                icon: <FileTextOutlined />,
+                id: 'menu-functions-cash-banking-terminal-summary-receipt'
             },
             {
-                key: 'menu-functions-cash-carrying-out-without-fr',
-                label: <a data-button-id='menu-functions-cash-carrying-out-without-fr'>Проведение заказов без фискального аппарата</a>
+                label: 'Проведение заказов без фискального аппарата',
+                icon: <FileSyncOutlined />,
+                id: 'menu-functions-cash-carrying-out-without-fr'
             },
             {
-                key: 'menu-functions-cash-special-packages',
-                label: <a data-button-id='menu-functions-cash-special-packages'>Спецпакеты</a>
+                label: 'Спецпакеты',
+                icon: <SafetyOutlined />,
+                id: 'menu-functions-cash-special-packages'
             },
             {
-                key: 'menu-functions-cash-change-report',
-                label: <a data-button-id='menu-functions-cash-change-report'>Отчет по разменам</a>
-            },
-
-
+                label: 'Отчет по разменам',
+                icon: <FileSearchOutlined />,
+                id: 'menu-functions-cash-change-report'
+            }
         ]
     },
     {
-        key: 'menu-functions-staff',
+        key: 'staff',
         label: 'Сотрудники',
-        children: [
+        icon: <TeamOutlined />,
+        items: [
             {
-                key: 'menu-functions-staff-employee-schedule',
-                label: <a data-button-id='menu-functions-staff-employee-schedule'>График сотрудников</a>
+                label: 'График сотрудников',
+                icon: <ScheduleOutlined />,
+                id: 'menu-functions-staff-employee-schedule'
             },
             {
-                key: 'menu-functions-staff-employee-schedule-report',
-                label: <a data-button-id='menu-functions-staff-employee-schedule-report'>Отчет о графике сотрудников</a>
+                label: 'Отчет о графике сотрудников',
+                icon: <FileProtectOutlined />,
+                id: 'menu-functions-staff-employee-schedule-report'
             },
             {
-                key: 'menu-functions-staff-ordering-workwear',
-                label: <a data-button-id='menu-functions-staff-ordering-workwear'>Заказ спецодежды</a>
+                label: 'Заказ спецодежды',
+                icon: <SkinOutlined />,
+                id: 'menu-functions-staff-ordering-workwear'
             },
             {
-                key: 'menu-functions-staff-receiving-funds',
-                label: <a data-button-id='menu-functions-staff-receiving-funds'>Получение денежных средств</a>
+                label: 'Получение денежных средств',
+                icon: <WalletOutlined />,
+                id: 'menu-functions-staff-receiving-funds'
             },
             {
-                key: 'menu-functions-staff-payment-of-wages',
-                label: <a data-button-id='menu-functions-staff-payment-of-wages'>Выплата заработной платы</a>
+                label: 'Выплата заработной платы',
+                icon: <FormOutlined />,
+                id: 'menu-functions-staff-payment-of-wages'
             },
             {
-                key: 'menu-functions-staff-fine',
-                label: <a data-button-id='menu-functions-staff-fine'>Оштрафовать</a>
+                label: 'Оштрафовать',
+                icon: <StopOutlined />,
+                id: 'menu-functions-staff-fine'
             },
             {
-                key: 'menu-functions-staff-motivation',
-                label: <a data-button-id='menu-functions-staff-motivation'>Мотивация</a>
+                label: 'Мотивация',
+                icon: <CheckCircleOutlined />,
+                id: 'menu-functions-staff-motivation'
             },
             {
-                key: 'menu-functions-staff-printing-of-statements',
-                label: <a data-button-id='menu-functions-staff-printing-of-statements'>Печать ведомостей</a>
+                label: 'Печать ведомостей',
+                icon: <FilePptOutlined />,
+                id: 'menu-functions-staff-printing-of-statements'
             },
+            {
+                label: 'Замена карт учета времени',
+                icon: <FieldTimeOutlined />,
+                id: 'menu-functions-staff-replace-time-tracking-card'
+            }
         ]
     },
     {
-        key: 'menu-functions-products',
+        key: 'products',
         label: 'Продукты',
-        children: [
+        icon: <ShoppingOutlined />,
+        items: [
             {
-                key: 'menu-functions-products-product-order',
+                label: 'Инвентаризация',
+                icon: <AuditOutlined />,
+                id: 'menu-functions-products-inventory'
+            },
+            {
+                label: 'Заявка на перемещение',
+                icon: <FileSyncOutlined />,
+                id: 'menu-functions-products-application-for-relocation'
+            },
+            {
+                label: 'Перемещение',
+                icon: <SwapOutlined />,
+                id: 'menu-functions-products-moving'
+            },
+            {
+                label: 'Приходные накладные',
+                icon: <BarcodeOutlined />,
+                id: 'menu-functions-products-incoming-invoices'
+            },
+            {
+                key: 'product-order',
                 label: 'Заказ товара',
-                children: [
+                icon: <ShoppingCartOutlined />,
+                items: [
                     {
-                        key: 'menu-functions-products-product-order-order',
-                        label: <a data-button-id='menu-functions-products-product-order-order'>Заказ товара</a>
+                        label: 'Заказ товара',
+                        icon: <ShoppingCartOutlined />,
+                        id: 'menu-functions-products-product-order-order'
                     },
                     {
-                        key: 'menu-functions-products-product-order-claims',
-                        label: <a data-button-id='menu-functions-products-product-order-claims'>Претензии заказа товара</a>
+                        label: 'Претензии заказа товара',
+                        icon: <AlertOutlined />,
+                        id: 'menu-functions-products-product-order-claims'
                     },
                     {
-                        key: 'menu-functions-products-product-order-report',
-                        label: <a data-button-id='menu-functions-products-product-order-report'>Отчет по заказу товара</a>
+                        label: 'Отчет по заказу товара',
+                        icon: <BarChartOutlined />,
+                        id: 'menu-functions-products-product-order-report'
                     }
                 ]
             },
             {
-                key: 'menu-functions-products-inventory',
-                label: <a data-button-id='menu-functions-products-inventory'>Инвентаризация</a>
-            },
-            {
-                key: 'menu-functions-products-application-for-relocation',
-                label: <a data-button-id='menu-functions-products-application-for-relocation'>Заявка на перемещение</a>
-            },
-            {
-                key: 'menu-functions-products-moving',
-                label: <a data-button-id='menu-functions-products-moving'>Перемещение</a>
-            },
-            {
-                key: 'menu-functions-products-stop',
+                key: 'stop',
                 label: 'Стоп',
-                children: [
+                icon: <StopOutlined />,
+                items: [
                     {
-                        key: 'menu-functions-products-stop-set-to-stop',
-                        label: <a data-button-id='menu-functions-products-stop-set-to-stop'>Установить на стоп</a>
+                        label: 'Установить на стоп',
+                        icon: <StopOutlined />,
+                        id: 'menu-functions-products-stop-set-to-stop'
                     },
                     {
-                        key: 'menu-functions-products-stop-stop-list-report',
-                        label: <a data-button-id='menu-functions-products-stop-stop-list-report'>Отчет стоп лист продукции</a>
-                    },
+                        label: 'Отчет стоп лист продукции',
+                        icon: <FileTextOutlined />,
+                        id: 'menu-functions-products-stop-stop-list-report'
+                    }
                 ]
             },
             {
-                key: 'menu-functions-products-incoming-invoices',
-                label: <a data-button-id='menu-functions-products-incoming-invoices'>Приходные накладные</a>
-            },
-            {
-                key: 'menu-functions-products-write-downs',
+                key: 'write-downs',
                 label: 'Списание',
-                children: [
+                icon: <ReconciliationOutlined />,
+                items: [
                     {
-                        key: 'menu-functions-products-write-downs-acts',
-                        label: <a data-button-id='menu-functions-products-write-downs-acts'>Акты списания</a>
+                        label: 'Акты списания',
+                        icon: <ReconciliationOutlined />,
+                        id: 'menu-functions-products-write-downs-acts'
                     },
                     {
-                        key: 'menu-functions-products-write-downs-report',
-                        label: <a data-button-id='menu-functions-products-write-downs-report'>Отчет по списаниям</a>
-                    },
+                        label: 'Отчет по списаниям',
+                        icon: <FileSearchOutlined />,
+                        id: 'menu-functions-products-write-downs-report'
+                    }
                 ]
             },
             {
-                key: 'menu-functions-products-alcohol',
+                key: 'alcohol',
                 label: 'Алкоголь',
-                children: [
+                icon: <BarcodeOutlined />,
+                items: [
                     {
-                        key: 'menu-functions-products-alcohol-sale',
-                        label: <a data-button-id='menu-functions-products-alcohol-sale'>Продажа алкоголя</a>
+                        label: 'Продажа алкоголя',
+                        icon: <ShoppingOutlined />,
+                        id: 'menu-functions-products-alcohol-sale'
                     },
                     {
-                        key: 'menu-functions-products-alcohol-kegs-opening',
-                        label: <a data-button-id='menu-functions-products-alcohol-kegs-opening'>Вскрытие кег</a>
+                        label: 'Вскрытие кег',
+                        icon: <ToolOutlined />,
+                        id: 'menu-functions-products-alcohol-kegs-opening'
                     },
                     {
-                        key: 'menu-functions-products-alcohol-opening',
-                        label: <a data-button-id='menu-functions-products-alcohol-opening'>Вскрытие алкоголя</a>
+                        label: 'Вскрытие алкоголя',
+                        icon: <ToolOutlined />,
+                        id: 'menu-functions-products-alcohol-opening'
                     },
                     {
-                        key: 'menu-functions-products-alcohol-accounting',
-                        label: <a data-button-id='menu-functions-products-alcohol-accounting'>Учет алкоголя</a>
-                    },
+                        label: 'Учет алкоголя',
+                        icon: <AuditOutlined />,
+                        id: 'menu-functions-products-alcohol-accounting'
+                    }
                 ]
-            },
-
+            }
         ]
     },
     {
-        key: 'menu-functions-indicators',
+        key: 'indicators',
         label: 'Показатели',
-        children: [
+        icon: <LineChartOutlined />,
+        items: [
             {
-                key: 'menu-functions-indicators-quality-control',
-                label: <a data-button-id='menu-functions-indicators-quality-control'>Контроль качества</a>
+                label: 'Контроль качества',
+                icon: <DashboardOutlined />,
+                id: 'menu-functions-indicators-quality-control'
             },
             {
-                key: 'menu-functions-indicators-performance-report',
-                label: <a data-button-id='menu-functions-indicators-performance-report'>Отчет по производительности</a>
+                label: 'Отчет по производительности',
+                icon: <BarChartOutlined />,
+                id: 'menu-functions-indicators-performance-report'
             },
             {
-                key: 'menu-functions-indicators-ato-report',
-                label: <a data-button-id='menu-functions-indicators-ato-report'>Отчет по АТО</a>
+                label: 'Отчет по АТО',
+                icon: <FileSearchOutlined />,
+                id: 'menu-functions-indicators-ato-report'
             },
             {
-                key: 'menu-functions-indicators-sous-chef-tableau',
-                label: <a data-button-id='menu-functions-indicators-sous-chef-tableau'>Табло су-шефа</a>
-            },
+                label: 'Табло су-шефа',
+                icon: <DashboardOutlined />,
+                id: 'menu-functions-indicators-sous-chef-tableau'
+            }
         ]
     },
     {
-        key: 'menu-functions-equipment',
+        key: 'equipment',
         label: 'Оборудование',
-        children: [
+        icon: <LaptopOutlined />,
+        items: [
             {
-                key: 'menu-functions-equipment-install-mkkt54-fx-component',
-                label: <a data-button-id='menu-functions-equipment-install-mkkt54-fx-component'>Установить компоненту МККТ54 ФЗ</a>
+                label: 'Установить компоненту МККТ54 ФЗ',
+                icon: <BuildOutlined />,
+                id: 'menu-functions-equipment-install-mkkt54-fx-component'
             },
             {
-                key: 'menu-functions-equipment-install-acquiring-component',
-                label: <a data-button-id='menu-functions-equipment-install-acquiring-component'>Установить компоненту для эквайринга</a>
+                label: 'Установить компоненту для эквайринга',
+                icon: <CreditCardOutlined />,
+                id: 'menu-functions-equipment-install-acquiring-component'
             },
             {
-                key: 'menu-functions-equipment-install-component-connected-hardware',
-                label: <a data-button-id='menu-functions-equipment-install-component-connected-hardware'>Установить компоненту подключаемого оборудования</a>
+                label: 'Установить компоненту подключаемого оборудования',
+                icon: <BuildOutlined />,
+                id: 'menu-functions-equipment-install-component-connected-hardware'
             },
             {
-                key: 'menu-functions-equipment-test',
-                label: <a data-button-id='menu-functions-equipment-test'>Тест оборудования</a>
+                label: 'Тест оборудования',
+                icon: <BugOutlined />,
+                id: 'menu-functions-equipment-test'
             },
             {
-                key: 'menu-functions-equipment-repair',
-                label: <a data-button-id='menu-functions-equipment-repair'>Ремонт оборудования</a>
+                label: 'Ремонт оборудования',
+                icon: <ToolOutlined />,
+                id: 'menu-functions-equipment-repair'
             },
             {
-                key: 'menu-functions-equipment-request-repairs',
-                label: <a data-button-id='menu-functions-equipment-request-repairs'>Заявка на ремонт</a>
+                label: 'Заявка на ремонт',
+                icon: <FormOutlined />,
+                id: 'menu-functions-equipment-request-repairs'
             },
             {
-                key: 'menu-functions-equipment-ordering',
-                label: <a data-button-id='menu-functions-equipment-ordering'>Заказ оборудования</a>
-            },
+                label: 'Заказ оборудования',
+                icon: <ShoppingCartOutlined />,
+                id: 'menu-functions-equipment-ordering'
+            }
         ]
     },
     {
-        key: 'menu-functions-delivery',
+        key: 'delivery',
         label: 'Доставка',
-        children: [
+        icon: <CarOutlined />,
+        items: [
             {
-                key: 'menu-functions-delivery-report',
-                label: <a data-button-id='menu-functions-delivery-report'>Отчет по доставке</a>
+                label: 'Отчет по доставке',
+                icon: <FileTextOutlined />,
+                id: 'menu-functions-delivery-report'
             },
             {
-                key: 'menu-functions-delivery-changing-courier-password',
-                label: <a data-button-id='menu-functions-delivery-changing-courier-password'>Смена пароля курьера</a>
-            },
+                label: 'Смена пароля курьера',
+                icon: <LockOutlined />,
+                id: 'menu-functions-delivery-changing-courier-password'
+            }
         ]
-    },
+    }
+];
 
 
+const SidebarMenu = () => {
+    const [visible, setVisible] = useState(false);
+    const [activeKeys, setActiveKeys] = useState([]); // Изначально все свернуто
 
-]
+    const showDrawer = () => setVisible(true);
+    const closeDrawer = () => setVisible(false);
 
+    const renderNestedItems = (items) => {
+        return items.map(item => {
+            if (item.items) {
+                return (
+                    <Panel
+                        key={item.key}
+                        header={
+                            <Space>
+                                {item.icon}
+                                <Text>{item.label}</Text>
+                            </Space>
+                        }
+                        style={{ borderBottom: '1px solid #f0f0f0', paddingLeft: '0px' }}
+                    >
+                        <List
+                            dataSource={item.items}
+                            renderItem={subItem => (
+                                <List.Item
+                                    style={{
+                                        padding: '12px 16px',
+                                        cursor: 'pointer',
+                                        borderBottom: 'none'
+                                    }}
+                                    onClick={() => console.log(`Selected: ${subItem.id}`)}
+                                >
+                                    <Space>
+                                        {subItem.icon}
+                                        <a
+                                            href="#"
+                                            data-button-id={subItem.id}
+                                            style={{ color: 'rgba(0, 0, 0, 0.85)' }}
+                                        >
+                      {subItem.label}
+                    </a>
+                                    </Space>
+                                </List.Item>
+                            )}
+                        />
+                    </Panel>
+                );
+            }
+            return (
+                <List.Item
+                    key={item.id}
+                    style={{
+                        padding: '12px 16px',
+                        cursor: 'pointer',
+                        borderBottom: 'none'
+                    }}
+                    onClick={() => console.log(`Selected: ${item.id}`)}
+                >
+                    <Space>
+                        {item.icon}
+                        <a
+                            href="#"
+                            data-button-id={item.id}
+                            style={{ color: 'rgba(0, 0, 0, 0.85)' }}
+                        >
+              {item.label}
+            </a>
+                    </Space>
+                </List.Item>
+            );
+        });
+    };
 
-const _FunctionsButton = () => {
-    const [size, setSize] = useState('large');
     return (
         <>
-            <Dropdown
-                menu={{
-                    items,
-                }}
-                placement="bottomLeft"
+            <Button
+                size='large'
+                icon={<MenuOutlined />}
+                onClick={showDrawer}
             >
-                <Button icon={<SettingOutlined/>} size={size}>
-                    Функции
-                </Button>
-            </Dropdown>
-        </>
-    )
-}
+                Меню
+            </Button>
 
-export default _FunctionsButton
+            <Drawer
+                placement="left"
+                onClose={closeDrawer}
+                visible={visible}
+                width={450}
+                bodyStyle={{
+                    padding: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%'
+                }}
+                headerStyle={{padding: '16px'}}
+                closable={true}
+            >
+                <div style={{flex: 1, overflow: 'auto'}}>
+                    <Collapse
+                        activeKey={activeKeys}
+                        onChange={setActiveKeys}
+                        bordered={false}
+                        expandIconPosition="right"
+                        ghost
+                    >
+                        {menuSections.map(section => (
+                            <Panel
+                                key={section.key}
+                                header={
+                                    <Space>
+                                        {section.icon}
+                                        <Text>{section.label}</Text>
+                                    </Space>
+                                }
+                                style={{borderBottom: '1px solid #f0f0f0'}}
+                            >
+                                <List
+                                    dataSource={section.items}
+                                    renderItem={item => {
+                                        if (item.items) {
+                                            return (
+                                                <Collapse
+                                                    bordered={false}
+                                                    expandIconPosition="right"
+                                                    ghost
+                                                >
+                                                    {renderNestedItems([item])}
+                                                </Collapse>
+                                            );
+                                        }
+                                        return (
+                                            <List.Item
+                                                style={{padding: '12px 16px', cursor: 'pointer'}}
+                                                onClick={() => console.log(`Selected: ${item.id}`)}
+                                            >
+                                                <Space>
+                                                    {item.icon}
+                                                    <a
+                                                        href="#"
+                                                        data-button-id={item.id}
+                                                        style={{color: 'rgba(0, 0, 0, 0.85)'}}
+                                                    >
+                                                        {item.label}
+                                                    </a>
+                                                </Space>
+                                            </List.Item>
+                                        );
+                                    }}
+                                />
+                            </Panel>
+                        ))}
+                    </Collapse>
+                </div>
+
+                <div style={{
+                    borderTop: '1px solid #f0f0f0',
+                    padding: '16px',
+                    background: '#fff'
+                }}>
+                    <Menu mode="vertical" selectable={false}>
+                        <Menu.Item key="desktop" style={{padding: 0}}>
+                            <a
+                                href="#"
+                                data-button-id="show-desktop"
+                                //onClick={(e) => handleAction(e, 'show-desktop')}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    height: 48,
+                                    padding: '0 16px',
+                                    color: '#1890ff'
+                                }}
+                            >
+                                <DesktopOutlined style={{marginRight: 8}}/>
+                                Показать рабочий стол
+                            </a>
+                        </Menu.Item>
+                        <Menu.Item key="shutdown" style={{padding: 0}}>
+                            <a
+                                href="#"
+                                data-button-id="shutdown"
+                                //onClick={(e) => handleAction(e, 'shutdown')}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    height: 48,
+                                    padding: '0 16px',
+                                    color: '#ff4d4f'
+                                }}
+                            >
+                                <PoweroffOutlined style={{marginRight: 8}}/>
+                                Завершить работу
+                            </a>
+                        </Menu.Item>
+                    </Menu>
+                </div>
+
+            </Drawer>
+        </>
+    );
+};
+
+export default SidebarMenu;

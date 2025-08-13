@@ -1,5 +1,7 @@
 import React from "react";
-import { Button, Tag } from 'antd';
+import {Button, Tag, Typography} from 'antd';
+
+const { Text } = Typography;
 
 class ItemButton extends React.Component {
     constructor(props) {
@@ -12,7 +14,8 @@ class ItemButton extends React.Component {
                 discount: false,
                 title: 'Без названия',
                 stop: false,
-                composite: false
+                composite: false,
+                suggestion: false
             }
         };
     }
@@ -79,25 +82,27 @@ class ItemButton extends React.Component {
         const hasDiscount = Boolean(data.discount);
         const isStopped = Boolean(data.stop);
         const isComposite = Boolean(data.composite);
+        const isSuggestion = Boolean(data.suggestion);
 
         return (
             <Button
                 onClick={isStopped || isComposite ? null : this.handleClick}
-                href={isComposite ? "#" : undefined}
-                data-button-id={isComposite ? `open-composite-form-id-${data.id}` : undefined}
+                href="#"
+                data-button-id={isSuggestion ? null : (isComposite ? `open-composite-form-id-${data.id}` : `product-select-id-${data.id}`)}
                 style={{
                     height: '80px',
-                    width: '125px',
-                    margin: '4px',
+                    width: '126px',
+                    // margin: '4px',
                     padding: '6px 6px 26px 6px', // Увеличиваем нижний padding для места под абсолютный блок
-                    border: isStopped ? '1px solid #ffa39e' : '1px solid #e8e8e8',
-                    backgroundColor: isStopped ? '#fff1f0' : '#fff',
+                    border: isStopped ? '1px solid #ffccc7' : (isSuggestion ? '1px solid #95de64' : '1px solid #91d5ff'),
+                    background: isStopped ? 'linear-gradient(to bottom, #fff, #fff2f0)' : (isSuggestion ? 'linear-gradient(to bottom, #fff, #f6ffed)' : 'linear-gradient(to bottom, #fff, #f0f9ff)'),
                     display: 'block',
                     cursor: isStopped ? 'not-allowed' : 'pointer',
                     boxShadow: 'none',
-                    borderRadius: 0,
+                    borderRadius: '4px', // вместо 0
                     position: 'relative',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+
                 }}
             >
                 {/* Полоска стоп-листа */}
@@ -108,7 +113,29 @@ class ItemButton extends React.Component {
                         left: 0,
                         right: 0,
                         height: '3px',
-                        backgroundColor: '#ff4d4f'
+                        background: 'linear-gradient(to right, #ff4d4f, #ff7875)'
+                    }} />
+                )}
+
+                {!isStopped && !isSuggestion && (
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: '3px',
+                        background: 'linear-gradient(to right, #1890ff, #69c0ff)'
+                    }} />
+                )}
+
+                {!isStopped && isSuggestion && (
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: '3px',
+                        background: 'linear-gradient(to right, #95de64, #73d13d)'
                     }} />
                 )}
 
@@ -128,7 +155,7 @@ class ItemButton extends React.Component {
                         color: isStopped ? '#8c8c8c' : '#595959',
                         width: '100%'
                     }}>
-                        <this.BreakString text={data.title} />
+                        <Text strong><this.BreakString text={data.title} /></Text>
                     </div>
                 </div>
 
@@ -145,7 +172,7 @@ class ItemButton extends React.Component {
                 }}>
                     <span style={{
                         fontSize: '13px',
-                        fontWeight: '500',
+                        fontWeight: "500",
                         color: isStopped ? '#8c8c8c' : '#262626',
                         lineHeight: '20px'
                     }}>
@@ -156,7 +183,7 @@ class ItemButton extends React.Component {
                         display: 'flex',
                         // gap: '2px'
                     }}>
-                        {hasDiscount && !isStopped && (
+                        {hasDiscount && !isStopped && !isSuggestion && (
                             <Tag style={{
                                 margin: 0,
                                 marginLeft: '2px',
@@ -185,7 +212,7 @@ class ItemButton extends React.Component {
                                 стоп
                             </Tag>
                         )}
-                        {isComposite && !isStopped && (
+                        {isComposite && !isStopped && !isSuggestion && (
                             <Tag color="blue" style={{
                                 margin: 0,
                                 marginLeft: '2px',
@@ -196,6 +223,19 @@ class ItemButton extends React.Component {
                                 borderRadius: '2px'
                             }}>
                                 сборка
+                            </Tag>
+                        )}
+                        {!isComposite && !isStopped && isSuggestion && (
+                            <Tag color="green" style={{
+                                margin: 0,
+                                marginLeft: '2px',
+                                padding: '0 2px',
+                                fontSize: '9px',
+                                height: '20px',
+                                lineHeight: '16px',
+                                borderRadius: '2px'
+                            }}>
+                                предложение
                             </Tag>
                         )}
                     </div>

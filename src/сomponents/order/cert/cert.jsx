@@ -96,7 +96,7 @@ const PromoCodeModal = ({ size = 'middle' }) => {
                 // onClick={() => message.info('Используйте window.openPromoCodeModal() для открытия')}
                 style={{ marginRight: 0 }}
             >
-                Промокод
+                Промо
             </Button>
 
             <Modal

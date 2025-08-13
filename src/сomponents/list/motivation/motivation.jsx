@@ -20,20 +20,20 @@ const metrics = [
             </Space>
         )
     },
-    {
-        key: 'leader',
-        label: 'Лидер продаж',
-        render: (state) => (
-            <Tooltip title={state.leader || '—'}>
-                <Space>
-                    <CrownOutlined style={{ color: '#ffc53d', fontSize: 20 }} />
-                    <Text ellipsis style={{ maxWidth: 100 }}>
-                        {state.leader ? `${state.leader.split(',')[0]}` : '—'}
-                    </Text>
-                </Space>
-            </Tooltip>
-        )
-    },
+    // {
+    //     key: 'leader',
+    //     label: 'Лидер продаж',
+    //     render: (state) => (
+    //         <Tooltip title={state.leader || '—'}>
+    //             <Space>
+    //                 <CrownOutlined style={{ color: '#ffc53d', fontSize: 20 }} />
+    //                 <Text ellipsis style={{ maxWidth: 100 }}>
+    //                     {state.leader ? `${state.leader.split(',')[0]}` : '—'}
+    //                 </Text>
+    //             </Space>
+    //         </Tooltip>
+    //     )
+    // },
     {
         key: 'place',
         label: 'Ваше место',
@@ -101,7 +101,7 @@ const Motivation = () => {
         <div style={{
             height: '100%', // Занимает всю доступную высоту
             minHeight: '90px', // Минимальная высота как у кнопок
-            width: '190px',
+            minWidth: '190px',
             background: '#fff',
             borderRadius: 6,
             padding: '0 12px',

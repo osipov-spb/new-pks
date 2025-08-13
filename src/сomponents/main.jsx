@@ -1,4 +1,5 @@
 import React from "react";
+import { notification } from "antd";
 import OrdersList from "./list/orders_list";
 import Order from "./order/order";
 
@@ -7,8 +8,9 @@ class Main extends React.Component {
         super(props);
         this.state = {
             page_type: "list",
-            projects: [] // Добавляем хранение списка проектов
+            projects: []
         };
+        this.notificationCount = 0; // Счетчик для уникальных ключей уведомлений
     }
 
     componentDidMount() {
@@ -26,6 +28,8 @@ class Main extends React.Component {
         delete window.show_page;
         delete window.current_page;
         delete window.open_order;
+        delete window.showAlert;
+        notification.destroy(); // Очищаем все уведомления при размонтировании
     }
 
     handleResize = () => {
@@ -45,30 +49,39 @@ class Main extends React.Component {
         window.show_page = this.handleShowPage;
         window.current_page = this.getCurrentPage;
         window.open_order = this.handleOpenOrder;
-
-        // Добавляем новую внешнюю функцию
         window.setAvailableProjects = this.handleSetProjects;
+        window.showAlert = this.handleShowAlert; // Добавляем метод для показа уведомлений
     };
 
-    // Новая функция для сохранения проектов
+    // Метод для показа уведомления
+    handleShowAlert = (message, duration = 30, type = 'info') => {
+        this.notificationCount += 1;
+        notification[type]({
+            message: message,
+            key: `alert-${this.notificationCount}`,
+            duration: duration, // Уведомление автоматически закроется через 5 секунд
+            placement: 'bottomRight',
+            style: {
+                marginTop: 50 // Отступ сверху
+            }
+        });
+    };
+
     handleSetProjects = (projectsJson) => {
         try {
             const projects = JSON.parse(projectsJson);
 
-            // Проверяем структуру проектов
             if (Array.isArray(projects) &&
                 projects.every(p => p.id && p.title)) {
                 this.setState({ projects });
             } else {
                 console.error("Invalid projects format. Expected array of {id, title}");
+                // this.handleShowAlert("Invalid projects format", 'error');
             }
         } catch (error) {
             console.error("Error parsing projects:", error);
+            // this.handleShowAlert("Error parsing projects", 'error');
         }
-    };
-
-    handleTestApp = () => {
-        alert("123");
     };
 
     handleShowPage = (page_type, order_number) => {
@@ -94,6 +107,7 @@ class Main extends React.Component {
             window.orderProductListLoadItems(parsedItems);
         } catch (error) {
             console.error("Error parsing order data:", error);
+            // this.handleShowAlert("Error parsing order data", 'error');
         }
     };
 
@@ -110,7 +124,7 @@ class Main extends React.Component {
                 );
             case "list":
             default:
-                return <OrdersList projects={projects} />; // Передаем projects
+                return <OrdersList projects={projects} />;
         }
     }
 
