@@ -1,14 +1,16 @@
+// noinspection JSCheckFunctionSignatures,JSUnresolvedReference
+
 import React from 'react';
-import { Pagination, Card } from 'antd';
-import MenuBreadcrumb from "./menu_breadcrumb";
-import ItemButton from "./item_button";
-import FolderButton from "./folder_button";
+import {Pagination} from 'antd';
+import MenuBreadcrumb from "./MenuBreadcrumb";
+import ItemButton from "./ItemButton";
+import FolderButton from "./FolderButton";
 import PropTypes from 'prop-types';
 
 // Глобальная ссылка на компонент
 let productsMenuInstance = null;
 
-class _ProductsMenu extends React.Component {
+class ProductsMenu extends React.Component {
     constructor(props) {
         super(props);
         productsMenuInstance = this;
@@ -19,7 +21,7 @@ class _ProductsMenu extends React.Component {
                 index: 'ROOT',
                 title: ''
             }],
-            items: Array.isArray(props.items) ? props.items : [],
+            items: Array.isArray(props.items) ? this.sortItems(props.items) : [],
             currentPage: 1,
             currentItems: [],
             searchResults: [],
@@ -31,14 +33,27 @@ class _ProductsMenu extends React.Component {
         };
     }
 
+    // Новый метод для сортировки элементов по алфавиту
+    sortItems = (items) => {
+        if (!Array.isArray(items)) return items;
+
+        return [...items].sort((a, b) => {
+            // Сначала папки, затем товары
+            if (a.folder && !b.folder) return -1;
+            if (!a.folder && b.folder) return 1;
+
+            // Сортировка по названию
+            return a.title.localeCompare(b.title);
+        });
+    }
 
     static getDerivedStateFromProps(nextProps, prevState) {
         if (Array.isArray(nextProps.items) &&
             JSON.stringify(nextProps.items) !== JSON.stringify(prevState.prevItems)) {
             return {
-                items: nextProps.items,
+                items: productsMenuInstance.sortItems(nextProps.items),
                 prevItems: nextProps.items,
-                currentItems: nextProps.items.slice(0, prevState.pageSize),
+                currentItems: productsMenuInstance.sortItems(nextProps.items).slice(0, prevState.pageSize),
                 currentPage: 1,
                 isSearchMode: false,
                 searchResults: [],
@@ -67,7 +82,7 @@ class _ProductsMenu extends React.Component {
                 results.push(item);
             }
         });
-        return results;
+        return this.sortItems(results); // Сортируем результаты поиска
     }
 
     handleResize = () => {
@@ -131,10 +146,11 @@ class _ProductsMenu extends React.Component {
                     }
                 ];
 
-                itemsToUse = clickedItem.children;
+                itemsToUse = this.sortItems(clickedItem.children); // Сортируем содержимое папки
             } else {
+                // noinspection JSIncompatibleTypesComparison
                 if (pathIndex === 'ROOT' || pathIndex === 0) {
-                    itemsToUse = this.props.items;
+                    itemsToUse = this.sortItems(this.props.items); // Сортируем корневые элементы
                     newPath = [this.state.currentPath[0]];
                 } else {
                     let currentMenu = this.props.items;
@@ -151,7 +167,7 @@ class _ProductsMenu extends React.Component {
                         currentMenu = currentMenu[pathItem.index].children;
                     }
 
-                    itemsToUse = currentMenu || [];
+                    itemsToUse = this.sortItems(currentMenu || []); // Сортируем содержимое папки
                 }
             }
 
@@ -166,8 +182,8 @@ class _ProductsMenu extends React.Component {
         } catch (error) {
             console.error('Navigation error:', error);
             this.setState({
-                items: this.props.items,
-                currentItems: this.props.items.slice(0, this.state.pageSize),
+                items: this.sortItems(this.props.items),
+                currentItems: this.sortItems(this.props.items).slice(0, this.state.pageSize),
                 currentPath: [{
                     level: 0,
                     index: 'ROOT',
@@ -198,7 +214,7 @@ class _ProductsMenu extends React.Component {
             if (query.trim() === '') {
                 this.setState({
                     isSearchMode: false,
-                    currentItems: this.state.prevPathBeforeSearch?.items || this.props.items.slice(0, this.state.pageSize),
+                    currentItems: this.state.prevPathBeforeSearch?.items || this.sortItems(this.props.items).slice(0, this.state.pageSize),
                     currentPage: 1,
                     currentPath: this.state.prevPathBeforeSearch?.path || [{
                         level: 0,
@@ -261,6 +277,7 @@ class _ProductsMenu extends React.Component {
 
             const menuItems = Array.isArray(menuData) ? menuData : (menuData.menu || []);
             const suggestions = [...extractProducts(menuItems)]
+                .sort((a, b) => a.title.localeCompare(b.title)) // Сортируем предложения
                 .slice(0, 4);
 
             productsMenuInstance.setState({ suggestions });
@@ -323,7 +340,6 @@ class _ProductsMenu extends React.Component {
                             padding: '2.5px',
                             display: 'grid',
                             gridTemplateColumns: 'repeat(auto-fill, minmax(126px, 1fr))',
-                            // gap: '5px',
                             width: 'calc(100%-5px)', // Учитываем padding
                             alignContent: 'flex-start'
                         }}>
@@ -358,34 +374,13 @@ class _ProductsMenu extends React.Component {
                             ))}
                         </div>
 
-                        {/* Меню предложений */}
-                        {/*<div style={{*/}
-                        {/*    height: SUGGESTIONS_HEIGHT,*/}
-                        {/*    borderTop: '1px solid #f0f0f0',*/}
-                        {/*    padding: '8px',*/}
-                        {/*    flexShrink: 0,*/}
-                        {/*    overflow: 'hidden'*/}
-                        {/*}}>*/}
-                            {/*<div style={{*/}
-                            {/*    fontSize: '12px',*/}
-                            {/*    color: '#666',*/}
-                            {/*    marginBottom: '8px',*/}
-                            {/*    whiteSpace: 'nowrap',*/}
-                            {/*    overflow: 'hidden',*/}
-                            {/*    textOverflow: 'ellipsis'*/}
-                            {/*}}>*/}
-                            {/*    Рекомендуем попробовать:*/}
-                            {/*</div>*/}
-                        {/* Пагинация */}
-                        {/*{itemsToShow.length > pageSize && (*/}
                         <div style={{
                             height: PAGINATION_HEIGHT,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             borderTop: '1px solid #f0f0f0',
-                            flexShrink: 0,
-                            // paddingTop: '5px'
+                            flexShrink: 0
                         }}>
                             <Pagination
                                 current={currentPage}
@@ -397,22 +392,20 @@ class _ProductsMenu extends React.Component {
                                 size="middle"
                             />
                         </div>
-                        {/*)}*/}
 
-                            <div style={{
-                                height: SUGGESTIONS_HEIGHT,
-                                overflowY: 'auto',
-                                padding: '2.5px',
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fill, minmax(126px, 1fr))',
-                                // gap: '5px',
-                                width: 'calc(100%-5px)', // Учитываем padding
-                                alignContent: 'flex-start',
-                                borderTop: '1px solid #f0f0f0',
-                            }}>
+                        <div style={{
+                            height: SUGGESTIONS_HEIGHT,
+                            overflowY: 'auto',
+                            padding: '2.5px',
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(126px, 1fr))',
+                            width: 'calc(100%-5px)', // Учитываем padding
+                            alignContent: 'flex-start',
+                            borderTop: '1px solid #f0f0f0',
+                        }}>
 
-                                {suggestions.map(item => (
-                                    <div key={item.id} style={{ minWidth: 0, padding:'2.5px'}}>
+                            {suggestions.map(item => (
+                                <div key={item.id} style={{ minWidth: 0, padding:'2.5px'}}>
                                     <ItemButton
                                         key={item.id}
                                         data={{
@@ -426,11 +419,10 @@ class _ProductsMenu extends React.Component {
                                         }}
                                         onClick={() => this.handleItemClick(item)}
                                     />
-                                    </div>
-                                ))}
+                                </div>
+                            ))}
 
-                            </div>
-                        {/*</div>*/}
+                        </div>
 
 
                     </>
@@ -440,12 +432,12 @@ class _ProductsMenu extends React.Component {
     }
 }
 
-window.updateSuggestions = _ProductsMenu.updateSuggestionsGlobal;
+window.updateSuggestions = ProductsMenu.updateSuggestionsGlobal;
 
-_ProductsMenu.propTypes = {
+ProductsMenu.propTypes = {
     items: PropTypes.array.isRequired,
     searchQuery: PropTypes.string,
     collapsed: PropTypes.bool
 };
 
-export default _ProductsMenu;
+export default ProductsMenu;

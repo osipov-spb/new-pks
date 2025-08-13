@@ -1,7 +1,7 @@
 import React from "react";
-import { notification } from "antd";
-import OrdersList from "./list/orders_list";
-import Order from "./order/order";
+import {notification} from "antd";
+import OrdersList from "./list/OrdersList";
+import Order from "./order/Order";
 
 class Main extends React.Component {
     constructor(props) {
@@ -24,7 +24,6 @@ class Main extends React.Component {
         window.removeEventListener('resize', this.handleResize);
         // Очищаем методы window при размонтировании
         delete window.setAvailableProjects;
-        delete window.test_app;
         delete window.show_page;
         delete window.current_page;
         delete window.open_order;
@@ -45,7 +44,6 @@ class Main extends React.Component {
     }
 
     setupWindowMethods = () => {
-        window.test_app = this.handleTestApp;
         window.show_page = this.handleShowPage;
         window.current_page = this.getCurrentPage;
         window.open_order = this.handleOpenOrder;
@@ -76,11 +74,9 @@ class Main extends React.Component {
                 this.setState({ projects });
             } else {
                 console.error("Invalid projects format. Expected array of {id, title}");
-                // this.handleShowAlert("Invalid projects format", 'error');
             }
         } catch (error) {
             console.error("Error parsing projects:", error);
-            // this.handleShowAlert("Error parsing projects", 'error');
         }
     };
 
@@ -101,14 +97,6 @@ class Main extends React.Component {
             order_data,
             additionalParams
         });
-
-        try {
-            const parsedItems = JSON.parse(order_data).items;
-            window.orderProductListLoadItems(parsedItems);
-        } catch (error) {
-            console.error("Error parsing order data:", error);
-            // this.handleShowAlert("Error parsing order data", 'error');
-        }
     };
 
     renderPageContent() {

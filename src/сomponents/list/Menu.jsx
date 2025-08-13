@@ -1,23 +1,15 @@
-import { Button, Col, Row, Space, Typography, Modal } from "antd";
-import {
-    ClockCircleOutlined,
-    CompassOutlined,
-    FieldTimeOutlined,
-    FilterOutlined,
-    InfoCircleOutlined,
-    PlusOutlined,
-    StopOutlined
-} from "@ant-design/icons";
-import React, { useState, useEffect } from "react";
-import _FunctionsButton from "./buttons/functions";
+// noinspection JSValidateTypes
+
+import {Button, Col, Modal, Row, Space} from "antd";
+import {CompassOutlined, InfoCircleOutlined, PlusOutlined, StopOutlined} from "@ant-design/icons";
+import React, {useEffect, useState} from "react";
+import _FunctionsButton from "./buttons/Functions";
 import Motivation from "./motivation/motivation";
-import _Header from "./header";
+import TableHeader from "./Header";
 
-const { Text } = Typography;
-
-const _Menu = ({ projects = [] }) => {
-    const [size, setSize] = useState('large');
-    const [isModalVisible, setIsModalVisible] = useState(false);
+const MainMenu = ({ projects = [] }) => {
+    const [size] = useState('large');
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentDateTime, setCurrentDateTime] = useState(new Date()); // Состояние для текущей даты и времени
 
     // Эффект для обновления времени каждую минуту
@@ -44,11 +36,11 @@ const _Menu = ({ projects = [] }) => {
     };
 
     const showProjectModal = () => {
-        setIsModalVisible(true);
+        setIsModalOpen(true);
     };
 
     const handleCancel = () => {
-        setIsModalVisible(false);
+        setIsModalOpen(false);
     };
 
     const createOrderOnClick = () => {
@@ -64,9 +56,9 @@ const _Menu = ({ projects = [] }) => {
             <Row align="middle" gutter={16} style={{ marginBottom: 16 }}>
                 <Col span={18}>
                     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                        <_Header />
+                        <TableHeader />
                         <Space size="small" wrap>
-                            {projects.length == 1 ? (
+                            {projects.length === 1 ? (
                                 <Button
                                     type="primary"
                                     onClick={createOrderOnClick}
@@ -108,14 +100,12 @@ const _Menu = ({ projects = [] }) => {
                         height: '90px',
                         width: '100%'
                     }}>
-                        {/* Стильный блок даты/времени */}
                         <div style={{
                             marginRight: '16px', // Аналог gap для старых браузеров
                             display: 'flex',
                             flexDirection: 'column',
                             justifyContent: 'flex-end', // Выравнивание по нижнему краю
                             alignItems: 'flex-end',
-                            // paddingBottom: '8px', // Отступ снизу для визуального баланса
                             minWidth: '90px',
                             borderRadius: 8,
                             textAlign: 'right'
@@ -152,7 +142,7 @@ const _Menu = ({ projects = [] }) => {
             {/* Модальное окно выбора проекта */}
             <Modal
                 title="Выберите проект"
-                visible={isModalVisible}
+                open={isModalOpen}
                 onCancel={handleCancel}
                 footer={[
                     <Button key="cancel" onClick={handleCancel}>
@@ -178,4 +168,4 @@ const _Menu = ({ projects = [] }) => {
     )
 }
 
-export default _Menu;
+export default MainMenu;

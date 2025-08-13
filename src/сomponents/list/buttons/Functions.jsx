@@ -1,80 +1,56 @@
-import React, { useState } from 'react';
+// noinspection JSValidateTypes,SpellCheckingInspection
+
+import React, {useState} from 'react';
+import {Button, Collapse, Drawer, List, Menu, Space, Typography} from 'antd';
 import {
-    Button,
-    Drawer,
-    Collapse,
-    List,
-    Typography,
-    Avatar,
-    Space,
-    Divider,
-    Badge,
-    Menu
-} from 'antd';
-import {
-    SettingOutlined,
-    UserOutlined,
-    TeamOutlined,
-    ShoppingOutlined,
-    LineChartOutlined,
-    LaptopOutlined,
+    AlertOutlined,
+    AuditOutlined,
+    BarChartOutlined,
+    BarcodeOutlined,
+    BugOutlined,
+    BuildOutlined,
     CarOutlined,
-    ScheduleOutlined,
-    FileTextOutlined,
+    CheckCircleOutlined,
+    ContainerOutlined,
+    CreditCardOutlined,
+    DashboardOutlined,
+    DesktopOutlined,
+    DollarOutlined,
+    FieldTimeOutlined,
+    FileAddOutlined,
     FileDoneOutlined,
     FileExcelOutlined,
-    FileSyncOutlined,
-    FileSearchOutlined,
-    FileProtectOutlined,
-    FileAddOutlined,
     FilePptOutlined,
-    AuditOutlined,
-    ContainerOutlined,
-    ToolOutlined,
-    SafetyOutlined,
-    GiftOutlined,
-    BarcodeOutlined,
-    StockOutlined,
-    SolutionOutlined,
-    WalletOutlined,
-    MoneyCollectOutlined,
-    CreditCardOutlined,
-    FundOutlined,
+    FileProtectOutlined,
+    FileSearchOutlined,
+    FileSyncOutlined,
+    FileTextOutlined,
     FormOutlined,
-    CheckCircleOutlined,
-    StopOutlined,
-    AlertOutlined,
-    ReconciliationOutlined,
-    BarChartOutlined,
-    DashboardOutlined,
-    BuildOutlined,
-    BugOutlined,
-    ShoppingCartOutlined,
-    KeyOutlined,
-    SwapOutlined,
-    PayCircleOutlined,
+    FundOutlined,
+    LaptopOutlined,
+    LineChartOutlined,
     LockOutlined,
-    SkinOutlined,
-    DollarOutlined,
-    PlusSquareOutlined,
-    MinusSquareOutlined,
     MenuOutlined,
-    FieldTimeOutlined,
-    DesktopOutlined, PoweroffOutlined
+    MinusSquareOutlined,
+    PlusSquareOutlined,
+    PoweroffOutlined,
+    ReconciliationOutlined,
+    SafetyOutlined,
+    ScheduleOutlined,
+    ShoppingCartOutlined,
+    ShoppingOutlined,
+    SkinOutlined,
+    StopOutlined,
+    SwapOutlined,
+    TeamOutlined,
+    ToolOutlined,
+    UserOutlined,
+    WalletOutlined
 } from '@ant-design/icons';
 
 const { Panel } = Collapse;
 const { Text } = Typography;
 
-// Стили для убирания синего цвета у ссылок
-const linkStyle = {
-    color: 'inherit',
-    textDecoration: 'none',
-    ':hover': {
-        color: 'inherit',
-        textDecoration: 'none'
-    }
-};
 
 const menuSections = [
     {
@@ -425,11 +401,11 @@ const menuSections = [
 
 
 const SidebarMenu = () => {
-    const [visible, setVisible] = useState(false);
+    const [open, setOpen] = useState(false);
     const [activeKeys, setActiveKeys] = useState([]); // Изначально все свернуто
 
-    const showDrawer = () => setVisible(true);
-    const closeDrawer = () => setVisible(false);
+    const showDrawer = () => setOpen(true);
+    const closeDrawer = () => setOpen(false);
 
     const renderNestedItems = (items) => {
         return items.map(item => {
@@ -454,10 +430,10 @@ const SidebarMenu = () => {
                                         cursor: 'pointer',
                                         borderBottom: 'none'
                                     }}
-                                    onClick={() => console.log(`Selected: ${subItem.id}`)}
                                 >
                                     <Space>
                                         {subItem.icon}
+                                        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                                         <a
                                             href="#"
                                             data-button-id={subItem.id}
@@ -480,10 +456,10 @@ const SidebarMenu = () => {
                         cursor: 'pointer',
                         borderBottom: 'none'
                     }}
-                    onClick={() => console.log(`Selected: ${item.id}`)}
                 >
                     <Space>
                         {item.icon}
+                        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                         <a
                             href="#"
                             data-button-id={item.id}
@@ -510,7 +486,7 @@ const SidebarMenu = () => {
             <Drawer
                 placement="left"
                 onClose={closeDrawer}
-                visible={visible}
+                open={open}  // Changed from visible to open
                 width={450}
                 bodyStyle={{
                     padding: 0,
@@ -526,7 +502,7 @@ const SidebarMenu = () => {
                         activeKey={activeKeys}
                         onChange={setActiveKeys}
                         bordered={false}
-                        expandIconPosition="right"
+                        expandIconPosition="end"
                         ghost
                     >
                         {menuSections.map(section => (
@@ -547,7 +523,7 @@ const SidebarMenu = () => {
                                             return (
                                                 <Collapse
                                                     bordered={false}
-                                                    expandIconPosition="right"
+                                                    expandIconPosition="end"
                                                     ghost
                                                 >
                                                     {renderNestedItems([item])}
@@ -557,10 +533,10 @@ const SidebarMenu = () => {
                                         return (
                                             <List.Item
                                                 style={{padding: '12px 16px', cursor: 'pointer'}}
-                                                onClick={() => console.log(`Selected: ${item.id}`)}
                                             >
                                                 <Space>
                                                     {item.icon}
+                                                    {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                                                     <a
                                                         href="#"
                                                         data-button-id={item.id}
@@ -585,6 +561,7 @@ const SidebarMenu = () => {
                 }}>
                     <Menu mode="vertical" selectable={false}>
                         <Menu.Item key="desktop" style={{padding: 0}}>
+                            {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                             <a
                                 href="#"
                                 data-button-id="show-desktop"
@@ -602,6 +579,7 @@ const SidebarMenu = () => {
                             </a>
                         </Menu.Item>
                         <Menu.Item key="shutdown" style={{padding: 0}}>
+                            {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                             <a
                                 href="#"
                                 data-button-id="shutdown"

@@ -1,6 +1,8 @@
+// noinspection JSValidateTypes,JSUnresolvedReference
+
 import React from 'react';
-import { Button, Typography, Modal, Spin, Input, Pagination, Space } from 'antd';
-import {SearchOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined} from '@ant-design/icons';
+import {Button, Input, Modal, Pagination, Space, Spin, Typography} from 'antd';
+import {EnvironmentOutlined, SearchOutlined, UserOutlined} from '@ant-design/icons';
 
 const { Text } = Typography;
 
@@ -27,7 +29,6 @@ class OrderAddressBlock extends React.Component {
                     currentPage: 1
                 });
             } catch (e) {
-                console.error('Failed to parse couriers data:', e);
                 this.setState({ loadingCouriers: false });
             }
         };
@@ -53,7 +54,6 @@ class OrderAddressBlock extends React.Component {
         if (window.loadCouriersList) {
             window.loadCouriersList();
         } else {
-            console.error('loadCouriersList function is not defined');
             this.setState({ loadingCouriers: false });
         }
     };
@@ -97,7 +97,7 @@ class OrderAddressBlock extends React.Component {
         return (
             <Modal
                 title={`Выбор курьера (${totalItems} найдено)`}
-                visible={this.state.showCourierModal}
+                open={this.state.showCourierModal}
                 onCancel={() => this.setState({ showCourierModal: false })}
                 footer={[
                     <Button
@@ -132,6 +132,7 @@ class OrderAddressBlock extends React.Component {
                     <>
                         <div style={{ maxHeight: '400px', overflowY: 'auto', margin: '8px 0' }}>
                             {paginatedCouriers.map(courier => (
+                                /* eslint-disable-next-line jsx-a11y/anchor-is-valid */
                                 <a href="#"
                                    data-button-id={`select-courier-id-${courier.id}`}
                                 >
@@ -243,9 +244,8 @@ class OrderAddressBlock extends React.Component {
                             type={!isAddressEmpty ? "default" : "primary"}
                             size="small"
                             href="#"
-                            {...(!(blockDisabled || addressDisabled) && { "data-button-id": "client_adress" })}
+                            {...(!(blockDisabled || addressDisabled) && { "data-button-id": "client_address" })}
                             icon={<SearchOutlined />}
-                            onClick={() => window.openAddressSelector && window.openAddressSelector()}
                             disabled={blockDisabled || addressDisabled}
                         >
                             {!isAddressEmpty ? "Изменить" : "Выбрать"}

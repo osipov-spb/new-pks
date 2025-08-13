@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Typography, Badge, Popover, Select, Tag, Space, Empty } from 'antd';
-import { GiftOutlined, InfoCircleOutlined, FrownOutlined } from '@ant-design/icons';
+// noinspection JSValidateTypes,JSUnresolvedReference
+
+import React, {useEffect, useMemo, useState} from 'react';
+import {Empty, Popover, Select, Space, Tag, Typography} from 'antd';
+import {FrownOutlined, GiftOutlined, InfoCircleOutlined} from '@ant-design/icons';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -212,7 +214,6 @@ const PromoMenu = ({ promotions, onGiftsChange }) => {
                                                     onClear={() => handleGiftSelect(null, promo.id, index)}
                                                     allowClear
                                                     dropdownMatchSelectWidth={false}
-                                                    // dropdownStyle={{ minWidth: '250px', fontSize: '13px' }}
                                                 >
                                                     {promo.items.map(item => (
                                                         <Option

@@ -1,5 +1,5 @@
 
-class _OrderData {
+class OrderData {
     constructor(
         ord_data = {
             id: null,
@@ -46,6 +46,7 @@ class _OrderData {
         this.courier = ord_data.courier;
         this.deleted = ord_data.deleted;
         this.refund = ord_data.refund;
+        // noinspection JSUnusedGlobalSymbols
         this.prepaid = ord_data.prepaid;
         this.bsoDate = ord_data.bsoDate;
         this.bsoNumber = ord_data.bsoNumber;
@@ -55,4 +56,4 @@ class _OrderData {
 
 }
 
-export default _OrderData;
+export default OrderData;

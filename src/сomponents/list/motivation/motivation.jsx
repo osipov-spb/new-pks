@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Progress, Typography, Tooltip, Space } from 'antd';
-import { CrownOutlined, TrophyOutlined, RiseOutlined, FallOutlined } from '@ant-design/icons';
+// noinspection JSCheckFunctionSignatures
+
+import React, {useEffect, useState} from 'react';
+import {Progress, Space, Typography} from 'antd';
+import {FallOutlined, RiseOutlined, TrophyOutlined} from '@ant-design/icons';
 
 const { Text } = Typography;
 
@@ -13,27 +15,10 @@ const metrics = [
             <Progress
                 steps={7}
                 percent={state.planCompletion}
-                // width={30}
-                // strokeColor={state.planCompletion >= 100 ? '#52c41a' : '#1890ff'}
-                // format={() => `${state.planCompletion}%`}
             />
             </Space>
         )
     },
-    // {
-    //     key: 'leader',
-    //     label: 'Лидер продаж',
-    //     render: (state) => (
-    //         <Tooltip title={state.leader || '—'}>
-    //             <Space>
-    //                 <CrownOutlined style={{ color: '#ffc53d', fontSize: 20 }} />
-    //                 <Text ellipsis style={{ maxWidth: 100 }}>
-    //                     {state.leader ? `${state.leader.split(',')[0]}` : '—'}
-    //                 </Text>
-    //             </Space>
-    //         </Tooltip>
-    //     )
-    // },
     {
         key: 'place',
         label: 'Ваше место',

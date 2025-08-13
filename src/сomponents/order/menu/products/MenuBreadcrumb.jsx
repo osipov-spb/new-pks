@@ -1,6 +1,6 @@
 import React from "react";
-import { HomeOutlined, RightOutlined } from '@ant-design/icons';
-import { Typography, Space } from 'antd';
+import {HomeOutlined, RightOutlined} from '@ant-design/icons';
+import {Space, Typography} from 'antd';
 import PropTypes from 'prop-types';
 
 const { Text } = Typography;

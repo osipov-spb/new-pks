@@ -1,6 +1,17 @@
-import React, { useState, useCallback, useMemo, memo, useEffect } from 'react';
-import { Input, Button, Row, Col, Modal, Select, DatePicker, Form, Spin, Tag, Tabs } from 'antd';
-import { PhoneOutlined, DeleteOutlined, UserOutlined, PercentageOutlined, ManOutlined, WomanOutlined, MailOutlined, IdcardOutlined } from '@ant-design/icons';
+// noinspection JSValidateTypes,JSCheckFunctionSignatures,JSUnresolvedReference
+
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {Button, Col, DatePicker, Form, Input, Modal, Row, Select, Spin, Tabs, Tag} from 'antd';
+import {
+    DeleteOutlined,
+    IdcardOutlined,
+    MailOutlined,
+    ManOutlined,
+    PercentageOutlined,
+    PhoneOutlined,
+    UserOutlined,
+    WomanOutlined
+} from '@ant-design/icons';
 import moment from 'moment';
 import 'moment/locale/ru';
 
@@ -11,8 +22,8 @@ const { TabPane } = Tabs;
 
 const NumberInputPadModal = ({ clientData, onClientChange }) => {
     const [inputValue, setInputValue] = useState(clientData?.phone || '+7');
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [showAdditionalFields, setShowAdditionalFields] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [setShowAdditionalFields] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [showNumberPad, setShowNumberPad] = useState(true);
     const [isNewClient, setIsNewClient] = useState(false);
@@ -87,7 +98,7 @@ const NumberInputPadModal = ({ clientData, onClientChange }) => {
             if (onClientChange) {
                 await onClientChange(clientData);
             }
-            setIsModalVisible(false);
+            setIsModalOpen(false);
         } finally {
             setIsLoading(false);
         }
@@ -113,7 +124,6 @@ const NumberInputPadModal = ({ clientData, onClientChange }) => {
             let parsedData;
             try {
                 parsedData = typeof data === 'string' ? JSON.parse(data) : data;
-                console.log('Filling form with:', parsedData);
 
                 setInitialFormData(parsedData);
                 setIsNewClient(!!parsedData.newClient);
@@ -200,7 +210,7 @@ const NumberInputPadModal = ({ clientData, onClientChange }) => {
         };
 
         window.clientSelectorCloseForm = () => {
-            setIsModalVisible(false);
+            setIsModalOpen(false);
         };
 
         return () => {
@@ -220,7 +230,7 @@ const NumberInputPadModal = ({ clientData, onClientChange }) => {
         <>
             <Button
                 onClick={() => {
-                    setIsModalVisible(true);
+                    setIsModalOpen(true);
                     setShowAdditionalFields(false);
                     setShowNumberPad(true);
                     setActiveSearchMode('phone');
@@ -234,9 +244,9 @@ const NumberInputPadModal = ({ clientData, onClientChange }) => {
 
             <Modal
                 title="Данные клиента"
-                visible={isModalVisible}
+                open={isModalOpen}
                 onCancel={() => {
-                    setIsModalVisible(false);
+                    setIsModalOpen(false);
                     setShowAdditionalFields(false);
                     setShowNumberPad(true);
                     setActiveSearchMode('phone');

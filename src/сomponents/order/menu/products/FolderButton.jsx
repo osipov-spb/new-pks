@@ -1,6 +1,8 @@
+// noinspection DuplicatedCode
+
 import React from "react";
-import {Button, Tag, Row, Col, Typography} from 'antd';
-import {FolderOpenOutlined, FolderOutlined, PercentageOutlined} from "@ant-design/icons";
+import {Button, Typography} from 'antd';
+import {FolderOutlined} from "@ant-design/icons";
 
 const { Text } = Typography;
 
@@ -74,7 +76,6 @@ class FolderButton extends React.Component {
 
     render() {
         const { data } = this.state;
-        const hasDiscount = Boolean(data.discount);
 
         return (
             <Button
@@ -120,30 +121,6 @@ class FolderButton extends React.Component {
                         marginBottom: '4px'
                     }}/>
                     <Text strong><this.BreakString text={data.title}/></Text>
-                </div>
-
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                }}>
-                    <span style={{
-                        fontSize: '11px',
-                        color: '#8c8c8c',
-                        fontStyle: 'italic',
-
-                    }}>
-                        {/*{data.itemsCount || 'папка'}*/}
-                    </span>
-                    {/*<span style={{*/}
-                    {/*    fontSize: '10px',*/}
-                    {/*    color: '#1890ff',*/}
-                    {/*    border: '1px solid #1890ff',*/}
-                    {/*    borderRadius: '2px',*/}
-                    {/*    padding: '0 3px'*/}
-                    {/*}}>*/}
-                    {/*    →*/}
-                    {/*</span>*/}
                 </div>
             </Button>
         );

@@ -1,27 +1,26 @@
 import React from 'react';
-import {Button, Row, Col, Space, Typography, Modal, DatePicker, Select, Form, Alert} from "antd";
+import {Alert, Button, Col, DatePicker, Form, Modal, Row, Select, Space} from "antd";
 import {
     ClockCircleOutlined,
-    ProfileOutlined,
-    RollbackOutlined,
     CloseSquareOutlined,
-    ShoppingOutlined,
-    FileTextOutlined
+    FileTextOutlined,
+    ProfileOutlined,
+    RollbackOutlined
 } from "@ant-design/icons";
 import moment from 'moment';
-import _OrderTitle from "./order_title";
-import _PackageSwitch from "./buttons/package_switch";
-import NumberInputPadModal from "./clientSelector/clientSelector";
-import PromoCodeModal from "./cert/cert";
+import OrderTitle from "./OrderTitle";
+import PackageSwitch from "./buttons/PackageSwitch";
+import NumberInputPadModal from "./clientSelector/ClientSelector";
+import PromoCodeModal from "./cert/PromoCodeModal";
 
-const { Text } = Typography;
 const { Option } = Select;
 
 const isEmptyDate = (date) => {
     return date && date.year() === 1 && date.month() === 0 && date.date() === 1;
 };
 
-class _OrderHeader extends React.Component {
+// noinspection JSUnresolvedReference
+class OrderHeader extends React.Component {
     constructor(props) {
         super(props);
         const initialDate = props.order_data.scheduledTime ? moment(props.order_data.scheduledTime) : null;
@@ -142,12 +141,6 @@ class _OrderHeader extends React.Component {
         this.setState({ showBSOModal: false });
     };
 
-    handleBSOConfirm = () => {
-        const { bsoForm } = this.state;
-        this.props.updateBSOData(bsoForm.date, bsoForm.number);
-        this.setState({ showBSOModal: false });
-    };
-
     handleBSOFormChange = (changedValues) => {
         this.setState(prevState => ({
             bsoForm: {
@@ -204,7 +197,7 @@ class _OrderHeader extends React.Component {
                 borderBottom: '1px solid #f0f0f0'
             }}>
                 <div style={{ marginBottom: 8 }}>
-                    <_OrderTitle {...order_data} />
+                    <OrderTitle {...order_data} />
                 </div>
 
                 <Row align="middle" justify="space-between">
@@ -215,7 +208,7 @@ class _OrderHeader extends React.Component {
                         visibility: hidden ? 'hidden' : 'default',
                     }}>
                         <Space size={6} wrap>
-                            <_PackageSwitch
+                            <PackageSwitch
                                 size="middle"
                                 updatePackage={updatePackage}
                                 initialPackageType={order_data.package}
@@ -303,7 +296,7 @@ class _OrderHeader extends React.Component {
                 {/* Модальное окно для выбора даты/времени */}
                 <Modal
                     title="Укажите дату и время доставки"
-                    visible={showDateTimePicker}
+                    open={showDateTimePicker}
                     onCancel={() => this.setState({showDateTimePicker: false})}
                     footer={[
                         <Button
@@ -348,7 +341,7 @@ class _OrderHeader extends React.Component {
                 {/* Модальное окно для БСО */}
                 <Modal
                     title="Бланк строгой отчетности (БСО)"
-                    visible={showBSOModal}
+                    open={showBSOModal}
                     onCancel={this.handleBSOCancel}
                     footer={[
                         <Button key="cancel" onClick={this.handleBSOCancel}>
@@ -406,7 +399,7 @@ class _OrderHeader extends React.Component {
                 {/* Модальное окно подтверждения возврата */}
                 <Modal
                     title="Подтверждение возврата"
-                    visible={showRefundModal}
+                    open={showRefundModal}
                     onCancel={this.handleRefundCancel}
                     footer={[
                         <Button key="cancel" onClick={this.handleRefundCancel}>
@@ -429,7 +422,7 @@ class _OrderHeader extends React.Component {
                 {/* Модальное окно подтверждения отмены */}
                 <Modal
                     title="Подтверждение отмены"
-                    visible={showCancelModal}
+                    open={showCancelModal}
                     onCancel={this.handleCancelModalCancel}
                     footer={[
                         <Button key="cancel" onClick={this.handleCancelModalCancel}>
@@ -453,4 +446,4 @@ class _OrderHeader extends React.Component {
     }
 }
 
-export default _OrderHeader;
+export default OrderHeader;

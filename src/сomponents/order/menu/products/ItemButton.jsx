@@ -1,3 +1,5 @@
+// noinspection DuplicatedCode,SpellCheckingInspection
+
 import React from "react";
 import {Button, Tag, Typography} from 'antd';
 
@@ -181,7 +183,6 @@ class ItemButton extends React.Component {
 
                     <div style={{
                         display: 'flex',
-                        // gap: '2px'
                     }}>
                         {hasDiscount && !isStopped && !isSuggestion && (
                             <Tag style={{

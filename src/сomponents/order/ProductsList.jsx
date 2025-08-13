@@ -1,17 +1,18 @@
+// noinspection JSValidateTypes
+
 import React from 'react';
-import {Table, Typography, InputNumber, Button, Popconfirm, message, Row, Col, Space} from 'antd';
+import {Button, Col, Popconfirm, Row, Space, Table, Typography} from 'antd';
 import {
-    Loading3QuartersOutlined,
     DeleteOutlined,
-    EyeOutlined,
     EyeInvisibleOutlined,
-    ShoppingCartOutlined, UnorderedListOutlined
+    EyeOutlined,
+    Loading3QuartersOutlined,
+    UnorderedListOutlined
 } from "@ant-design/icons";
-import './products_list.css';
 
 const { Text } = Typography;
 
-class _ProductTable extends React.Component {
+class ProductTable extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -27,7 +28,6 @@ class _ProductTable extends React.Component {
 
         if (value <= 0) {
             window.orderEditItem?.(lineNumber, 'count', 1);
-            message.warning('Минимальное количество - 1');
             return;
         }
 
@@ -96,14 +96,13 @@ class _ProductTable extends React.Component {
                 render: (_, { product_title, hide }) => (
                     <div style={{
                         fontSize: '12px',
-                        // fontWeight: 'bold',
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         lineHeight: '1.2',
-                        maxHeight: '2.4em', // 2 строки (1.2 * 2)
+                        maxHeight: '2.4em',
                         opacity: hide ? 0.5 : 1,
                         wordBreak: 'break-word'
                     }}>
@@ -130,7 +129,6 @@ class _ProductTable extends React.Component {
                     <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        // fontWeight: 'bold',
                         justifyContent: 'center',
                         gap: '4px'
                     }}>
@@ -156,9 +154,6 @@ class _ProductTable extends React.Component {
                             -
                         </Button>
                         <div style={{
-                            // minWidth: '20px',
-                            // textAlign: 'center',
-                            // fontSize: '13px',
                             opacity: record.hide ? 0.5 : 1
                         }}>
                             <Text>{record.count}</Text>
@@ -187,23 +182,6 @@ class _ProductTable extends React.Component {
                     </div>
                 )
             },
-            // {
-            //     title: ()=>{
-            //         return <div style={{
-            //             fontSize: '12px',
-            //             fontWeight: 'bold',
-            //             whiteSpace: 'nowrap',
-            //             overflow: 'hidden',
-            //             textOverflow: 'ellipsis'
-            //         }}>Цена</div>
-            //     },
-            //     dataIndex: 'price',
-            //     key: 'price',
-            //     width: 55,
-            //     render: (_, { price, hide }) => (
-            //         <div style={{ fontSize: '11px', fontWeight: 'bold', opacity: hide ? 0.5 : 1 }}>{price} ₽</div>
-            //     )
-            // },
             {
                 title: ()=>{
                     return <div style={{
@@ -322,11 +300,11 @@ class _ProductTable extends React.Component {
                         style={{
                             flex: 1,
                             overflow: 'hidden',
-                            '&::-webkit-scrollbar': {
+                            '&::WebkitScrollbar': {
                                 display: 'none'
                             },
-                            '-ms-overflow-style': 'none',
-                            'scrollbar-width': 'none'
+                            'msOverflowStyle': 'none',
+                            'scrollbarWidth': 'none'
                         }}
                         rowClassName={(record) => record.hide ? 'hidden-row' : ''}
                     />
@@ -336,4 +314,4 @@ class _ProductTable extends React.Component {
     }
 }
 
-export default _ProductTable;
+export default ProductTable;

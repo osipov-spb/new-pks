@@ -1,7 +1,7 @@
 import {Layout, Space} from 'antd';
 import React from 'react';
-import _Table from "./list-items_ant/list-items_ant";
-import _Menu from "./menu";
+import _Table from "./OrdersTable";
+import MainMenu from "./Menu";
 
 const {Content, Footer} = Layout;
 
@@ -10,7 +10,7 @@ const OrdersList = ({ projects }) => { // Принимаем projects как п�
         <Layout className="layout">
             <Content style={{ padding: '20px' }}>
                 <Space direction="vertical" size='small'>
-                    <_Menu projects={projects} />
+                    <MainMenu projects={projects} />
                     <_Table/>
                 </Space>
             </Content>

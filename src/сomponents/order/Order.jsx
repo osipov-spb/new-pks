@@ -1,79 +1,53 @@
 import React from 'react';
-import { Card, Col, Layout, Row, Typography, Input, Button, Space, Result, Divider } from 'antd';
+import {Button, Card, Col, Input, Layout, Result, Row, Space, Typography} from 'antd';
 import {
     ArrowRightOutlined,
-    SearchOutlined,
     CheckCircleFilled,
     CheckOutlined,
     CloseOutlined,
     FormOutlined,
-    ShoppingCartOutlined,
     GiftOutlined,
-    CommentOutlined,
-    DollarOutlined,
-    EnvironmentOutlined,
-    UserOutlined
+    SearchOutlined,
+    ShoppingCartOutlined
 } from '@ant-design/icons';
-import _ProductTable from "./products_list";
-import _OrderHeader from "./order_header";
-import _OrderData from "./order_data";
-import _ProductsMenu from "./menu/products/products_menu";
-import StatusButtons from "./buttons/status_buttons";
-import OrderAdditionalInfo from "./orderAdditionalInfo";
-import { componentRules } from './componentRules';
-import OrderAddressBlock from "./orderAddressBlock";
-import PromoMenu from "./menu/promo/promo_menu";
+import ProductTable from "./ProductsList";
+import OrderHeader from "./OrderHeader";
+import OrderData from "./common/OrderData";
+import ProductsMenu from "./menu/products/ProductsMenu";
+import StatusButtons from "./buttons/StatusButtons";
+import OrderAdditionalInfo from "./common/OrderAdditionalInfo";
+import {componentRules} from './common/ComponentRules';
+import OrderAddressBlock from "./OrderAddressBlock";
+import PromoMenu from "./menu/promo/PromoMenu";
 
 const { Search } = Input;
 const { Content } = Layout;
 const { Text } = Typography;
 const { TextArea } = Input;
 
+// noinspection JSUnresolvedReference
 class Order extends React.Component {
     constructor(props) {
         super(props);
-        if (this.props.order_str == undefined) {
-            this.state = {
-                order_data: new _OrderData({
-                    scheduled: false,
-                    scheduledTime: null,
-                    items: [],
-                    summary: 0,
-                    total: 0,
-                    deliveryPrice: 0,
-                    client: {}
-                }),
-                additionalParams: new OrderAdditionalInfo(),
-                menuType: 'products',
-                menuSearchQuery: '',
-                productsCollapsed: false,
-                promoCollapsed: true,
-                productsFilled: false,
-                promosFilled: false,
-                existingOrder: false,
-                selectedPromoItems: []
-            };
-        } else {
-            const parsedData = JSON.parse(this.props.order_str);
-            const existingOrder = parsedData.id != null && parsedData.id !== "";
+        const parsedData = JSON.parse(this.props.order_str);
+        const existingOrder = parsedData.id != null && parsedData.id !== "";
 
-            this.state = {
-                order_data: new _OrderData({
-                    ...parsedData,
-                    items: parsedData.items || [],
-                    client: parsedData.client || {}
-                }),
-                additionalParams: new OrderAdditionalInfo(JSON.parse(this.props.additionalParams)),
-                menuType: 'products',
-                menuSearchQuery: '',
-                productsCollapsed: existingOrder,
-                promoCollapsed: existingOrder,
-                productsFilled: false,
-                promosFilled: false,
-                existingOrder: existingOrder,
-                selectedPromoItems: []
-            };
-        }
+        this.state = {
+            order_data: new OrderData({
+                ...parsedData,
+                items: parsedData.items || [],
+                client: parsedData.client || {}
+            }),
+            additionalParams: new OrderAdditionalInfo(JSON.parse(this.props.additionalParams)),
+            menuType: 'products',
+            menuSearchQuery: '',
+            productsCollapsed: existingOrder,
+            promoCollapsed: existingOrder,
+            productsFilled: false,
+            promosFilled: false,
+            existingOrder: existingOrder,
+            selectedPromoItems: []
+        };
     }
 
     isComponentDisabled = (componentName) => {
@@ -139,7 +113,6 @@ class Order extends React.Component {
                     }
                 }
             }), () => {
-                console.log('Client data updated:', this.state.order_data.client);
                 resolve();
             });
         });
@@ -269,7 +242,7 @@ class Order extends React.Component {
             try {
                 const data = JSON.parse(orderDataStr);
                 this.setState({
-                    order_data: new _OrderData({
+                    order_data: new OrderData({
                         ...this.state.order_data,
                         ...data,
                         items: data.items || this.state.order_data.items
@@ -408,7 +381,7 @@ class Order extends React.Component {
                             </Button>
                         </div>
                     </div>
-                    <_ProductsMenu
+                    <ProductsMenu
                         items={this.state.additionalParams.menu}
                         searchQuery={this.state.menuSearchQuery}
                         disabled={this.isComponentDisabled('productsMenu')}
@@ -480,7 +453,7 @@ class Order extends React.Component {
                     display: 'flex',
                     flexDirection: 'column'
                 }}>
-                    <_OrderHeader
+                    <OrderHeader
                         order_data={this.state.order_data}
                         updatePackage={this.updatePackageType}
                         updateScheduledStatus={this.updateScheduledStatus}
@@ -490,12 +463,6 @@ class Order extends React.Component {
                         disabled={this.isComponentDisabled('orderHeader')}
                         hidden={this.isComponentHidden('orderHeader')}
                     />
-
-                    {/*/!* Отладочная информация *!/*/}
-                    {/*<div style={{ padding: '10px', background: '#f0f0f0', margin: '10px' }}>*/}
-                    {/*    <Text strong>Текущие данные клиента:</Text>*/}
-                    {/*    <pre>{JSON.stringify(this.state.order_data.client, null, 2)}</pre>*/}
-                    {/*</div>*/}
 
                     <Row gutter={[12, 12]} style={{
                         margin: '0',
@@ -524,7 +491,7 @@ class Order extends React.Component {
                                     flex: 1,
                                     overflow: "hidden"
                                 }}>
-                                    <_ProductTable
+                                    <ProductTable
                                         dataSource={this.state.order_data.items}
                                         disabled={this.isComponentDisabled('productTable') || this.state.productsFilled}
                                         hidden={this.isComponentHidden('productTable')}
@@ -685,7 +652,7 @@ class Order extends React.Component {
                                             </div>
 
                                             {!this.state.existingOrder && this.state.productsFilled
-                                                && this.state.promosFilled && (this.state.order_data.total!=0) && (
+                                                && this.state.promosFilled && (this.state.order_data.total!==0) && (
                                                     <div style={{
                                                         flex: 1,
                                                         display: 'flex',

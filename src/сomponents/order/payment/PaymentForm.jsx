@@ -1,6 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Modal, Row, Col, Space, Alert } from 'antd';
-import { CreditCardOutlined, WalletOutlined, ShoppingCartOutlined, PlusOutlined, ShopOutlined, CarOutlined } from '@ant-design/icons';
+// noinspection JSUnresolvedReference
+
+import React, {useEffect, useState} from 'react';
+import {Alert, Button, Modal, Space} from 'antd';
+import {
+    CarOutlined,
+    CreditCardOutlined,
+    PlusOutlined,
+    ShopOutlined,
+    ShoppingCartOutlined,
+    WalletOutlined
+} from '@ant-design/icons';
 
 const PaymentForm = () => {
     const [total, setTotal] = useState(0);

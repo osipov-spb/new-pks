@@ -1,13 +1,12 @@
-import React from "react";
-import { Button, Space, Modal } from 'antd';
-import {
-    CloseOutlined,
-    ArrowRightOutlined,
-    PrinterOutlined
-} from '@ant-design/icons';
-import PaymentForm from "../payment/paymentForm";
-import { isEqual } from 'lodash';
+// noinspection JSValidateTypes
 
+import React from "react";
+import {Button, Modal, Space} from 'antd';
+import {ArrowRightOutlined, CloseOutlined, PrinterOutlined} from '@ant-design/icons';
+import PaymentForm from "../payment/PaymentForm";
+import {isEqual} from 'lodash';
+
+// noinspection JSUnresolvedReference
 class StatusButtons extends React.Component {
     constructor(props) {
         super(props);
@@ -18,13 +17,6 @@ class StatusButtons extends React.Component {
     }
 
     // Удаляем componentDidUpdate, чтобы initialOrderData не обновлялся автоматически
-
-    // Добавляем метод для ручного обновления начальных данных
-    updateInitialData = () => {
-        this.setState({
-            initialOrderData: this.normalizeOrderData(this.props.order_data)
-        });
-    };
 
     showConfirmModal = () => {
         const currentData = this.normalizeOrderData(this.props.order_data);
@@ -155,7 +147,7 @@ class StatusButtons extends React.Component {
 
                 <Modal
                     title="Подтверждение действия"
-                    visible={isConfirmModalVisible}
+                    open={isConfirmModalVisible}
                     onCancel={this.handleCancelClose}
                     footer={[
                         <Button key="back" onClick={this.handleCancelClose}>

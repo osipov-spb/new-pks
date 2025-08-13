@@ -1,10 +1,11 @@
-import OrderAddressBlock from "./orderAddressBlock";
+
+// noinspection JSUnusedLocalSymbols
 
 export const componentRules = {
     // Правила для _ProductsMenu
     productsMenu: {
         disabled: (orderData) => {
-            return orderData.id != '';
+            return orderData.id !== '';
         },
         hidden: (orderData) => {
             return false;
@@ -12,7 +13,7 @@ export const componentRules = {
     },
     orderHeader: {
         disabled: (orderData) => {
-            return orderData.id != '';
+            return orderData.id !== '';
         },
         hidden: (orderData) => false
     },
@@ -36,25 +37,24 @@ export const componentRules = {
     },
     addressBlock: {
         disabled: (orderData) => !orderData.client.phone,
-        hidden: (orderData) => orderData.package != 'delivery'
+        hidden: (orderData) => orderData.package !== 'delivery'
     },
     addressFields: {
         disabled: (orderData) => {
-            return orderData.id != '';
+            return orderData.id !== '';
         },
         hidden: (orderData) => false
     },
     courierFields: {
-        disabled: (orderData) => (orderData.status != '3.Ожидает') & (orderData.status != '4.В пути'),
+        disabled: (orderData) => (orderData.status !== '3.Ожидает') & (orderData.status !== '4.В пути'),
         hidden: (orderData) => false
     },
     promoEditButton: {
-        disabled: (orderData) => orderData.id != '',
+        disabled: (orderData) => orderData.id !== '',
         hidden: (orderData) => false
     },
     productsEditButton: {
-        disabled: (orderData) => orderData.id != '',
+        disabled: (orderData) => orderData.id !== '',
         hidden: (orderData) => false
     }
-    // ... другие компоненты
 };

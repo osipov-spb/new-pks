@@ -1,21 +1,21 @@
 import React from 'react';
-import {Typography, Tag, Space, Alert} from 'antd';
+import {Alert, Space, Tag, Typography} from 'antd';
 import {
-    ClockCircleOutlined,
-    CheckCircleOutlined,
-    HourglassOutlined,
-    CloseCircleOutlined,
     CalendarOutlined,
     CarOutlined,
-    ShoppingOutlined,
-    MoneyCollectOutlined,
+    CheckCircleOutlined,
+    CheckOutlined,
+    ClockCircleOutlined,
+    CloseCircleOutlined,
     DeleteOutlined,
-    ShopOutlined, CheckOutlined
+    HourglassOutlined,
+    ShopOutlined,
+    ShoppingOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
-class _OrderTitle extends React.Component {
+class OrderTitle extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -91,9 +91,6 @@ class _OrderTitle extends React.Component {
 
         // Удаляем все цифры, точки и запятые в начале строки, включая пробелы после них
         let cleaned = status.replace(/^[\d.,]+\s*/, '');
-
-        // Дополнительные замены для читаемости
-        // cleaned = cleaned.replace('ТТ', 'торговую точку');
 
         return cleaned.trim(); // Удаляем возможные пробелы в начале/конце
     };
@@ -239,4 +236,4 @@ class _OrderTitle extends React.Component {
     }
 }
 
-export default _OrderTitle;
+export default OrderTitle;

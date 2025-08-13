@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Dropdown, Menu, Tag } from 'antd';
-import { ShopOutlined, CarryOutOutlined, RocketOutlined } from '@ant-design/icons';
+// noinspection XmlDeprecatedElement
 
-const _PackageSwitch = ({ updatePackage, initialPackageType = 'in_store' }) => {
+import React, {useEffect, useState} from 'react';
+import {Button, Dropdown, Menu} from 'antd';
+import {CarryOutOutlined, RocketOutlined, ShopOutlined} from '@ant-design/icons';
+
+const PackageSwitch = ({ updatePackage, initialPackageType = 'in_store' }) => {
     const [packageType, setPackageType] = useState(initialPackageType);
-    const [visible, setVisible] = useState(false);
+    const [open, setOpen] = useState(false); // Заменили visible на open
 
     useEffect(() => {
         // Добавляем функцию в window для внешнего управления
@@ -30,11 +32,11 @@ const _PackageSwitch = ({ updatePackage, initialPackageType = 'in_store' }) => {
         if (updatePackage) {
             updatePackage(e.key);
         }
-        setVisible(false);
+        setOpen(false); // Заменили setVisible на setOpen
     };
 
-    const handleVisibleChange = (flag) => {
-        setVisible(flag);
+    const handleOpenChange = (flag) => {
+        setOpen(flag); // Заменили setVisible на setOpen
     };
 
     const menu = (
@@ -43,19 +45,22 @@ const _PackageSwitch = ({ updatePackage, initialPackageType = 'in_store' }) => {
                 key="in_store"
                 icon={<ShopOutlined />}
             >
-                <a data-button-id='package-switch-in_store'>Зал</a>
+                {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+                <a href='#' data-button-id='package-switch-in_store'>Зал</a>
             </Menu.Item>
             <Menu.Item
                 key="take_away"
                 icon={<CarryOutOutlined/>}
             >
-                <a data-button-id='package-switch-take_away'>На вынос</a>
+                {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+                <a href='#' data-button-id='package-switch-take_away'>На вынос</a>
             </Menu.Item>
             <Menu.Item
                 key="delivery"
                 icon={<RocketOutlined/>}
             >
-                <a data-button-id='package-switch-delivery'>Доставка</a>
+                {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+                <a href='#' data-button-id='package-switch-delivery'>Доставка</a>
             </Menu.Item>
         </Menu>
     );
@@ -78,21 +83,12 @@ const _PackageSwitch = ({ updatePackage, initialPackageType = 'in_store' }) => {
         }
     };
 
-    const getButtonDataId = () => {
-        switch(packageType) {
-            case 'in_store': return 'package-switch-in_store';
-            case 'take_away': return 'package-switch-take_away';
-            case 'delivery': return 'package-switch-delivery';
-            default: return '';
-        }
-    };
-
     return (
         <Dropdown
             overlay={menu}
             trigger={['click']}
-            visible={visible}
-            onVisibleChange={handleVisibleChange}
+            open={open} // Заменили visible на open
+            onOpenChange={handleOpenChange} // Заменили onVisibleChange на onOpenChange
         >
             <Button
                 type="default"
@@ -105,4 +101,4 @@ const _PackageSwitch = ({ updatePackage, initialPackageType = 'in_store' }) => {
     );
 };
 
-export default _PackageSwitch;
+export default PackageSwitch;

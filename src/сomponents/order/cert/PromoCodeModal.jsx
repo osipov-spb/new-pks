@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Input, Table, Button, Spin, Space, message } from 'antd';
-import { PlusOutlined, DeleteOutlined, GiftOutlined } from '@ant-design/icons';
-import './PromoCodeModal.css';
+import React, {useEffect, useRef, useState} from 'react';
+import {Button, Input, Modal, Space, Spin, Table} from 'antd';
+import {GiftOutlined, PlusOutlined} from '@ant-design/icons';
 
 const { Column } = Table;
 
 const PromoCodeModal = ({ size = 'middle' }) => {
-    const [visible, setVisible] = useState(false);
+    const [open, setOpen] = useState(false);
     const [promoCodes, setPromoCodes] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const [loading, setLoading] = useState(false);
@@ -18,10 +17,6 @@ const PromoCodeModal = ({ size = 'middle' }) => {
             try {
                 const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
 
-                if (!Array.isArray(data)) {
-                    throw new Error('Данные должны быть массивом');
-                }
-
                 const formattedData = data.map(item => ({
                     key: Date.now() + Math.random(),
                     certificate: item.certificate || '',
@@ -29,15 +24,14 @@ const PromoCodeModal = ({ size = 'middle' }) => {
                 }));
 
                 setPromoCodes(formattedData);
-                setVisible(true);
+                setOpen(true);
             } catch (error) {
                 console.error('Ошибка обработки данных промокодов:', error);
-                message.error('Неверный формат данных промокодов');
             }
         };
 
         window.closePromoCodeModal = () => {
-            setVisible(false);
+            setOpen(false);
         };
 
         window.getCurrentPromoCodes = () => {
@@ -74,16 +68,7 @@ const PromoCodeModal = ({ size = 'middle' }) => {
             setPromoCodes([...promoCodes, newPromoCode]);
             setInputValue('');
             setLoading(false);
-
-            // Возвращаем промокод через callback (альтернативный вариант)
-            if (window.onPromoCodeAdded) {
-                window.onPromoCodeAdded(inputValue);
-            }
         }
-    };
-
-    const deletePromoCode = (key) => {
-        setPromoCodes(promoCodes.filter(item => item.key !== key));
     };
 
     return (
@@ -101,10 +86,10 @@ const PromoCodeModal = ({ size = 'middle' }) => {
 
             <Modal
                 title="Ввод сертификатов"
-                visible={visible}
-                onCancel={() => setVisible(false)}
+                open={open}  // Changed from visible
+                onCancel={() => setOpen(false)}  // Changed from setVisible
                 footer={[
-                    <Button key="back" onClick={() => setVisible(false)} size={size}>
+                    <Button key="back" onClick={() => setOpen(false)} size={size}>
                         Закрыть
                     </Button>,
                 ]}
@@ -142,18 +127,6 @@ const PromoCodeModal = ({ size = 'middle' }) => {
                 >
                     <Column title="Сертификат" dataIndex="certificate" key="certificate" />
                     <Column title="Номинал" dataIndex="nominal" key="nominal" />
-                    {/*<Column*/}
-                    {/*    title="Действие"*/}
-                    {/*    key="action"*/}
-                    {/*    render={(_, record) => (*/}
-                    {/*        <Button*/}
-                    {/*            icon={<DeleteOutlined />}*/}
-                    {/*            onClick={() => deletePromoCode(record.key)}*/}
-                    {/*            size="small"*/}
-                    {/*            danger*/}
-                    {/*        />*/}
-                    {/*    )}*/}
-                    {/*/>*/}
                 </Table>
             </Modal>
         </>

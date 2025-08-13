@@ -1,18 +1,11 @@
 import React from 'react'
-import {Button, Card, Divider, Space, Typography} from 'antd'
-import {
-    BarsOutlined,
-    FileTextOutlined, ShopFilled,
-    ShoppingCartOutlined,
-    ShoppingFilled,
-    ShoppingOutlined,
-    TagsOutlined
-} from "@ant-design/icons";
+import {Typography} from 'antd'
+import {ShopFilled, ShoppingFilled} from "@ant-design/icons";
 
 
 const { Title, Text } = Typography;
 
-class _Header extends React.Component {
+class TableHeader extends React.Component {
     constructor(props) {
         super(props);
         this.state = {}
@@ -56,4 +49,4 @@ class _Header extends React.Component {
     }
 }
 
-export default _Header;
+export default TableHeader;

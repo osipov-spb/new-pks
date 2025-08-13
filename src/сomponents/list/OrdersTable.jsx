@@ -1,26 +1,33 @@
+// noinspection JSUnusedLocalSymbols,SpellCheckingInspection,JSUnusedGlobalSymbols
+
 import React from 'react';
-import { Space, Table, Tag, Typography, Popover, Button, Dropdown, Menu } from 'antd';
+import {Button, Menu, Popover, Space, Table, Tag, Typography} from 'antd';
 import {
-    FilterOutlined,
+    CalendarOutlined,
+    CarOutlined,
+    CheckCircleOutlined,
+    CheckOutlined,
+    ClockCircleOutlined,
+    CloseCircleOutlined,
+    CreditCardOutlined,
+    DeleteOutlined,
+    FieldTimeOutlined,
+    ForwardOutlined,
     GlobalOutlined,
     HomeOutlined,
+    HourglassOutlined,
     Loading3QuartersOutlined,
-    DeleteOutlined,
-    CheckCircleOutlined,
-    FieldTimeOutlined,
-    CalendarOutlined,
     NumberOutlined,
-    ForwardOutlined,
     ShoppingCartOutlined,
-    WalletOutlined,
-    CreditCardOutlined,
+    ShoppingOutlined,
     UserOutlined,
-    CheckOutlined, HourglassOutlined, ClockCircleOutlined, ShoppingOutlined, CarOutlined, CloseCircleOutlined
+    WalletOutlined
 } from "@ant-design/icons";
-import { debounce } from 'lodash';
+import {debounce} from 'lodash';
 
 const { Text } = Typography;
 
+// noinspection JSUnusedLocalSymbols
 class OrdersTable extends React.Component {
     constructor(props) {
         super(props);
@@ -36,7 +43,6 @@ class OrdersTable extends React.Component {
 
         this.updateTableHeight = this.updateTableHeight.bind(this);
         this.handleResize = debounce(this.updateTableHeight, 100);
-        this.filterDropdownRef = React.createRef();
     }
 
     handleStatusFilterChange = (selectedFilters) => {
@@ -64,10 +70,6 @@ class OrdersTable extends React.Component {
         });
     };
 
-    // Функция для обновления выбранных фильтров (без подтверждения)
-    updateSelectedFilters = (selectedKeys) => {
-        this.setState({ selectedFilterKeys: selectedKeys });
-    }
 
     setFilterDropdownVisible = (visible) => {
         this.setState({ filterDropdownVisible: visible });
@@ -142,10 +144,6 @@ class OrdersTable extends React.Component {
         return filterDropdownVisible ? JSON.stringify(selectedFilterKeys) : JSON.stringify(statusFilter)
         ;
     }
-
-    openOrder = (e) => {
-        window.show_page('order', e);
-    };
 
     loadAllOrders = (ordersJson) => {
         this.setState({ isLoading: true });
@@ -269,6 +267,7 @@ class OrdersTable extends React.Component {
                 <Space size={4}>
                     {deleted && <DeleteOutlined style={{ color: '#FF4D4F', fontSize: 14 }} />}
                     {paid && !deleted && <CheckCircleOutlined style={{ color: '#08979C', fontSize: 14 }} />}
+                    {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                     <a
                         href='#'
                         data-button-id={`open-order-${id}`}
@@ -398,7 +397,7 @@ class OrdersTable extends React.Component {
                         this.setState({ selectedFilterKeys: this.state.statusFilter });
                     }
                 },
-                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => {
                     // Используем selectedKeys из параметров вместо this.state.selectedFilterKeys
                     const currentSelectedKeys = selectedKeys || this.state.selectedFilterKeys;
 
@@ -514,23 +513,6 @@ class OrdersTable extends React.Component {
                 sorter: (a, b) => a.orderPackage.localeCompare(b.orderPackage),
                 render: (text, record) => this.renderCellContent(text, record)
             },
-            // {
-            //     title: () => {
-            //         return  (
-            //             <div style={{ display: 'flex', justifyContent: 'center', fontSize: '14px'}}>
-            //                 <Space size='small'>
-            //                     <WalletOutlined/>
-            //                     <Text strong> Оплата </Text>
-            //                 </Space>
-            //             </div>
-            //         )
-            //     },
-            //     dataIndex: 'orderPaymentType',
-            //     key: 'orderPaymentType',
-            //     width: 110,
-            //     sorter: (a, b) => a.orderPaymentType.localeCompare(b.orderPaymentType),
-            //     render: (text, record) => this.renderCellContent(text, record)
-            // },
             {
                 title: () => {
                     return  (
@@ -583,7 +565,7 @@ class OrdersTable extends React.Component {
                 dataIndex: 'tags',
                 key: 'tags',
                 width: 90,
-                render: (_, { orderAddress, orderOnlineID, orderPackage, deleted, clientPhone, clientName, orderPaymentType }) => (
+                render: (_, { orderAddress, orderOnlineID, orderPackage, deleted, orderPaymentType }) => (
                     <Space size='small'>
                         {orderPaymentType==='Наличные' && (
                             <Popover content=
