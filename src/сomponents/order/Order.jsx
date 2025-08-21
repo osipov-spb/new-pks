@@ -537,14 +537,14 @@ class Order extends React.Component {
                     <Row gutter={[12, 12]} style={{
                         margin: '0',
                         padding: '0px',
+                        marginTop: 0,
+                        paddingTop: 0,
                         flex: 1,
                         display: 'flex',
                         minHeight: 0
                     }}>
                         <Col xs={24} md={11} style={{
                             display: 'flex',
-                            marginTop: 0,
-                            paddingTop: 0,
                             flexDirection: 'column',
                             paddingLeft: '0px',
                             paddingRight: '3px',
