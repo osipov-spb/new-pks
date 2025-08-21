@@ -194,14 +194,17 @@ class OrderAddressBlock extends React.Component {
         return (
             <div style={{
                 padding: '12px',
-                borderTop: '1px solid #f0f0f0',
-                borderBottom: '1px solid #f0f0f0',
+                marginTop: '6px',
+                // borderTop: '1px solid #f0f0f0',
+                // borderBottom: '1px solid #f0f0f0',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '16px',
                 background: '#fafafa',
                 opacity: blockDisabled ? 0.6 : 1,
-                pointerEvents: blockDisabled ? 'none' : 'auto'
+                pointerEvents: blockDisabled ? 'none' : 'auto',
+                borderRadius: '10px',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
             }}>
                 {/* Блок адреса */}
                 {!addressHidden && (

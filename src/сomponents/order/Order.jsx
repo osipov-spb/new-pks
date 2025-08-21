@@ -569,6 +569,8 @@ class Order extends React.Component {
                                 <div
                                     ref={this.productsContainerRef}
                                     style={{
+                                        borderRadius: '10px',
+                                        boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                                         padding: '0px',
                                         flex: 1,
                                         overflow: "hidden",
@@ -602,7 +604,7 @@ class Order extends React.Component {
                                 <div
                                     ref={this.commentBlockRef}
                                     style={{
-                                        padding: '6px',
+                                        padding: '0px',
                                         paddingBottom: 0,
                                         borderTop: '1px solid #f0f0f0',
                                         flexShrink: 0
@@ -615,8 +617,11 @@ class Order extends React.Component {
                                         onChange={this.handleCommentChange}
                                         style={{
                                             width: '100%',
-                                            borderColor: '#d9d9d9',
-                                            marginBottom: '6px'
+                                            // borderColor: '#d9d9d9',
+                                            marginTop: '6px',
+                                            // marginBottom: '6px',
+                                            borderRadius: '10px',
+
                                         }}
                                     />
 
@@ -624,13 +629,14 @@ class Order extends React.Component {
                                         display: 'flex',
                                         flexDirection: 'column',
                                         gap: '5px',
+                                        marginTop: '6px',
                                         paddingLeft: '20px',
                                         paddingRight: '20px',
                                         paddingTop: '5px',
                                         paddingBottom: '10px',
-                                        background: 'white',
-                                        borderRadius: '0px',
-                                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                        background: '#fafafa',
+                                        borderRadius: '10px',
+                                        boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                                     }}>
                                         <div style={{display: 'flex', justifyContent: 'space-between'}}>
                                             <Text>Итого:</Text>
@@ -645,7 +651,7 @@ class Order extends React.Component {
                                             justifyContent: 'space-between',
                                             marginTop: '0px',
                                             paddingTop: '0px',
-                                            borderTop: '1px solid #f1f1f1'
+                                            borderTop: '1px solid #f1f1f1',
                                         }}>
                                             <Text strong style={{fontSize: '16px'}}>К оплате:</Text>
                                             <Text strong style={{
@@ -668,12 +674,14 @@ class Order extends React.Component {
                             <Card
                                 bordered={false}
                                 style={{
-                                    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                                    // boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                                     flex: 1,
                                     display: 'flex',
                                     flexDirection: 'column',
                                     overflow: 'hidden',
-                                    minHeight: 0
+                                    minHeight: 0,
+                                    borderRadius: '10px',
+                                    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                                 }}
                                 bodyStyle={{
                                     padding: 0,
