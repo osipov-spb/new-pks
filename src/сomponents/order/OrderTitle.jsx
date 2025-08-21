@@ -131,7 +131,7 @@ class OrderTitle extends React.Component {
                         type="error"
                         showIcon
                         style={{
-                            margin: '-8px -16px 8px -16px',
+                            margin: '-8px -16px 6px -16px',
                             borderRadius: 0,
                             borderLeft: 0,
                             borderRight: 0
@@ -140,7 +140,7 @@ class OrderTitle extends React.Component {
                 )}
                 <div style={{
                     padding: '8px 16px',
-                    margin: deleted ? '0 -16px 8px -16px' : '-8px -16px 8px -16px',
+                    margin: deleted ? '0 -16px 6px -16px' : '-8px -16px 6px -16px',
                     background: '#f0f9ff',
                     borderBottom: '1px solid #d9eef7',
                     display: 'flex',

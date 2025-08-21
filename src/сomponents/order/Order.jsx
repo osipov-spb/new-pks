@@ -511,7 +511,8 @@ class Order extends React.Component {
                                 />
 
                                 <div style={{
-                                    padding: '12px',
+                                    padding: '6px',
+                                    paddingBottom: 0,
                                     borderTop: '1px solid #f0f0f0'
                                 }}>
                                     <TextArea
@@ -522,15 +523,18 @@ class Order extends React.Component {
                                         style={{
                                             width: '100%',
                                             borderColor: '#d9d9d9',
-                                            marginBottom: '12px'
+                                            marginBottom: '6px'
                                         }}
                                     />
 
                                     <div style={{
                                         display: 'flex',
                                         flexDirection: 'column',
-                                        gap: '10px',
-                                        padding: '20px',
+                                        gap: '5px',
+                                        paddingLeft: '20px',
+                                        paddingRight: '20px',
+                                        paddingTop: '5px',
+                                        paddingBottom: '10px',
                                         background: 'white',
                                         borderRadius: '0px',
                                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
@@ -546,8 +550,8 @@ class Order extends React.Component {
                                         <div style={{
                                             display: 'flex',
                                             justifyContent: 'space-between',
-                                            marginTop: '8px',
-                                            paddingTop: '12px',
+                                            marginTop: '0px',
+                                            paddingTop: '0px',
                                             borderTop: '1px solid #f1f1f1'
                                         }}>
                                             <Text strong style={{fontSize: '16px'}}>К оплате:</Text>

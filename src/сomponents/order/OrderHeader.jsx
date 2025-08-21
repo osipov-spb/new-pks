@@ -192,11 +192,11 @@ class OrderHeader extends React.Component {
             <div data-component="_OrderHeader" style={{
                 paddingTop: '8px',
                 paddingRight: '2px',
-                paddingBottom: '8px',
+                paddingBottom: '6px',
                 background: '#fff',
-                borderBottom: '1px solid #f0f0f0'
+                // borderBottom: '1px solid #f0f0f0'
             }}>
-                <div style={{ marginBottom: 8 }}>
+                <div style={{ marginBottom: 6 }}>
                     <OrderTitle {...order_data} />
                 </div>
 

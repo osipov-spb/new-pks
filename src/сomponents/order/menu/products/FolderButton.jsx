@@ -81,7 +81,7 @@ class FolderButton extends React.Component {
             <Button
                 onClick={this.handleClick}
                 style={{
-                    height: '80px',
+                    height: '70px',
                     width: '126px',
                     // margin: '4px',
                     padding: '6px 6px 4px 6px',
