@@ -2,7 +2,7 @@
 
 import React from 'react';
 import {Button, Input, Modal, Pagination, Space, Spin, Typography} from 'antd';
-import {EnvironmentOutlined, SearchOutlined, UserOutlined} from '@ant-design/icons';
+import {CarOutlined, EnvironmentOutlined, SearchOutlined} from '@ant-design/icons';
 
 const { Text } = Typography;
 
@@ -36,7 +36,7 @@ class OrderAddressBlock extends React.Component {
 
 
     isEmptyCourier = (courier) => {
-        return !courier || courier.id === null || courier.id === "";
+        return !courier || courier.id === null || courier.id === "" || courier.name === "";
     };
 
     isEmptyAddress = (address) => {
@@ -270,7 +270,7 @@ class OrderAddressBlock extends React.Component {
                                     opacity: courierDisabled ? 0.6 : 1
                                 }}
                             >
-                                <UserOutlined style={{ color: '#1890ff' }} />
+                                <CarOutlined style={{ color: '#1890ff' }} />
                                 <Text style={{ fontSize: '13px' }}>
                                     {courier.name}
                                 </Text>
@@ -296,7 +296,7 @@ class OrderAddressBlock extends React.Component {
                             size="small"
                             href="#"
                             {...(!(blockDisabled || courierDisabled) && { "data-button-id": "courier-fill-start" })}
-                            icon={<UserOutlined />}
+                            icon={<SearchOutlined/>}
                             onClick={this.loadCouriers}
                             disabled={blockDisabled || courierDisabled}
                         >
