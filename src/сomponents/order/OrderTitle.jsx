@@ -161,10 +161,10 @@ class OrderTitle extends React.Component {
                                 lineHeight: '24px',
                                 marginRight: '12px',
                                 color: '#177ddc',
-                                background: 'linear-gradient(135deg, #177ddc 0%, #722ed1 100%)',
+                                // background: 'linear-gradient(135deg, #177ddc 0%, #722ed1 100%)',
                                 // '-webkit-background-clip': 'text',
                                 // '-webkit-text-fill-color': 'transparent',
-                                backgroundClip: 'text'
+                                // backgroundClip: 'text'
                             }}
                         >
                             <Space size='small'>

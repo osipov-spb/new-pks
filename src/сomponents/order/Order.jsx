@@ -438,6 +438,8 @@ class Order extends React.Component {
                                     boxShadow: '0 2px 0 rgba(0, 0, 0, 0.045)',
                                     background: '#73d13d',
                                     borderColor: '#73d13d',
+                                    borderRadius: '6px',
+                                    // border: '1px solid #d9d9d9'
                                 }}
                                 icon={<ArrowRightOutlined />}
                                 onClick={() => this.setState({
@@ -489,6 +491,7 @@ class Order extends React.Component {
                                 boxShadow: '0 2px 0 rgba(0, 0, 0, 0.045)',
                                 background: '#73d13d',
                                 borderColor: '#73d13d',
+                                borderRadius: '6px',
                             }}
                             icon={<CheckOutlined />}
                             onClick={() => this.setState({
@@ -655,10 +658,10 @@ class Order extends React.Component {
                                             paddingTop: '0px',
                                             borderTop: '1px solid #f1f1f1',
                                         }}>
-                                            <Text strong style={{fontSize: '16px'}}>К оплате:</Text>
+                                            <Text strong style={{fontSize: '16px', color: '#177ddc',}}>К оплате:</Text>
                                             <Text strong style={{
                                                 fontSize: '16px',
-                                                color: '#28a745'
+                                                color: '#177ddc'
                                             }}>{this.state.order_data.total || 0} ₽</Text>
                                         </div>
                                     </div>
@@ -724,6 +727,10 @@ class Order extends React.Component {
                                                 </div>
                                                 <Button
                                                     disabled={this.isComponentDisabled('productsEditButton')}
+                                                    style={{
+                                                        borderRadius: '6px',
+                                                        border: '1px solid #d9d9d9'
+                                                    }}
                                                     onClick={() => this.setState({
                                                         productsCollapsed: false,
                                                         promoCollapsed: true,
@@ -732,7 +739,7 @@ class Order extends React.Component {
                                                         promosFilled: false
                                                     })}
                                                 >
-                                                    <FormOutlined />
+                                                    <FormOutlined style={{color: '#1890ff'}}/>
                                                     Изменить
                                                 </Button>
                                             </div>
@@ -757,6 +764,10 @@ class Order extends React.Component {
                                                     href="#"
                                                     data-button-id="products-confirm"
                                                     disabled={this.isComponentDisabled('promoEditButton')}
+                                                    style={{
+                                                        borderRadius: '6px',
+                                                        border: '1px solid #d9d9d9'
+                                                    }}
                                                     onClick={() => this.setState({
                                                         promoCollapsed: false,
                                                         productsCollapsed: true,
@@ -764,7 +775,7 @@ class Order extends React.Component {
                                                         promosFilled: false
                                                     })}
                                                 >
-                                                    <FormOutlined />
+                                                    <FormOutlined style={{color: '#1890ff'}}/>
                                                     Изменить
                                                 </Button>
                                             </div>
