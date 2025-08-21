@@ -66,6 +66,10 @@ const MainMenu = ({ projects = [] }) => {
                                     data-button-id={`menu-create-order-project-${projects[0].id}`}
                                     icon={<PlusOutlined/>}
                                     size={size}
+                                    style={{
+                                        borderRadius: '8px',
+                                        border: '1px solid #d9d9d9'
+                                    }}
                                 >
                                     Создать заказ
                                 </Button>
@@ -75,19 +79,45 @@ const MainMenu = ({ projects = [] }) => {
                                     onClick={createOrderOnClick}
                                     icon={<PlusOutlined/>}
                                     size={size}
+                                    style={{
+                                        borderRadius: '8px',
+                                        border: '1px solid #d9d9d9'
+                                    }}
                                 >
                                     Создать заказ
                                 </Button>
                             )}
 
                             <_FunctionsButton/>
-                            <Button href="#" data-button-id="menu-info" icon={<InfoCircleOutlined/>} size={size}>
+                            <Button href="#"
+                                    data-button-id="menu-info"
+                                    icon={<InfoCircleOutlined/>}
+                                    size={size}
+                                    style={{
+                                borderRadius: '8px',
+                                border: '1px solid #d9d9d9'
+                            }}>
                                 Табло
                             </Button>
-                            <Button href="#" data-button-id="menu-maps" icon={<CompassOutlined/>} size={size}>
+                            <Button href="#"
+                                    data-button-id="menu-maps"
+                                    icon={<CompassOutlined/>}
+                                    size={size}
+                                    style={{
+                                borderRadius: '8px',
+                                border: '1px solid #d9d9d9'
+                            }}>
                                 Карта
                             </Button>
-                            <Button href="#" data-button-id="menu-stop" icon={<StopOutlined/>} size={size} danger>
+                            <Button href="#"
+                                    data-button-id="menu-stop"
+                                    icon={<StopOutlined/>}
+                                    size={size}
+                                    danger
+                                    style={{
+                                borderRadius: '8px',
+                                border: '1px solid #d9d9d9'
+                            }}>
                                 Стоп
                             </Button>
                         </Space>

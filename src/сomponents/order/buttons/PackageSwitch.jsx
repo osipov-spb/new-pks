@@ -93,7 +93,11 @@ const PackageSwitch = ({ updatePackage, initialPackageType = 'in_store' }) => {
             <Button
                 type="default"
                 icon={getButtonIcon()}
-                style={{ minWidth: '120px' }}
+                style={{
+                    minWidth: '120px',
+                    borderRadius: '6px',
+                    border: '1px solid #d9d9d9'
+                }}
             >
                 {getButtonText()}
             </Button>

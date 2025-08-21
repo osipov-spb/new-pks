@@ -219,6 +219,10 @@ class OrderHeader extends React.Component {
                                 type={isTemporaryOrder ? 'primary' : 'default'}
                                 icon={<ClockCircleOutlined />}
                                 onClick={this.handleOpenDateTimePicker}
+                                style={{
+                                    borderRadius: '6px',
+                                    border: '1px solid #d9d9d9'
+                                }}
                             >
                                 {isTemporaryOrder && selectedDateTime ? (
                                     selectedDateTime.format('DD.MM.YYYY HH:mm')
@@ -248,6 +252,10 @@ class OrderHeader extends React.Component {
                                 icon={<ProfileOutlined/>}
                                 href="#"
                                 data-button-id="order-write-down-act"
+                                style={{
+                                    borderRadius: '6px',
+                                    border: '1px solid #d9d9d9'
+                                }}
                             >
                                 Списание
                             </Button>
@@ -261,6 +269,10 @@ class OrderHeader extends React.Component {
                                 data-button-id={!order_data.paid ? "bso" : undefined}
                                 disabled={order_data.paid|| order_data.bsoNumber}
                                 onClick={this.showBSOModal}
+                                style={{
+                                    borderRadius: '6px',
+                                    border: '1px solid #d9d9d9'
+                                }}
                             >
                                 {order_data.bsoNumber || 'БСО'}
                             </Button>
@@ -271,6 +283,10 @@ class OrderHeader extends React.Component {
                                 icon={<CloseSquareOutlined/>}
                                 onClick={this.showCancelConfirm}
                                 disabled={isCancelDisabled}
+                                style={{
+                                    borderRadius: '6px',
+                                    border: '1px solid #d9d9d9'
+                                }}
                             >
                                 Отмена
                             </Button>
@@ -285,6 +301,10 @@ class OrderHeader extends React.Component {
                                     size="middle"
                                     icon={<RollbackOutlined/>}
                                     onClick={this.showRefundConfirm}
+                                    style={{
+                                        borderRadius: '6px',
+                                        border: '1px solid #d9d9d9'
+                                    }}
                                 >
                                     Возврат
                                 </Button>

@@ -156,7 +156,8 @@ const PaymentForm = () => {
                     minWidth: '120px',
                     height: '35px',
                     fontWeight: 500,
-                    margin: '4px'
+                    margin: '4px',
+                    borderRadius: '6px'
                 }}
             >
                 Оплатить

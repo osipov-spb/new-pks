@@ -67,6 +67,7 @@ class StatusButtons extends React.Component {
                             alignItems: 'center',
                             justifyContent: 'flex-start',
                             visibility: this.props.printHidden ? 'hidden' : 'visible',
+                            borderRadius: '6px'
                         }}
                     >
                         Печать
@@ -86,7 +87,8 @@ class StatusButtons extends React.Component {
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'flex-start',
-                                    fontWeight: 500
+                                    fontWeight: 500,
+                                    borderRadius: '6px'
                                 }}
                             >
                                 Закрыть
@@ -105,7 +107,8 @@ class StatusButtons extends React.Component {
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'flex-start',
-                                    fontWeight: 500
+                                    fontWeight: 500,
+                                    borderRadius: '6px'
                                 }}
                             >
                                 Закрыть
@@ -130,6 +133,7 @@ class StatusButtons extends React.Component {
                                 minWidth: '120px',
                                 height: '35px',
                                 display: 'flex',
+                                borderRadius: '6px',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
                                 visibility: this.props.nextHidden ? 'hidden' : 'visible',

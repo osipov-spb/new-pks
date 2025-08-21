@@ -17,7 +17,7 @@ class TableHeader extends React.Component {
             subtitle: storeName
         })
 
-    window.header_SetStoreName = (storeName) => {
+        window.header_SetStoreName = (storeName) => {
             this.setState(({subtitle: storeName}));
             return true}
     }

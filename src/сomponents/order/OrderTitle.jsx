@@ -132,7 +132,6 @@ class OrderTitle extends React.Component {
                         showIcon
                         style={{
                             margin: '-8px -16px 6px -16px',
-                            borderRadius: 0,
                             borderLeft: 0,
                             borderRight: 0
                         }}
@@ -141,8 +140,10 @@ class OrderTitle extends React.Component {
                 <div style={{
                     padding: '8px 16px',
                     margin: deleted ? '0 -16px 6px -16px' : '-8px -16px 6px -16px',
-                    background: '#f0f9ff',
-                    borderBottom: '1px solid #d9eef7',
+                    // background: '#f0f9ff',
+                    // borderBottom: '1px solid #d9d9d9',
+                    boxShadow: '0 2px 0 rgba(0, 0, 0, 0.045)',
+                    borderRadius: '30px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
@@ -158,7 +159,7 @@ class OrderTitle extends React.Component {
                                 fontWeight: 600,
                                 fontSize: '16px',
                                 lineHeight: '24px',
-                                marginRight: '12px'
+                                marginRight: '12px',
                             }}
                         >
                             <Space size='small'>

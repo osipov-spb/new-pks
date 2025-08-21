@@ -14,7 +14,7 @@ const OrdersList = ({ projects }) => { // Принимаем projects как п�
                     <_Table/>
                 </Space>
             </Content>
-            <Footer style={{ textAlign: 'center' }}></Footer>
+            {/*<Footer style={{ textAlign: 'center' }}></Footer>*/}
         </Layout>
     );
 }

@@ -46,8 +46,19 @@ class Order extends React.Component {
             productsFilled: false,
             promosFilled: false,
             existingOrder: existingOrder,
-            selectedPromoItems: []
+            selectedPromoItems: [],
+            productsContainerHeight: 0,
+            addressBlockHeight: 0,
+            commentBlockHeight: 0,
+            availableHeightForTable: 700
         };
+
+        this.productsContainerRef = React.createRef();
+        this.addressBlockRef = React.createRef();
+        this.commentBlockRef = React.createRef();
+
+        // Сохраняем предыдущие значения для сравнения
+        this.prevAddressBlockHidden = this.isComponentHidden('addressBlock');
     }
 
     isComponentDisabled = (componentName) => {
@@ -88,7 +99,6 @@ class Order extends React.Component {
     updateScheduledStatus = (isScheduled) => {
         const newOrderData = { ...this.state.order_data };
         newOrderData.scheduled = isScheduled;
-        // Если сбрасываем флаг scheduled, то и время тоже нужно сбросить
         if (!isScheduled) {
             newOrderData.scheduledTime = null;
         }
@@ -98,7 +108,7 @@ class Order extends React.Component {
     updateScheduledTime = (time) => {
         const newOrderData = { ...this.state.order_data };
         newOrderData.scheduledTime = time ? time.format() : null;
-        newOrderData.scheduled = !!time; // Явно устанавливаем scheduled в true/false
+        newOrderData.scheduled = !!time;
         this.setState({ order_data: newOrderData });
     };
 
@@ -221,6 +231,41 @@ class Order extends React.Component {
         this.setState({ selectedPromoItems });
     };
 
+    updateHeights = () => {
+        if (this.productsContainerRef.current) {
+            const container = this.productsContainerRef.current;
+            const containerHeight = container.offsetHeight;
+
+            let addressBlockHeight = 0;
+            let commentBlockHeight = 0;
+
+            // Вычисляем высоту блока адреса, если он видим
+            const isAddressBlockHidden = this.isComponentHidden('addressBlock');
+            if (!isAddressBlockHidden && this.addressBlockRef.current) {
+                addressBlockHeight = this.addressBlockRef.current.offsetHeight;
+            }
+
+            // Вычисляем высоту блока комментария и итогов
+            if (this.commentBlockRef.current) {
+                commentBlockHeight = this.commentBlockRef.current.offsetHeight;
+            }
+
+            // Вычисляем доступную высоту для таблицы товаров
+            const availableHeight = containerHeight - addressBlockHeight;
+            console.log('containerHeight: ' + containerHeight );
+            console.log('addressBlockHeight: ' + addressBlockHeight );
+            console.log('commentBlockHeight: ' + commentBlockHeight );
+            console.log('availableHeight: ' + availableHeight );
+
+            this.setState({
+                productsContainerHeight: containerHeight,
+                addressBlockHeight,
+                commentBlockHeight,
+                availableHeightForTable: Math.max(100, containerHeight)
+            });
+        }
+    };
+
     componentDidMount() {
         window.get_order_data = () => {
             return JSON.stringify(this.state.order_data);
@@ -316,6 +361,30 @@ class Order extends React.Component {
         window.cleanupOrderFunctions = () => {
             delete window.getSelectedPromoItems;
         };
+
+        setTimeout(() => {
+            this.updateHeights();
+        }, 0);
+
+        window.addEventListener('resize', this.updateHeights);
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        // Проверяем изменения, которые могут повлиять на высоту
+        const currentAddressBlockHidden = this.isComponentHidden('addressBlock');
+        const needsHeightUpdate =
+            prevState.productsCollapsed !== this.state.productsCollapsed ||
+            prevState.promoCollapsed !== this.state.promoCollapsed ||
+            prevState.order_data.items !== this.state.order_data.items ||
+            prevState.order_data.address !== this.state.order_data.address ||
+            this.prevAddressBlockHidden !== currentAddressBlockHidden;
+
+        if (needsHeightUpdate) {
+            this.prevAddressBlockHidden = currentAddressBlockHidden;
+            setTimeout(() => {
+                this.updateHeights();
+            }, 0);
+        }
     }
 
     componentWillUnmount() {
@@ -323,6 +392,7 @@ class Order extends React.Component {
         if (window.cleanupOrderFunctions) {
             window.cleanupOrderFunctions();
         }
+        window.removeEventListener('resize', this.updateHeights);
     }
 
     render() {
@@ -468,53 +538,76 @@ class Order extends React.Component {
                         margin: '0',
                         padding: '0px',
                         flex: 1,
-                        display: 'flex'
+                        display: 'flex',
+                        minHeight: 0
                     }}>
-                        <Col xs={24} md={11} style={{ display: 'flex', flexDirection: 'column', paddingLeft: '0px', paddingRight: '3px'}}>
+                        <Col xs={24} md={11} style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            paddingLeft: '0px',
+                            paddingRight: '3px',
+                            minHeight: 0
+                        }}>
                             <Card
                                 bordered={false}
                                 style={{
-                                    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                                    // boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                                     flex: 1,
                                     display: 'flex',
                                     flexDirection: 'column',
+                                    minHeight: 0
                                 }}
                                 bodyStyle={{
                                     padding: 0,
                                     flex: 1,
                                     display: 'flex',
-                                    flexDirection: 'column'
+                                    flexDirection: 'column',
+                                    minHeight: 0
                                 }}
                             >
-                                <div style={{
-                                    padding: '0px',
-                                    flex: 1,
-                                    overflow: "hidden"
-                                }}>
+
+                                <div
+                                    ref={this.productsContainerRef}
+                                    style={{
+                                        padding: '0px',
+                                        flex: 1,
+                                        overflow: "hidden",
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        minHeight: 0
+                                    }}
+                                >
                                     <ProductTable
                                         dataSource={this.state.order_data.items}
                                         disabled={this.isComponentDisabled('productTable') || this.state.productsFilled}
                                         hidden={this.isComponentHidden('productTable')}
+                                        availableHeight={this.state.availableHeightForTable}
                                     />
                                 </div>
 
-                                <OrderAddressBlock
-                                    address={this.state.order_data.address}
-                                    courier={this.state.order_data.courier}
-                                    onCourierChange={this.updateCourier}
-                                    disabled={this.isComponentDisabled('addressBlock')}
-                                    hidden={this.isComponentHidden('addressBlock')}
-                                    addressDisabled={this.isComponentDisabled('addressFields')}
-                                    addressHidden={this.isComponentHidden('addressFields')}
-                                    courierDisabled={this.isComponentDisabled('courierFields')}
-                                    courierHidden={this.isComponentHidden('courierFields')}
-                                />
+                                <div ref={this.addressBlockRef}>
+                                    <OrderAddressBlock
+                                        address={this.state.order_data.address}
+                                        courier={this.state.order_data.courier}
+                                        onCourierChange={this.updateCourier}
+                                        disabled={this.isComponentDisabled('addressBlock')}
+                                        hidden={this.isComponentHidden('addressBlock')}
+                                        addressDisabled={this.isComponentDisabled('addressFields')}
+                                        addressHidden={this.isComponentHidden('addressFields')}
+                                        courierDisabled={this.isComponentDisabled('courierFields')}
+                                        courierHidden={this.isComponentHidden('courierFields')}
+                                    />
+                                </div>
 
-                                <div style={{
-                                    padding: '6px',
-                                    paddingBottom: 0,
-                                    borderTop: '1px solid #f0f0f0'
-                                }}>
+                                <div
+                                    ref={this.commentBlockRef}
+                                    style={{
+                                        padding: '6px',
+                                        paddingBottom: 0,
+                                        borderTop: '1px solid #f0f0f0',
+                                        flexShrink: 0
+                                    }}
+                                >
                                     <TextArea
                                         rows={2}
                                         placeholder="Введите примечание к заказу"
@@ -565,7 +658,13 @@ class Order extends React.Component {
                             </Card>
                         </Col>
 
-                        <Col xs={24} md={13} style={{display: 'flex', flexDirection: 'column', paddingLeft: '3px', paddingRight: '0px'}}>
+                        <Col xs={24} md={13} style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            paddingLeft: '3px',
+                            paddingRight: '0px',
+                            minHeight: 0
+                        }}>
                             <Card
                                 bordered={false}
                                 style={{
@@ -573,21 +672,24 @@ class Order extends React.Component {
                                     flex: 1,
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    overflow: 'hidden'
+                                    overflow: 'hidden',
+                                    minHeight: 0
                                 }}
                                 bodyStyle={{
                                     padding: 0,
                                     flex: 1,
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    overflow: 'hidden'
+                                    overflow: 'hidden',
+                                    minHeight: 0
                                 }}
                             >
                                 <div style={{
                                     flex: 1,
                                     overflow: 'hidden',
                                     display: 'flex',
-                                    flexDirection: 'column'
+                                    flexDirection: 'column',
+                                    minHeight: 0
                                 }}>
                                     {this.state.productsCollapsed && this.state.promoCollapsed && (
                                         <>
@@ -698,7 +800,8 @@ class Order extends React.Component {
                                             flex: 1,
                                             display: 'flex',
                                             flexDirection: 'column',
-                                            overflow: 'hidden'
+                                            overflow: 'hidden',
+                                            minHeight: 0
                                         }}>
                                             {menuComponent}
                                         </div>

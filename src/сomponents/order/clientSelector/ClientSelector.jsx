@@ -238,6 +238,10 @@ const NumberInputPadModal = ({ clientData, onClientChange }) => {
                     setShowTabs(true);
                 }}
                 icon={<UserOutlined />}
+                style={{
+                    borderRadius: '6px',
+                    border: '1px solid #d9d9d9'
+                }}
             >
                 {clientData?.phone || 'Гость'}
             </Button>

@@ -79,7 +79,11 @@ const PromoCodeModal = ({ size = 'middle' }) => {
                 href="#"
                 data-button-id="promocodes-open"
                 // onClick={() => message.info('Используйте window.openPromoCodeModal() для открытия')}
-                style={{ marginRight: 0 }}
+                style={{
+                    marginRight: 0,
+                    borderRadius: '6px',
+                    border: '1px solid #d9d9d9'
+                }}
             >
                 Промо
             </Button>

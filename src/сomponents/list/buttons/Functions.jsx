@@ -439,8 +439,8 @@ const SidebarMenu = () => {
                                             data-button-id={subItem.id}
                                             style={{ color: 'rgba(0, 0, 0, 0.85)' }}
                                         >
-                      {subItem.label}
-                    </a>
+                                            {subItem.label}
+                                        </a>
                                     </Space>
                                 </List.Item>
                             )}
@@ -465,8 +465,8 @@ const SidebarMenu = () => {
                             data-button-id={item.id}
                             style={{ color: 'rgba(0, 0, 0, 0.85)' }}
                         >
-              {item.label}
-            </a>
+                            {item.label}
+                        </a>
                     </Space>
                 </List.Item>
             );
@@ -479,6 +479,10 @@ const SidebarMenu = () => {
                 size='large'
                 icon={<MenuOutlined />}
                 onClick={showDrawer}
+                style={{
+                    borderRadius: '8px',
+                    border: '1px solid #d9d9d9'
+                }}
             >
                 Меню
             </Button>

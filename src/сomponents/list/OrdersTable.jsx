@@ -70,7 +70,6 @@ class OrdersTable extends React.Component {
         });
     };
 
-
     setFilterDropdownVisible = (visible) => {
         this.setState({ filterDropdownVisible: visible });
     }
@@ -142,7 +141,7 @@ class OrdersTable extends React.Component {
         const { filterDropdownVisible, selectedFilterKeys, statusFilter } = this.state;
 
         return filterDropdownVisible ? JSON.stringify(selectedFilterKeys) : JSON.stringify(statusFilter)
-        ;
+            ;
     }
 
     loadAllOrders = (ordersJson) => {
@@ -220,7 +219,6 @@ class OrdersTable extends React.Component {
             '1.1 Ожидание оплаты': { color: '#e6fffb', textColor: '#000000', text: 'Ожидание оплаты', statusIcon: <HourglassOutlined style={{ color: '#08979c' }}/>},
             'Возврат на ТТ': { color: '#F3E1D0', textColor: '#000000', text: 'Возврат на точку', statusIcon: <CarOutlined style={{ color: '#d48806' }}/>},
             '1.2 Ожидание оплаты на точке клиентом': { color: '#e6fffb', textColor: '#000000', text: 'Ожидание оплаты на точке', statusIcon: <HourglassOutlined style={{ color: '#08979c' }}/>},
-
         };
         return statusMap[orderStatus] || { color: 'geekblue', textColor: 'black', text: `●${orderStatus}` };
     }
@@ -239,13 +237,14 @@ class OrdersTable extends React.Component {
                     opacity: 0.7,
                     color: '#FF4D4F',
                     width: '100%',
-                    textAlign: 'center'
+                    textAlign: 'center',
+                    fontSize: '13px'
                 }}>
                     {content}
                 </div>
             );
         }
-        return <div style={{ width: '100%', textAlign: 'center' }}>{content}</div>;
+        return <div style={{ width: '100%', textAlign: 'center', fontSize: '13px' }}>{content}</div>;
     }
 
     renderNumberCell = (_, { orderNumber, id, deleted, paid }) => {
@@ -255,31 +254,32 @@ class OrdersTable extends React.Component {
                 href='#'
                 data-button-id={`open-order-${id}`}
                 style={{
-                    background: deleted ? '#FFF2F0' : paid ? '#E6F7FF' : 'transparent',
-                    borderColor: deleted ? '#FFCCC7' : paid ? '#87e8de' : '#d9d9d9',
+                    background: deleted ? '#fff2f0' : paid ? '#f6ffed' : 'transparent',
+                    borderColor: deleted ? '#ffccc7' : paid ? '#b7eb8f' : '#d9d9d9',
                     height: '100%',
-                    padding: '4px 8px',
+                    padding: '6px 8px',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    borderRadius: '6px',
+                    fontWeight: paid ? 600 : 'normal',
+                    borderWidth: '1.5px',
+                    transition: 'all 0.2s ease'
                 }}
             >
                 <Space size={4}>
-                    {deleted && <DeleteOutlined style={{ color: '#FF4D4F', fontSize: 14 }} />}
-                    {paid && !deleted && <CheckCircleOutlined style={{ color: '#08979C', fontSize: 14 }} />}
-                    {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-                    <a
-                        href='#'
-                        data-button-id={`open-order-${id}`}
+                    {deleted && <DeleteOutlined style={{ color: '#ff4d4f', fontSize: 12 }} />}
+                    {paid && !deleted && <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 12 }} />}
+                    <span
                         style={{
                             textDecoration: deleted ? 'line-through' : 'none',
-                            color: deleted ? '#FF4D4F' : paid ? '#08979C' : 'inherit',
+                            color: deleted ? '#ff4d4f' : paid ? '#389e0d' : '#262626',
                             opacity: deleted ? 0.7 : 1,
-                            fontWeight: paid ? 500 : 'normal'
+                            fontSize: '13px'
                         }}
                     >
                         {orderNumber.replace(/\s+/g, '').slice(-4)}
-                    </a>
+                    </span>
                 </Space>
             </Button>
         );
@@ -288,34 +288,35 @@ class OrdersTable extends React.Component {
     renderStatusTag = (orderStatus, record) => {
         const { color, textColor, text, statusIcon } = this.getStatusTagConfig(orderStatus);
         return (
-            <Tag
-                color={color}
+            <div
                 style={{
+                    background: color,
                     width: '100%',
                     minHeight: '32px',
                     margin: 0,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    whiteSpace: 'normal',
-                    lineHeight: '1.4',
-                    padding: '4px 8px',
+                    borderRadius: '6px',
+                    padding: '6px 8px',
                     textDecoration: record.deleted ? 'line-through' : 'none',
-                    opacity: record.deleted ? 0.7 : 1
+                    opacity: record.deleted ? 0.7 : 1,
+                    border: `1px solid ${color}20`,
+                    fontSize: '12px'
                 }}
             >
-
                 <div style={{
                     color: record.deleted ? '#FF4D4F' : textColor,
                     width: '100%',
-                    textAlign: 'center'
+                    textAlign: 'center',
+                    fontWeight: 500
                 }}>
                     <Space size='small'>
-                    {statusIcon}
-                    {this.cleanStatusText(text)}
+                        {statusIcon}
+                        {this.cleanStatusText(text)}
                     </Space>
                 </div>
-            </Tag>
+            </div>
         );
     }
 
@@ -326,10 +327,16 @@ class OrdersTable extends React.Component {
             {
                 title: () => {
                     return  (
-                        <div style={{ display: 'flex', justifyContent: 'center', fontSize: '14px'}}>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            color: '#262626'
+                        }}>
                             <Space size='small'>
-                                <CalendarOutlined/>
-                                <Text strong> Дата </Text>
+                                <CalendarOutlined style={{ color: '#1890ff' }}/>
+                                <span>Дата</span>
                             </Space>
                         </div>
                     )
@@ -343,10 +350,16 @@ class OrdersTable extends React.Component {
             {
                 title: () => {
                     return  (
-                        <div style={{ display: 'flex', justifyContent: 'center', fontSize: '14px'}}>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            color: '#262626'
+                        }}>
                             <Space size='small'>
-                                <NumberOutlined/>
-                                <Text strong> Номер </Text>
+                                <NumberOutlined style={{ color: '#1890ff' }}/>
+                                <span>Номер</span>
                             </Space>
                         </div>
                     )
@@ -359,11 +372,18 @@ class OrdersTable extends React.Component {
             },
             {
                 title: () => (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px'}}>
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: '#262626'
+                    }}>
                         <div>
                             <Space size='small'>
-                                <ForwardOutlined />
-                                <Text strong> Статус </Text>
+                                <ForwardOutlined style={{ color: '#1890ff' }}/>
+                                <span>Статус</span>
                             </Space>
                         </div>
                         <Button
@@ -372,11 +392,16 @@ class OrdersTable extends React.Component {
                             size='small'
                             icon={<FieldTimeOutlined />}
                             type={scheduledFilter ? 'primary' : 'default'}
+                            style={{
+                                borderRadius: '6px',
+                                fontSize: '12px',
+                                height: '24px',
+                                padding: '0 8px'
+                            }}
                         >
                             Временные
                         </Button>
                     </div>
-
                 ),
                 dataIndex: 'orderStatus',
                 key: 'orderStatus',
@@ -393,19 +418,17 @@ class OrdersTable extends React.Component {
                 onFilterDropdownVisibleChange: (visible) => {
                     this.setFilterDropdownVisible(visible);
                     if (!visible) {
-                        // При закрытии dropdown сбрасываем выбранные фильтры к активным
                         this.setState({ selectedFilterKeys: this.state.statusFilter });
                     }
                 },
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => {
-                    // Используем selectedKeys из параметров вместо this.state.selectedFilterKeys
                     const currentSelectedKeys = selectedKeys || this.state.selectedFilterKeys;
 
                     return (
-                        <div style={{ padding: 8 }}>
+                        <div style={{ padding: 8, borderRadius: '8px' }}>
                             <Menu
                                 multiple
-                                style={{ border: 0 }}
+                                style={{ border: 0, borderRadius: '6px' }}
                                 selectedKeys={currentSelectedKeys}
                                 onSelect={({ selectedKeys: newSelectedKeys }) => {
                                     setSelectedKeys(newSelectedKeys);
@@ -416,13 +439,13 @@ class OrdersTable extends React.Component {
                                     this.setState({ selectedFilterKeys: newSelectedKeys });
                                 }}
                             >
-                                <Menu.Item key="in_progress">Текущие</Menu.Item>
-                                <Menu.Item key="temporary">Временные</Menu.Item>
-                                <Menu.Item key="completed">Выполненные</Menu.Item>
-                                <Menu.Item key="deleted">Удаленные</Menu.Item>
+                                <Menu.Item key="in_progress" style={{ borderRadius: '4px', margin: '2px 0' }}>Текущие</Menu.Item>
+                                <Menu.Item key="temporary" style={{ borderRadius: '4px', margin: '2px 0' }}>Временные</Menu.Item>
+                                <Menu.Item key="completed" style={{ borderRadius: '4px', margin: '2px 0' }}>Выполненные</Menu.Item>
+                                <Menu.Item key="deleted" style={{ borderRadius: '4px', margin: '2px 0' }}>Удаленные</Menu.Item>
                             </Menu>
 
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, gap: '6px' }}>
                                 <button
                                     type="button"
                                     data-1c-button-id="filter-reset"
@@ -435,7 +458,6 @@ class OrdersTable extends React.Component {
                                             filterDropdownVisible: false
                                         });
 
-                                        // Имитация клика для 1С
                                         const temp = document.createElement('a');
                                         temp.href = '#';
                                         temp.setAttribute('data-button-id', 'filter-reset');
@@ -445,14 +467,18 @@ class OrdersTable extends React.Component {
                                         document.body.removeChild(temp);
                                     }}
                                     style={{
-                                        padding: '4px 5px',
-                                        fontSize: '13px',
-                                        borderRadius: '2px',
-                                        height: '30px',
+                                        padding: '4px 8px',
+                                        fontSize: '12px',
+                                        borderRadius: '6px',
+                                        height: '28px',
                                         background: 'transparent',
                                         border: '1px solid #d9d9d9',
-                                        cursor: 'pointer'
+                                        cursor: 'pointer',
+                                        flex: 1,
+                                        transition: 'all 0.2s ease'
                                     }}
+                                    onMouseOver={(e) => e.target.style.background = '#f5f5f5'}
+                                    onMouseOut={(e) => e.target.style.background = 'transparent'}
                                 >
                                     Сбросить
                                 </button>
@@ -467,7 +493,6 @@ class OrdersTable extends React.Component {
                                             filterDropdownVisible: false
                                         });
 
-                                        // Имитация клика для 1С
                                         const temp = document.createElement('a');
                                         temp.href = '#';
                                         temp.setAttribute('data-button-id', 'filter-completed');
@@ -477,18 +502,21 @@ class OrdersTable extends React.Component {
                                         document.body.removeChild(temp);
                                     }}
                                     style={{
-                                        padding: '4px 15px',
-                                        fontSize: '13px',
-                                        borderRadius: '2px',
-                                        marginLeft: '6px',
-                                        height: '30px',
+                                        padding: '4px 12px',
+                                        fontSize: '12px',
+                                        borderRadius: '6px',
+                                        height: '28px',
                                         background: '#1890ff',
                                         color: 'white',
                                         border: '1px solid #1890ff',
-                                        cursor: 'pointer'
+                                        cursor: 'pointer',
+                                        flex: 1,
+                                        transition: 'all 0.2s ease'
                                     }}
+                                    onMouseOver={(e) => e.target.style.background = '#40a9ff'}
+                                    onMouseOut={(e) => e.target.style.background = '#1890ff'}
                                 >
-                                    OK
+                                    Применить
                                 </button>
                             </div>
                         </div>
@@ -499,10 +527,16 @@ class OrdersTable extends React.Component {
             {
                 title: () => {
                     return  (
-                        <div style={{ display: 'flex', justifyContent: 'center', fontSize: '14px'}}>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            color: '#262626'
+                        }}>
                             <Space size='small'>
-                                <ShoppingCartOutlined/>
-                                <Text strong> Упаковка </Text>
+                                <ShoppingCartOutlined style={{ color: '#1890ff' }}/>
+                                <span>Упаковка</span>
                             </Space>
                         </div>
                     )
@@ -516,10 +550,16 @@ class OrdersTable extends React.Component {
             {
                 title: () => {
                     return  (
-                        <div style={{ display: 'flex', justifyContent: 'center', fontSize: '14px'}}>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            color: '#262626'
+                        }}>
                             <Space size='small'>
-                                <UserOutlined/>
-                                <Text strong> Клиент </Text>
+                                <UserOutlined style={{ color: '#1890ff' }}/>
+                                <span>Клиент</span>
                             </Space>
                         </div>
                     )
@@ -527,16 +567,21 @@ class OrdersTable extends React.Component {
                 dataIndex: 'clientPhone',
                 key: 'clientPhone',
                 width: 130,
-                // sorter: (a, b) => a.clientPhone.localeCompare(b.clientPhone),
                 render: (text, record) => this.renderCellContent(text, record)
             },
             {
                 title: () => {
                     return  (
-                        <div style={{ display: 'flex', justifyContent: 'center', fontSize: '14px'}}>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            color: '#262626'
+                        }}>
                             <Space size='small'>
-                                <CheckOutlined/>
-                                <Text strong> Сумма </Text>
+                                <CheckOutlined style={{ color: '#1890ff' }}/>
+                                <span>Сумма</span>
                             </Space>
                         </div>
                     )
@@ -568,44 +613,71 @@ class OrdersTable extends React.Component {
                 render: (_, { orderAddress, orderOnlineID, orderPackage, deleted, orderPaymentType }) => (
                     <Space size='small'>
                         {orderPaymentType==='Наличные' && (
-                            <Popover content=
-                                         {
-                                             <div style={{width: 130}}>
-                                                 Наличные
-                                             </div>
-                                         } title="Способ оплаты" trigger="click">
-                                <WalletOutlined style={{ color: deleted ? '#FF7875' : '#1890ff', fontSize: '20px' }} />
+                            <Popover content={
+                                <div style={{width: 130, padding: '8px', fontSize: '12px'}}>
+                                    Наличные
+                                </div>
+                            } title="Способ оплаты" trigger="click">
+                                <WalletOutlined style={{
+                                    color: deleted ? '#FF7875' : '#1890ff',
+                                    fontSize: '18px',
+                                    cursor: 'pointer',
+                                    padding: '4px',
+                                    borderRadius: '4px',
+                                    background: deleted ? '#fff2f0' : '#f0f8ff',
+                                    transition: 'all 0.2s ease'
+                                }} />
                             </Popover>
                         )}
                         {orderPaymentType==='Безнал' && (
-                            <Popover content=
-                                         {
-                                             <div style={{width: 130}}>
-                                                 Безнал
-                                             </div>
-                                         } title="Способ оплаты" trigger="click">
-                                <CreditCardOutlined style={{ color: deleted ? '#FF7875' : '#1890ff', fontSize: '20px' }} />
+                            <Popover content={
+                                <div style={{width: 130, padding: '8px', fontSize: '12px'}}>
+                                    Безналичные
+                                </div>
+                            } title="Способ оплаты" trigger="click">
+                                <CreditCardOutlined style={{
+                                    color: deleted ? '#FF7875' : '#1890ff',
+                                    fontSize: '18px',
+                                    cursor: 'pointer',
+                                    padding: '4px',
+                                    borderRadius: '4px',
+                                    background: deleted ? '#fff2f0' : '#f0f8ff',
+                                    transition: 'all 0.2s ease'
+                                }} />
                             </Popover>
                         )}
-                        {/*{clientPhone && (*/}
-                        {/*    <Popover content=*/}
-                        {/*                 {*/}
-                        {/*                     <div style={{width: 180}}>*/}
-                        {/*                         Имя: {clientName}<br/>*/}
-                        {/*                         Телефон: {clientPhone}*/}
-                        {/*                     </div>*/}
-                        {/*                 } title="Клиент" trigger="click">*/}
-                        {/*        <UserOutlined style={{ color: deleted ? '#FF7875' : '#1890ff', fontSize: '20px' }} />*/}
-                        {/*    </Popover>*/}
-                        {/*)}*/}
                         {orderPackage === 'Доставка' && (
-                            <Popover content={<div style={{ width: 130 }}>{orderAddress}</div>} title="Адрес" trigger="click">
-                                <HomeOutlined style={{ color: deleted ? '#FF7875' : '#1890ff', fontSize: '20px' }} />
+                            <Popover content={
+                                <div style={{ width: 130, padding: '8px', fontSize: '12px' }}>
+                                    {orderAddress}
+                                </div>
+                            } title="Адрес доставки" trigger="click">
+                                <HomeOutlined style={{
+                                    color: deleted ? '#FF7875' : '#1890ff',
+                                    fontSize: '18px',
+                                    cursor: 'pointer',
+                                    padding: '4px',
+                                    borderRadius: '4px',
+                                    background: deleted ? '#fff2f0' : '#f0f8ff',
+                                    transition: 'all 0.2s ease'
+                                }} />
                             </Popover>
                         )}
                         {orderOnlineID && (
-                            <Popover content={<div style={{ width: 130 }}>{orderOnlineID}</div>} title="№ онлайн заказа" trigger="click">
-                                <GlobalOutlined style={{ color: deleted ? '#FF7875' : '#1890ff', fontSize: '20px' }} />
+                            <Popover content={
+                                <div style={{ width: 130, padding: '8px', fontSize: '12px' }}>
+                                    {orderOnlineID}
+                                </div>
+                            } title="№ онлайн заказа" trigger="click">
+                                <GlobalOutlined style={{
+                                    color: deleted ? '#FF7875' : '#1890ff',
+                                    fontSize: '18px',
+                                    cursor: 'pointer',
+                                    padding: '4px',
+                                    borderRadius: '4px',
+                                    background: deleted ? '#fff2f0' : '#f0f8ff',
+                                    transition: 'all 0.2s ease'
+                                }} />
                             </Popover>
                         )}
                     </Space>
@@ -626,31 +698,37 @@ class OrdersTable extends React.Component {
 
         return (
             <div style={{
-                height: `${tableHeight+10}px`,
+                height: `${tableHeight}px`,
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
-                maxWidth: '98vw'
+                background: 'white',
+                borderRadius: '12px',
+                border: '1px solid #f0f0f0',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
             }}>
                 <Table
-                    size="middle"
+                    size="small"
                     locale={{
                         emptyText: (
                             <div style={{
                                 display: 'flex',
                                 justifyContent: 'center',
-                                alignItems: 'center'
+                                alignItems: 'center',
+                                height: '200px',
+                                flexDirection: 'column',
+                                gap: '12px'
                             }}>
-                                <Space>
-                                    <Loading3QuartersOutlined spin style={{ fontSize: 18, color: '#1890ff' }} />
-                                    <Text>{isLoading ? 'Загрузка заказов...' : 'Список заказов пока пуст'}</Text>
-                                </Space>
+                                <Loading3QuartersOutlined spin style={{ fontSize: 24, color: '#1890ff' }} />
+                                <Text style={{ color: '#8c8c8c', fontSize: '14px' }}>
+                                    {isLoading ? 'Загрузка заказов...' : 'Список заказов пока пуст'}
+                                </Text>
                             </div>
                         )
                     }}
                     columns={this.getColumns()}
                     dataSource={filteredData}
-                    bordered
+                    bordered={false}
                     pagination={false}
                     showSorterTooltip={false}
                     scroll={{
@@ -672,18 +750,25 @@ class OrdersTable extends React.Component {
                         body: {
                             cell: (props) => <td {...props} style={{
                                 ...props.style,
-                                padding: '4px 8px',
+                                padding: 'px 12px',
                                 verticalAlign: 'middle',
                                 whiteSpace: 'nowrap',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
+                                borderBottom: '1px solid #f0f0f0',
+                                fontSize: '13px',
                                 ...(props.record?.deleted ? {
-                                    background: '#FFF2F0',
-                                    borderBottom: '1px solid #FFCCC7',
-                                    borderRight: '1px solid #FFCCC7'
+                                    background: '#fffaf0',
+                                    borderColor: '#ffe58f'
                                 } : {})
                             }} />,
-                            row: (props) => <tr {...props} className={props.record?.deleted ? 'deleted-order-row' : ''} />,
+                            row: (props) => <tr {...props}
+                                                style={{
+                                                    ...props.style,
+                                                    transition: 'background-color 0.2s ease'
+                                                }}
+                                                className={props.record?.deleted ? 'deleted-order-row' : ''}
+                            />,
                         },
                     }}
                     rowClassName={(record) => record.deleted ? 'deleted-order-row' : ''}

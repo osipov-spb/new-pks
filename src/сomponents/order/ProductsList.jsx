@@ -16,8 +16,11 @@ class ProductTable extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            showHiddenItems: false
+            showHiddenItems: false,
+            tableHeight: 300
         };
+        this.tableRef = React.createRef();
+        this.containerRef = React.createRef();
     }
 
     handleCountChange = (lineNumber, value) => {
@@ -40,15 +43,43 @@ class ProductTable extends React.Component {
         }));
     };
 
+    updateTableHeight = () => {
+        if (this.containerRef.current) {
+            const containerHeight = this.containerRef.current.offsetHeight;
+            // Вычитаем высоту заголовка таблицы
+            const headerHeight = 78; // Высота заголовка "СОСТАВ ЗАКАЗА"
+            const newHeight = Math.max(100, containerHeight - headerHeight - 2);
+            this.setState({ tableHeight: newHeight });
+        }
+    };
+
     componentDidMount() {
         if (window.orderLoadItems && this.props.dataSource) {
             window.orderLoadItems(this.props.dataSource);
         }
+
+        setTimeout(() => {
+            this.updateTableHeight();
+        }, 0);
+
+        window.addEventListener('resize', this.updateTableHeight);
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.hidden !== this.props.hidden ||
+            prevProps.dataSource !== this.props.dataSource ||
+            prevProps.availableHeight !== this.props.availableHeight) {
+            this.updateTableHeight();
+        }
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.updateTableHeight);
     }
 
     render() {
-        const { dataSource = [] } = this.props;
-        const { showHiddenItems } = this.state;
+        const { dataSource = [], availableHeight } = this.props;
+        const { showHiddenItems, tableHeight } = this.state;
 
         const filteredDataSource = showHiddenItems
             ? dataSource
@@ -72,7 +103,6 @@ class ProductTable extends React.Component {
                 render: (_, { lineNumber, hide }) => (
                     <div style={{
                         fontSize: '13px',
-                        // fontWeight: 'bold',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -107,7 +137,7 @@ class ProductTable extends React.Component {
                         wordBreak: 'break-word'
                     }}>
                         <Text>
-                        {product_title}
+                            {product_title}
                         </Text>
                     </div>
                 )
@@ -124,7 +154,7 @@ class ProductTable extends React.Component {
                 },
                 dataIndex: 'count',
                 key: 'count',
-                width: 70, // Немного увеличил ширину для лучшего отображения
+                width: 70,
                 render: (_, record) => (
                     <div style={{
                         display: 'flex',
@@ -243,13 +273,17 @@ class ProductTable extends React.Component {
         ];
 
         return (
-            <div style={{
-                visibility: this.props.hidden ? 'hidden' : 'visible',
-                display: 'flex',
-                flexDirection: 'column',
-                height: '100%',
-                overflow: 'hidden'
-            }}>
+            <div
+                ref={this.containerRef}
+                style={{
+                    visibility: this.props.hidden ? 'hidden' : 'visible',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: availableHeight || '100%',
+                    overflow: 'hidden',
+                    position: 'relative'
+                }}
+            >
                 <Row
                     align="middle"
                     justify="space-between"
@@ -283,6 +317,7 @@ class ProductTable extends React.Component {
                     flexDirection: 'column'
                 }}>
                     <Table
+                        ref={this.tableRef}
                         size="small"
                         locale={{
                             emptyText: (
@@ -295,16 +330,16 @@ class ProductTable extends React.Component {
                         bordered
                         rowKey="lineNumber"
                         scroll={{
-                            y: 'calc(100vh - 420px)'
+                            y: tableHeight,
+                            x: '100%'
                         }}
                         style={{
                             flex: 1,
                             overflow: 'hidden',
-                            '&::WebkitScrollbar': {
-                                display: 'none'
-                            },
-                            'msOverflowStyle': 'none',
-                            'scrollbarWidth': 'none'
+                        }}
+                        bodyStyle={{
+                            padding: 0,
+                            margin: 0
                         }}
                         rowClassName={(record) => record.hide ? 'hidden-row' : ''}
                     />
