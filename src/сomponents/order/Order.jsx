@@ -543,6 +543,8 @@ class Order extends React.Component {
                     }}>
                         <Col xs={24} md={11} style={{
                             display: 'flex',
+                            marginTop: 0,
+                            paddingTop: 0,
                             flexDirection: 'column',
                             paddingLeft: '0px',
                             paddingRight: '3px',
