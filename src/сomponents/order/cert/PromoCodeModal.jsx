@@ -75,7 +75,7 @@ const PromoCodeModal = ({ size = 'middle' }) => {
         <>
             <Button
                 size={size}
-                icon={<GiftOutlined />}
+                icon={<GiftOutlined style={{color: '#1890ff'}}/>}
                 href="#"
                 data-button-id="promocodes-open"
                 // onClick={() => message.info('Используйте window.openPromoCodeModal() для открытия')}

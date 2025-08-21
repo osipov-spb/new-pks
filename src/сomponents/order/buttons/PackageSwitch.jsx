@@ -43,21 +43,21 @@ const PackageSwitch = ({ updatePackage, initialPackageType = 'in_store' }) => {
         <Menu onClick={handleMenuClick}>
             <Menu.Item
                 key="in_store"
-                icon={<ShopOutlined />}
+                icon={<ShopOutlined style={{color: '#1890ff'}}/>}
             >
                 {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                 <a href='#' data-button-id='package-switch-in_store'>Зал</a>
             </Menu.Item>
             <Menu.Item
                 key="take_away"
-                icon={<CarryOutOutlined/>}
+                icon={<CarryOutOutlined style={{color: '#1890ff'}}/>}
             >
                 {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                 <a href='#' data-button-id='package-switch-take_away'>На вынос</a>
             </Menu.Item>
             <Menu.Item
                 key="delivery"
-                icon={<RocketOutlined/>}
+                icon={<RocketOutlined style={{color: '#1890ff'}}/>}
             >
                 {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                 <a href='#' data-button-id='package-switch-delivery'>Доставка</a>
@@ -76,10 +76,10 @@ const PackageSwitch = ({ updatePackage, initialPackageType = 'in_store' }) => {
 
     const getButtonIcon = () => {
         switch(packageType) {
-            case 'in_store': return <ShopOutlined />;
-            case 'take_away': return <CarryOutOutlined />;
-            case 'delivery': return <RocketOutlined />;
-            default: return <ShopOutlined />;
+            case 'in_store': return <ShopOutlined style={{color: '#1890ff'}}/>;
+            case 'take_away': return <CarryOutOutlined style={{color: '#1890ff'}}/>;
+            case 'delivery': return <RocketOutlined style={{color: '#1890ff'}}/>;
+            default: return <ShopOutlined style={{color: '#1890ff'}}/>;
         }
     };
 

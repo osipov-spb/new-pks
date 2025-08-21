@@ -155,11 +155,16 @@ class OrderTitle extends React.Component {
                             style={{
                                 margin: 0,
                                 marginLeft: '10px',
-                                color: '#1890ff',
+                                // color: '#1890ff',
                                 fontWeight: 600,
                                 fontSize: '16px',
                                 lineHeight: '24px',
                                 marginRight: '12px',
+                                color: '#177ddc',
+                                background: 'linear-gradient(135deg, #177ddc 0%, #722ed1 100%)',
+                                // '-webkit-background-clip': 'text',
+                                // '-webkit-text-fill-color': 'transparent',
+                                backgroundClip: 'text'
                             }}
                         >
                             <Space size='small'>

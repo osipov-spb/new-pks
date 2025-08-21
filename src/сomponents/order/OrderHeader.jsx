@@ -217,7 +217,7 @@ class OrderHeader extends React.Component {
                             <Button
                                 size="middle"
                                 type={isTemporaryOrder ? 'primary' : 'default'}
-                                icon={<ClockCircleOutlined />}
+                                icon={<ClockCircleOutlined style={{color: '#1890ff'}}/>}
                                 onClick={this.handleOpenDateTimePicker}
                                 style={{
                                     borderRadius: '6px',
