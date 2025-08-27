@@ -1,5 +1,5 @@
 import React from 'react';
-import {Alert, Space, Tag, Typography} from 'antd';
+import {Alert, Space, Tag, Typography, Dropdown, Menu, Button} from 'antd';
 import {
     CalendarOutlined,
     CarOutlined,
@@ -10,7 +10,8 @@ import {
     DeleteOutlined,
     HourglassOutlined,
     ShopOutlined,
-    ShoppingOutlined
+    ShoppingOutlined,
+    SwapOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -19,9 +20,60 @@ class OrderTitle extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            orderNumber: this.props.order_number || ''
+            orderNumber: this.props.order_number || '',
+            windows: [] // список открытых окон
         };
     }
+
+    componentDidMount() {
+        // Функция для обновления списка окон через JSON строку
+        window.updateWindowsListOrderTitle = (windowsJson) => {
+            try {
+                const windows = JSON.parse(windowsJson);
+                this.setState({ windows });
+            } catch (error) {
+                console.error('Ошибка парсинга JSON:', error);
+                this.setState({ windows: [] });
+            }
+        };
+    }
+
+    // Функция для загрузки списка окон (будет вызываться при клике)
+    loadWindowsList = () => {
+        // Вызываем внешнюю функцию для получения списка окон в формате JSON
+        if (window.getOpenWindows) {
+            const windowsJson = window.getOpenWindows();
+            try {
+                const windows = JSON.parse(windowsJson);
+                this.setState({ windows });
+            } catch (error) {
+                console.error('Ошибка парсинга JSON из getOpenWindows:', error);
+                this.setState({ windows: [] });
+            }
+        } else {
+            console.warn('Функция getOpenWindows не определена в window');
+        }
+    };
+
+    // Создание меню для выпадающего списка окон
+    getWindowsMenu = () => {
+        const { windows } = this.state;
+
+        const menuItems = windows.map(window => ({
+            key: window.id || window.name,
+            label: (
+                <a
+                    href="#"
+                    data-button-id={`switch-to-window-${window.name || window.id}`}
+                    onClick={(e) => e.preventDefault()} // Предотвращаем переход по ссылке
+                >
+                    {window.title || window.name || `Окно ${window.id}`}
+                </a>
+            )
+        }));
+
+        return <Menu items={menuItems} />;
+    };
 
     getStatusIcon = (status) => {
         const statusIcons = {
@@ -122,6 +174,7 @@ class OrderTitle extends React.Component {
 
     render() {
         const { status, date } = this.props;
+        const { windows } = this.state;
         const projectTitle = this.props.project?.title;
 
         return (
@@ -223,6 +276,32 @@ class OrderTitle extends React.Component {
                                     </Space>
                                 </div>
                             )}
+
+                            {/* Кнопка переключения окон - максимально справа */}
+                            <Dropdown
+                                overlay={this.getWindowsMenu()}
+                                trigger={['click']}
+                                onOpenChange={(open) => {
+                                    if (open) {
+                                        this.loadWindowsList();
+                                    }
+                                }}
+                            >
+                                <Button
+                                    href="#"
+                                    data-button-id="menu-window-switch"
+                                    size="small"
+                                    icon={<SwapOutlined />}
+                                    style={{
+                                        borderRadius: '6px',
+                                        border: '1px solid #d9d9d9',
+                                        marginLeft: '8px',
+                                        marginRight: '6px'
+                                    }}
+                                >
+                                    Окна
+                                </Button>
+                            </Dropdown>
                         </Space>
                     </div>
                 </div>

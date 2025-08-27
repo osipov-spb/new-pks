@@ -465,6 +465,7 @@ class Order extends React.Component {
                 <div>
                     <div style={{
                         padding: '3px 12px',
+                        paddingRight: '8px',
                         background: '#fafafa',
                         borderBottom: '1px solid #f0f0f0',
                         display: 'flex',
@@ -711,6 +712,7 @@ class Order extends React.Component {
 
                                             <div style={{
                                                 padding: '3px 12px',
+                                                paddingRight: '8px',
                                                 background: '#fafafa',
                                                 borderBottom: '1px solid #f0f0f0',
                                                 display: 'flex',
@@ -730,7 +732,8 @@ class Order extends React.Component {
                                                     disabled={this.isComponentDisabled('productsEditButton')}
                                                     style={{
                                                         borderRadius: '6px',
-                                                        border: '1px solid #d9d9d9'
+                                                        border: '1px solid #d9d9d9',
+                                                        width: '120px',
                                                     }}
                                                     onClick={() => this.setState({
                                                         productsCollapsed: false,
@@ -747,6 +750,7 @@ class Order extends React.Component {
 
                                             <div style={{
                                                 padding: '3px 12px',
+                                                paddingRight: '8px',
                                                 background: '#fafafa',
                                                 borderBottom: '1px solid #f0f0f0',
                                                 display: 'flex',
@@ -768,7 +772,8 @@ class Order extends React.Component {
                                                     disabled={this.isComponentDisabled('promoEditButton')}
                                                     style={{
                                                         borderRadius: '6px',
-                                                        border: '1px solid #d9d9d9'
+                                                        border: '1px solid #d9d9d9',
+                                                        width: '120px',
                                                     }}
                                                     onClick={() => this.setState({
                                                         promoCollapsed: false,

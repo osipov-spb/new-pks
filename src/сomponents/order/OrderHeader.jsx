@@ -384,7 +384,7 @@ class OrderHeader extends React.Component {
                                     size="middle"
                                     icon={<MoreOutlined style={{color: '#1890ff'}}/>}
                                     style={{
-                                        borderRadius: '8px',
+                                        borderRadius: '6px',
                                         border: '1px solid #d9d9d9',
                                         marginRight: '6px',
                                     }}

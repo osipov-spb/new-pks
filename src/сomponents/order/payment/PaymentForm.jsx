@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedReference
 
 import React, {useEffect, useState} from 'react';
-import {Alert, Button, Modal, Space} from 'antd';
+import {Alert, Button, Modal, Space, Card, Divider} from 'antd';
 import {
     CarOutlined,
     CreditCardOutlined,
@@ -24,9 +24,28 @@ const PaymentForm = () => {
     const [isOn, setIsOn] = useState(false);
     const [showPayLaterButton, setShowPayLaterButton] = useState(true);
     const [showCombinedWarning, setShowCombinedWarning] = useState(false);
-    const [cardPaymentMethod, setCardPaymentMethod] = useState('card'); // 'card' или 'qr'
+    const [cardPaymentMethod, setCardPaymentMethod] = useState('card');
+    const [isQrAvailable, setIsQrAvailable] = useState(false); // Новый параметр
 
     useEffect(() => {
+        // Обработчик ввода с клавиатуры
+        const handleKeyDown = (event) => {
+            if (paymentType === 'cash' || paymentType === 'combined') {
+                if (event.key >= '0' && event.key <= '9') {
+                    // Добавляем цифру
+                    handleInput(Number(cashInput.toString() + event.key));
+                } else if (event.key === 'Backspace') {
+                    // Стираем символ
+                    handleBackspaceClick();
+                } else if (event.key === 'Delete' || event.key === 'Escape') {
+                    // Очищаем ввод
+                    handleInput(0);
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
         window.payment_form_open = (data) => {
             let parsedData = typeof data === 'string' ? JSON.parse(data) : data;
             setTotal(parsedData.total);
@@ -41,10 +60,13 @@ const PaymentForm = () => {
             setShowPayLaterButton(parsedData.showPayLater);
             setShowCombinedWarning(false);
             setCardPaymentMethod('card');
+            // Новый параметр - доступность QR оплаты
+            setIsQrAvailable(parsedData.qrAvailable !== undefined ? parsedData.qrAvailable : false);
         };
 
         window.payment_form_close = () => {
             setIsOn(false);
+            window.removeEventListener('keydown', handleKeyDown);
         };
 
         window.payment_confirm = () => {
@@ -62,7 +84,12 @@ const PaymentForm = () => {
                 qrSbp: paymentType === 'card' && cardPaymentMethod === 'qr'
             };
             setIsOn(false);
+            window.removeEventListener('keydown', handleKeyDown);
             return JSON.stringify(returnData);
+        };
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
         };
     }, [paymentType, cashInput, cardInput, total, terminalType, proceed, cardPaymentMethod]);
 
@@ -91,7 +118,7 @@ const PaymentForm = () => {
 
     const handleCardMethodChange = (method) => {
         if (terminalType === 'courier' && method === 'qr') {
-            return; // Запрещаем выбор QR при курьерском терминале
+            return;
         }
         setCardPaymentMethod(method);
     };
@@ -99,7 +126,7 @@ const PaymentForm = () => {
     const handleTerminalTypeChange = (type) => {
         setTerminalType(type);
         if (type === 'courier' && cardPaymentMethod === 'qr') {
-            setCardPaymentMethod('card'); // Автоматически переключаем на карту при выборе курьерского терминала
+            setCardPaymentMethod('card');
         }
     };
 
@@ -142,11 +169,9 @@ const PaymentForm = () => {
         }
     };
 
-    const typeCashButton = paymentType === 'cash' ? 'primary' : '';
-    const typeCardButton = paymentType === 'card' ? 'primary' : '';
-    const typeCombinedButton = paymentType === 'combined' ? 'primary' : '';
-    const typeCardMethodButton = cardPaymentMethod === 'card' ? 'primary' : 'default';
-    const typeQrMethodButton = cardPaymentMethod === 'qr' ? 'primary' : 'default';
+    const typeCashButton = paymentType === 'cash' ? 'primary' : 'default';
+    const typeCardButton = paymentType === 'card' ? 'primary' : 'default';
+    const typeCombinedButton = paymentType === 'combined' ? 'primary' : 'default';
 
     const getPaymentTypeText = () => {
         switch(paymentType) {
@@ -175,10 +200,12 @@ const PaymentForm = () => {
                 icon={<ShoppingCartOutlined />}
                 style={{
                     minWidth: '120px',
-                    height: '35px',
-                    fontWeight: 500,
+                    height: '36px',
+                    // fontWeight: 'bold',
                     margin: '4px',
-                    borderRadius: '6px'
+                    borderRadius: '6px',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                 }}
             >
                 Оплатить
@@ -188,314 +215,447 @@ const PaymentForm = () => {
                 title={null}
                 closable={false}
                 open={isOn}
-                width={420}
+                width={380}
                 footer={null}
                 bodyStyle={{ padding: 0 }}
+                style={{ top: 20 }}
             >
                 <div style={{
                     backgroundColor: '#f0f2f5',
-                    padding: '16px',
-                    borderBottom: '1px solid #d9d9d9'
+                    padding: '12px',
+                    maxHeight: '90vh',
+                    overflowY: 'auto'
                 }}>
-                    <div style={{
-                        backgroundColor: 'white',
-                        borderRadius: '4px',
-                        padding: '12px',
-                        marginBottom: '16px'
-                    }}>
+                    {/* Header */}
+                    <Card
+                        size="small"
+                        style={{ marginBottom: '12px', borderRadius: '6px' }}
+                        bodyStyle={{ padding: '12px' }}
+                    >
                         <div style={{
                             display: 'flex',
                             justifyContent: 'space-between',
+                            alignItems: 'center',
                             marginBottom: '8px'
                         }}>
-                            <span>Итого:</span>
-                            <span style={{fontWeight: 'bold'}}>{total} ₽</span>
+                            <span style={{ fontSize: '14px', fontWeight: 500 }}>Итого:</span>
+                            <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#1890ff' }}>
+                                {total} ₽
+                            </span>
                         </div>
                         <div style={{
                             display: 'flex',
-                            justifyContent: 'space-between'
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
                         }}>
-                            <span>Способ оплаты:</span>
-                            <span style={{fontWeight: 'bold'}}>
+                            <span style={{ fontSize: '12px', color: '#666' }}>Способ:</span>
+                            <span style={{ fontSize: '12px', fontWeight: 'bold' }}>
                                 {getPaymentTypeText()}
                             </span>
                         </div>
-                    </div>
+                    </Card>
 
+                    {/* Payment Type Selection - В ОДНУ СТРОКУ с явными отступами */}
                     <div style={{
                         display: 'flex',
-                        gap: '8px',
-                        marginBottom: '16px'
+                        marginBottom: '12px'
                     }}>
                         <Button
                             type={typeCashButton}
                             icon={<WalletOutlined/>}
-                            block
+                            size="small"
                             onClick={handleCashButtonClick}
+                            style={{
+                                flex: 1,
+                                height: '36px',
+                                borderRadius: '4px',
+                                fontSize: '12px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                marginRight: '4px' // Явный отступ справа
+                            }}
                         >
                             Наличные
                         </Button>
                         <Button
                             type={typeCardButton}
                             icon={<CreditCardOutlined/>}
-                            block
+                            size="small"
                             onClick={handleCardButtonClick}
+                            style={{
+                                flex: 1,
+                                height: '36px',
+                                borderRadius: '4px',
+                                fontSize: '12px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                marginLeft: '4px', // Явный отступ слева
+                                marginRight: '4px' // Явный отступ справа
+                            }}
                         >
                             Безнал
                         </Button>
                         <Button
                             type={typeCombinedButton}
                             icon={<PlusOutlined/>}
-                            block
+                            size="small"
                             onClick={handleCombinedButtonClick}
+                            style={{
+                                flex: 1,
+                                height: '36px',
+                                borderRadius: '4px',
+                                fontSize: '12px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                marginLeft: '4px' // Явный отступ слева
+                            }}
                         >
                             Составная
                         </Button>
                     </div>
 
+                    {/* Card Payment Details */}
                     {paymentType === 'card' && (
-                        <div style={{
-                            backgroundColor: 'white',
-                            borderRadius: '4px',
-                            padding: '12px',
-                            marginBottom: '16px',
-                            textAlign: 'center'
-                        }}>
-                            <div style={{ marginBottom: '16px' }}>
+                        <Card
+                            size="small"
+                            style={{ marginBottom: '12px', borderRadius: '6px' }}
+                            bodyStyle={{ padding: '12px' }}
+                        >
+                            {/* Payment Method Icon and Amount */}
+                            <div style={{
+                                textAlign: 'center',
+                                marginBottom: '12px',
+                                padding: '8px',
+                                backgroundColor: cardPaymentMethod === 'qr' ? '#f6ffed' : '#f0f8ff',
+                                borderRadius: '4px',
+                                border: `1px solid ${cardPaymentMethod === 'qr' ? '#b7eb8f' : '#91d5ff'}`
+                            }}>
                                 {cardPaymentMethod === 'qr' ? (
-                                    <QrcodeOutlined style={{ fontSize: '48px', color: '#1890ff' }} />
+                                    <QrcodeOutlined style={{
+                                        fontSize: '32px',
+                                        color: '#52c41a',
+                                        marginBottom: '6px'
+                                    }} />
                                 ) : (
-                                    <CreditCardOutlined style={{ fontSize: '48px', color: '#1890ff' }} />
+                                    <CreditCardOutlined style={{
+                                        fontSize: '32px',
+                                        color: '#1890ff',
+                                        marginBottom: '6px'
+                                    }} />
                                 )}
-                            </div>
-                            <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '16px' }}>
-                                {cardPaymentMethod === 'qr' ? `Оплата по QR: ${total} ₽` : `Оплата по карте: ${total} ₽`}
-                            </div>
-
-                            {/*{cardPaymentMethod === 'qr' ? (*/}
-                            {/*    <div style={{ fontSize: '12px', color: '#666', marginBottom: '16px' }}>*/}
-                            {/*        Будет сгенерирован QR-код для оплаты через СБП*/}
-                            {/*    </div>*/}
-                            {/*) : null}*/}
-
-                            {/* Выбор способа оплаты (всегда отображается) */}
-                            <div style={{ marginBottom: hasCourierTerminal ? '16px' : '0' }}>
                                 <div style={{
-                                    textAlign: 'center',
-                                    fontSize: '16px',
+                                    fontSize: '14px',
                                     fontWeight: 'bold',
-                                    marginBottom: '8px'
+                                    color: cardPaymentMethod === 'qr' ? '#389e0d' : '#1890ff'
                                 }}>
-                                    Способ оплаты:
+                                    {cardPaymentMethod === 'qr' ? 'QR' : 'Карта'}
                                 </div>
-                                <Space>
-                                    <Button
-                                        type={typeCardMethodButton}
-                                        icon={<CreditCardOutlined />}
-                                        onClick={() => handleCardMethodChange('card')}
-                                        disabled={terminalType === 'courier' && cardPaymentMethod === 'qr'}
-                                    >
-                                        Карта
-                                    </Button>
-                                    <Button
-                                        type={typeQrMethodButton}
-                                        icon={<QrcodeOutlined />}
-                                        onClick={() => handleCardMethodChange('qr')}
-                                        disabled={terminalType === 'courier'}
-                                    >
-                                        QR
-                                    </Button>
-                                </Space>
+                                <div style={{
+                                    fontSize: '13px',
+                                    color: '#666',
+                                    marginTop: '2px'
+                                }}>
+                                    {total} ₽
+                                </div>
                             </div>
 
-                            {/* Выбор терминала (только если доступен курьерский терминал) */}
-                            {hasCourierTerminal && (
-                                <div style={{ marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}>
+                            {/* Payment Method Selection - В ОДНУ СТРОКУ (только если QR доступен) */}
+                            {isQrAvailable && (
+                                <div style={{ marginBottom: hasCourierTerminal ? '12px' : '0' }}>
                                     <div style={{
                                         textAlign: 'center',
-                                        fontSize: '16px',
+                                        fontSize: '12px',
                                         fontWeight: 'bold',
+                                        color: '#666',
                                         marginBottom: '8px'
                                     }}>
-                                        Терминал:
+                                        Способ оплаты:
                                     </div>
-                                    <Space>
+                                    <div style={{
+                                        display: 'flex',
+                                        justifyContent: 'center'
+                                    }}>
                                         <Button
-                                            type={terminalType === 'stationary' ? 'primary' : 'default'}
-                                            onClick={() => handleTerminalTypeChange('stationary')}
-                                            icon={<ShopOutlined />}
+                                            type={cardPaymentMethod === 'card' ? 'primary' : 'default'}
+                                            icon={<CreditCardOutlined />}
+                                            size="small"
+                                            onClick={() => handleCardMethodChange('card')}
+                                            disabled={terminalType === 'courier' && cardPaymentMethod === 'qr'}
+                                            style={{
+                                                minWidth: '70px',
+                                                borderRadius: '4px',
+                                                fontSize: '11px',
+                                                height: '28px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                marginRight: '4px' // Явный отступ справа
+                                            }}
                                         >
-                                            Стационарный
+                                            Карта
                                         </Button>
                                         <Button
-                                            type={terminalType === 'courier' ? 'primary' : 'default'}
-                                            onClick={() => handleTerminalTypeChange('courier')}
-                                            icon={<CarOutlined />}
+                                            type={cardPaymentMethod === 'qr' ? 'primary' : 'default'}
+                                            icon={<QrcodeOutlined />}
+                                            size="small"
+                                            onClick={() => handleCardMethodChange('qr')}
+                                            disabled={terminalType === 'courier'}
+                                            style={{
+                                                minWidth: '70px',
+                                                borderRadius: '4px',
+                                                fontSize: '11px',
+                                                height: '28px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                marginLeft: '4px' // Явный отступ слева
+                                            }}
                                         >
-                                            Курьерский
+                                            QR
                                         </Button>
-                                    </Space>
+                                    </div>
                                 </div>
                             )}
-                        </div>
+
+                            {/* Terminal Selection - В ОДНУ СТРОКУ */}
+                            {hasCourierTerminal && (
+                                <>
+                                    <Divider style={{ margin: '12px 0', fontSize: '10px' }} />
+                                    <div>
+                                        <div style={{
+                                            textAlign: 'center',
+                                            fontSize: '12px',
+                                            fontWeight: 'bold',
+                                            color: '##666',
+                                            marginBottom: '8px'
+                                        }}>
+                                            Терминал:
+                                        </div>
+                                        <div style={{
+                                            display: 'flex',
+                                            justifyContent: 'center'
+                                        }}>
+                                            <Button
+                                                type={terminalType === 'stationary' ? 'primary' : 'default'}
+                                                icon={<ShopOutlined />}
+                                                size="small"
+                                                onClick={() => handleTerminalTypeChange('stationary')}
+                                                style={{
+                                                    minWidth: '90px',
+                                                    borderRadius: '4px',
+                                                    fontSize: '11px',
+                                                    height: '28px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    marginRight: '4px' // Явный отступ справа
+                                                }}
+                                            >
+                                                Стац.
+                                            </Button>
+                                            <Button
+                                                type={terminalType === 'courier' ? 'primary' : 'default'}
+                                                icon={<CarOutlined />}
+                                                size="small"
+                                                onClick={() => handleTerminalTypeChange('courier')}
+                                                style={{
+                                                    minWidth: '90px',
+                                                    borderRadius: '4px',
+                                                    fontSize: '11px',
+                                                    height: '28px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    marginLeft: '4px' // Явный отступ слева
+                                                }}
+                                            >
+                                                Курьер.
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </Card>
                     )}
 
+                    {/* Cash and Combined Payment Input */}
                     {(paymentType === 'cash' || paymentType === 'combined') && (
-                        <div style={{
-                            backgroundColor: 'white',
-                            borderRadius: '4px',
-                            padding: '12px',
-                            marginBottom: '16px'
-                        }}>
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                marginBottom: '12px'
-                            }}>
-                                <span>Внесено наличными:</span>
-                                <span style={{
-                                    fontSize: '18px',
-                                    fontWeight: 'bold'
-                                }}>
-                                    {cashInput} ₽
-                                </span>
-                            </div>
-
-                            {paymentType === 'combined' && (
+                        <>
+                            <Card
+                                size="small"
+                                style={{ marginBottom: '12px', borderRadius: '6px' }}
+                                bodyStyle={{ padding: '12px' }}
+                            >
                                 <div style={{
                                     display: 'flex',
                                     justifyContent: 'space-between',
+                                    alignItems: 'center',
                                     marginBottom: '12px'
                                 }}>
-                                    <span>Оплата картой:</span>
+                                    <span style={{ fontSize: '12px', fontWeight: 500 }}>Наличные:</span>
                                     <span style={{
-                                        fontSize: '18px',
-                                        fontWeight: 'bold'
-                                    }}>
-                                        {cardInput} ₽
-                                    </span>
-                                </div>
-                            )}
-
-                            {paymentType === 'cash' && (
-                                <Button
-                                    type="dashed"
-                                    block
-                                    onClick={handleWithoutChangeClick}
-                                    style={{marginBottom: '12px'}}
-                                >
-                                    Без сдачи
-                                </Button>
-                            )}
-
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(4, 1fr)',
-                                gap: '8px',
-                                marginBottom: '12px'
-                            }}>
-                                {[1, 2, 3, '←', 4, 5, 6, 'C', 7, 8, 9, '000', '.', 0, '00'].map(item => (
-                                    <Button
-                                        key={item}
-                                        onClick={() => {
-                                            if (item === '←') handleBackspaceClick();
-                                            else if (item === 'C') handleInput(0);
-                                            else handleInput(Number(`${cashInput}${item}`))
-                                        }}
-                                        style={{
-                                            margin: '2px',
-                                            minWidth: 0
-                                        }}
-                                        type={typeof item === 'number' ? 'default' : 'primary'}
-                                    >
-                                        {item}
-                                    </Button>
-                                ))}
-                                <div></div>
-                            </div>
-                        </div>
-                    )}
-
-                    {(paymentType === 'cash' || paymentType === 'combined') && (
-                        <div style={{
-                            backgroundColor: 'white',
-                            borderRadius: '4px',
-                            padding: '12px',
-                            marginBottom: '16px'
-                        }}>
-                            {paymentType === 'cash' && (
-                                <div style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between'
-                                }}>
-                                    <span>Сдача:</span>
-                                    <span style={{
-                                        fontSize: '18px',
+                                        fontSize: '16px',
                                         fontWeight: 'bold',
-                                        color: change >= 0 ? '#52c41a' : '#f5222d'
+                                        color: '#1890ff'
                                     }}>
-                                        {Math.max(0, change)} ₽
+                                        {cashInput} ₽
                                     </span>
                                 </div>
-                            )}
-                            {paymentType === 'combined' && (
-                                <>
+
+                                {paymentType === 'combined' && (
                                     <div style={{
                                         display: 'flex',
                                         justifyContent: 'space-between',
-                                        marginBottom: '8px'
+                                        alignItems: 'center',
+                                        marginBottom: '12px'
                                     }}>
-                                        <span>Итого внесено:</span>
+                                        <span style={{ fontSize: '12px', fontWeight: 500 }}>Карта:</span>
                                         <span style={{
-                                            fontSize: '18px',
+                                            fontSize: '16px',
                                             fontWeight: 'bold',
-                                            color: (cashInput + cardInput) >= total ? '#52c41a' : '#f5222d'
+                                            color: '#52c41a'
                                         }}>
-                                            {cashInput + cardInput} ₽
+                                            {cardInput} ₽
                                         </span>
                                     </div>
-                                    {cashInput > (total - cardInput) && (
+                                )}
+
+                                {paymentType === 'cash' && (
+                                    <Button
+                                        type="dashed"
+                                        size="small"
+                                        block
+                                        onClick={handleWithoutChangeClick}
+                                        style={{
+                                            marginBottom: '12px',
+                                            borderRadius: '4px',
+                                            fontSize: '11px',
+                                            height: '28px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}
+                                    >
+                                        Без сдачи
+                                    </Button>
+                                )}
+
+                                {/* Compact Numeric Keypad с явными отступами */}
+                                <div style={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    margin: '0 -2px' // Компенсируем внешние отступы
+                                }}>
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'C', 0, '←'].map(item => (
+                                        <div key={item} style={{
+                                            width: '33.33%',
+                                            padding: '2px', // Явное расстояние между кнопками
+                                            boxSizing: 'border-box'
+                                        }}>
+                                            <Button
+                                                onClick={() => {
+                                                    if (item === '←') handleBackspaceClick();
+                                                    else if (item === 'C') handleInput(0);
+                                                    else handleInput(Number(`${cashInput}${item}`))
+                                                }}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '32px',
+                                                    borderRadius: '4px',
+                                                    fontSize: '12px',
+                                                    fontWeight: 'bold',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center'
+                                                }}
+                                                type={typeof item === 'number' ? 'default' : 'primary'}
+                                            >
+                                                {item}
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </Card>
+
+                            {/* Change Display */}
+                            <Card
+                                size="small"
+                                style={{ marginBottom: '12px', borderRadius: '6px' }}
+                                bodyStyle={{ padding: '12px' }}
+                            >
+                                {paymentType === 'cash' && (
+                                    <div style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center'
+                                    }}>
+                                        <span style={{ fontSize: '12px', fontWeight: 500 }}>Сдача:</span>
+                                        <span style={{
+                                            fontSize: '14px',
+                                            fontWeight: 'bold',
+                                            color: change >= 0 ? '#52c41a' : '#f5222d'
+                                        }}>
+                                            {Math.max(0, change)} ₽
+                                        </span>
+                                    </div>
+                                )}
+                                {paymentType === 'combined' && (
+                                    <>
                                         <div style={{
                                             display: 'flex',
-                                            justifyContent: 'space-between'
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            marginBottom: '6px'
                                         }}>
-                                            <span>Сдача с наличных:</span>
+                                            <span style={{ fontSize: '12px', fontWeight: 500 }}>Всего:</span>
                                             <span style={{
-                                                fontSize: '18px',
+                                                fontSize: '14px',
                                                 fontWeight: 'bold',
-                                                color: '#52c41a'
+                                                color: (cashInput + cardInput) >= total ? '#52c41a' : '#f5222d'
                                             }}>
-                                                {cashInput - (total - cardInput)} ₽
+                                                {cashInput + cardInput} ₽
                                             </span>
                                         </div>
-                                    )}
-                                </>
-                            )}
-                        </div>
+                                        {cashInput > (total - cardInput) && (
+                                            <div style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center'
+                                            }}>
+                                                <span style={{ fontSize: '11px', fontWeight: 500 }}>Сдача:</span>
+                                                <span style={{
+                                                    fontSize: '13px',
+                                                    fontWeight: 'bold',
+                                                    color: '#52c41a'
+                                                }}>
+                                                    {cashInput - (total - cardInput)} ₽
+                                                </span>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </Card>
+                        </>
                     )}
 
                     {paymentType === 'combined' && showCombinedWarning && (
                         <Alert
-                            message="Если вносите всю сумму наличными, используйте способ оплаты 'Наличные'"
+                            message="Для полной оплаты наличными используйте 'Наличные'"
                             type="warning"
                             showIcon
-                            style={{ marginBottom: '16px' }}
+                            style={{ marginBottom: '12px', borderRadius: '4px', fontSize: '11px' }}
+                            size="small"
                         />
                     )}
 
-                    <div style={{display: 'flex', gap: '8px', marginBottom: '8px'}}>
-                        <Button
-                            block
-                            onClick={() => setIsOn(false)}
-                            style={{
-                                margin: '4px',
-                                flex: '1 1 auto'
-                            }}
-                        >
-                            Отмена
-                        </Button>
+                    {/* Action Buttons с явными отступами */}
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <Button
                             type="primary"
+                            size="small"
                             block
                             href="#"
                             data-button-id={isPaymentValid() ? "payment_confirm" : undefined}
@@ -515,28 +675,57 @@ const PaymentForm = () => {
                                 return JSON.stringify(returnData);
                             }}
                             style={{
-                                margin: '4px',
-                                flex: '1 1 auto'
+                                height: '36px',
+                                borderRadius: '4px',
+                                fontWeight: 'bold',
+                                fontSize: '12px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                marginBottom: '8px' // Явный отступ снизу
                             }}
                             disabled={!isPaymentValid()}
                         >
                             Подтвердить
                         </Button>
-                    </div>
 
-                    {showPayLaterButton && (
                         <Button
+                            size="small"
                             block
-                            href="#"
-                            data-button-id="prodeed_no_payment"
                             onClick={() => setIsOn(false)}
                             style={{
-                                margin: '4px 4px 0'
+                                height: '32px',
+                                borderRadius: '4px',
+                                fontSize: '11px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                marginBottom: '8px' // Явный отступ снизу
                             }}
                         >
-                            Оплатить позже
+                            Отмена
                         </Button>
-                    )}
+
+                        {showPayLaterButton && (
+                            <Button
+                                size="small"
+                                block
+                                href="#"
+                                data-button-id="prodeed_no_payment"
+                                onClick={() => setIsOn(false)}
+                                style={{
+                                    height: '32px',
+                                    borderRadius: '4px',
+                                    fontSize: '11px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
+                            >
+                                Оплатить позже
+                            </Button>
+                        )}
+                    </div>
                 </div>
             </Modal>
         </>

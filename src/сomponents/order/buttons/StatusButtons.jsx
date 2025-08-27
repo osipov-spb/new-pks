@@ -62,7 +62,7 @@ class StatusButtons extends React.Component {
                         disabled={this.props.printDisabed}
                         style={{
                             minWidth: '120px',
-                            height: '35px',
+                            height: '36px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'flex-start',
@@ -83,12 +83,12 @@ class StatusButtons extends React.Component {
                                 icon={<CloseOutlined />}
                                 style={{
                                     minWidth: '120px',
-                                    height: '35px',
-                                    display: 'flex',
+                                    height: '36px',
+                                    // fontWeight: 'bold',
+                                    margin: '4px',
+                                    borderRadius: '6px',
                                     alignItems: 'center',
-                                    justifyContent: 'flex-start',
-                                    fontWeight: 500,
-                                    borderRadius: '6px'
+                                    justifyContent: 'center'
                                 }}
                             >
                                 Закрыть
@@ -103,12 +103,12 @@ class StatusButtons extends React.Component {
                                 icon={<CloseOutlined />}
                                 style={{
                                     minWidth: '120px',
-                                    height: '35px',
-                                    display: 'flex',
+                                    height: '36px',
+                                    // fontWeight: 'bold',
+                                    margin: '4px',
+                                    borderRadius: '6px',
                                     alignItems: 'center',
-                                    justifyContent: 'flex-start',
-                                    fontWeight: 500,
-                                    borderRadius: '6px'
+                                    justifyContent: 'center'
                                 }}
                             >
                                 Закрыть
@@ -129,15 +129,18 @@ class StatusButtons extends React.Component {
                             type="primary"
                             {...(!this.props.nextDisabed && { "data-button-id": "order-proceed" })}
                             disabled={this.props.nextDisabed}
+
+
                             style={{
                                 minWidth: '120px',
-                                height: '35px',
+                                height: '36px',
                                 display: 'flex',
                                 borderRadius: '6px',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
                                 visibility: this.props.nextHidden ? 'hidden' : 'visible',
-                                fontWeight: 500,
+                                // fontWeight: 'bold',
+                                margin: '4px',
                                 boxShadow: '0 2px 0 rgba(0, 0, 0, 0.045)',
                                 background: !this.props.nextDisabed ? '#73d13d' : 'default',
                                 borderColor: !this.props.nextDisabed ? '#73d13d' : 'default'

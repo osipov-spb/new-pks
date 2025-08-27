@@ -1,6 +1,6 @@
 import React from 'react';
-import {Button, Col, Modal, Row, Space} from "antd";
-import {CompassOutlined, InfoCircleOutlined, PlusOutlined, StopOutlined} from "@ant-design/icons";
+import {Button, Col, Modal, Row, Space, Dropdown, Menu} from "antd";
+import {CompassOutlined, InfoCircleOutlined, PlusOutlined, StopOutlined, SwapOutlined} from "@ant-design/icons";
 import _FunctionsButton from "./buttons/Functions";
 import Motivation from "./motivation/motivation";
 import TableHeader from "./Header";
@@ -11,7 +11,8 @@ class MainMenu extends React.Component {
         this.state = {
             size: 'large',
             isModalOpen: false,
-            isStopActive: false
+            isStopActive: false,
+            windows: [] // список открытых окон
         };
     }
 
@@ -20,6 +21,17 @@ class MainMenu extends React.Component {
         window.setStopButtonState = (isActive) => {
             this.setState({ isStopActive: isActive });
             return true;
+        };
+
+        // Функция для обновления списка окон через JSON строку
+        window.updateWindowsList = (windowsJson) => {
+            try {
+                const windows = JSON.parse(windowsJson);
+                this.setState({ windows });
+            } catch (error) {
+                console.error('Ошибка парсинга JSON:', error);
+                this.setState({ windows: [] });
+            }
         };
     }
 
@@ -39,9 +51,46 @@ class MainMenu extends React.Component {
         }
     };
 
+    // Создание меню для выпадающего списка окон
+    getWindowsMenu = () => {
+        const { windows } = this.state;
+
+        const menuItems = windows.map(window => ({
+            key: window.id || window.name,
+            label: (
+                <a
+                    href="#"
+                    data-button-id={`switch-to-window-${window.name || window.id}`}
+                    onClick={(e) => e.preventDefault()} // Предотвращаем переход по ссылке
+                >
+                    {window.title || window.name || `Окно ${window.id}`}
+                </a>
+            )
+        }));
+
+        return <Menu items={menuItems} />;
+    };
+
+    // Функция для загрузки списка окон (будет вызываться при клике)
+    loadWindowsList = () => {
+        // Вызываем внешнюю функцию для получения списка окон в формате JSON
+        if (window.getOpenWindows) {
+            const windowsJson = window.getOpenWindows();
+            try {
+                const windows = JSON.parse(windowsJson);
+                this.setState({ windows });
+            } catch (error) {
+                console.error('Ошибка парсинга JSON из getOpenWindows:', error);
+                this.setState({ windows: [] });
+            }
+        } else {
+            console.warn('Функция getOpenWindows не определена в window');
+        }
+    };
+
     render() {
         const { projects = [] } = this.props;
-        const { size, isModalOpen, isStopActive } = this.state;
+        const { size, isModalOpen, isStopActive, windows } = this.state;
 
         return (
             <>
@@ -81,6 +130,7 @@ class MainMenu extends React.Component {
                                 )}
 
                                 <_FunctionsButton/>
+
                                 <Button href="#"
                                         data-button-id="menu-info"
                                         icon={<InfoCircleOutlined/>}
@@ -124,6 +174,31 @@ class MainMenu extends React.Component {
                             height: '90px',
                             width: '100%'
                         }}>
+                            {/* Кнопка переключения окон */}
+                            <Dropdown
+                                overlay={this.getWindowsMenu()}
+                                trigger={['click']}
+                                onOpenChange={(open) => {
+                                    if (open) {
+                                        this.loadWindowsList();
+                                    }
+                                }}
+                            >
+                                <Button
+                                    href="#"
+                                    data-button-id="menu-window-switch"
+                                    icon={<SwapOutlined />}
+                                    size={size}
+                                    style={{
+                                        borderRadius: '8px',
+                                        border: '1px solid #d9d9d9',
+                                        marginTop: '50px',
+                                        marginRight: '8px'
+                                    }}
+                                >
+                                    Окна
+                                </Button>
+                            </Dropdown>
                             <a href='#' data-button-id='menu-functions-staff-motivation'>
                                 <Motivation/>
                             </a>
