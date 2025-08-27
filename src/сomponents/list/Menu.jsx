@@ -1,201 +1,164 @@
-// noinspection JSValidateTypes
-
+import React from 'react';
 import {Button, Col, Modal, Row, Space} from "antd";
 import {CompassOutlined, InfoCircleOutlined, PlusOutlined, StopOutlined} from "@ant-design/icons";
-import React, {useEffect, useState} from "react";
 import _FunctionsButton from "./buttons/Functions";
 import Motivation from "./motivation/motivation";
 import TableHeader from "./Header";
 
-const MainMenu = ({ projects = [] }) => {
-    const [size] = useState('large');
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [currentDateTime, setCurrentDateTime] = useState(new Date()); // Состояние для текущей даты и времени
+class MainMenu extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            size: 'large',
+            isModalOpen: false,
+            isStopActive: false
+        };
+    }
 
-    // Эффект для обновления времени каждую минуту
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentDateTime(new Date());
-        }, 60000); // Обновляем каждую минуту
+    componentDidMount() {
+        // Добавляем функцию в window для внешнего доступа
+        window.setStopButtonState = (isActive) => {
+            this.setState({ isStopActive: isActive });
+            return true;
+        };
+    }
 
-        return () => clearInterval(timer); // Очистка интервала при размонтировании
-    }, []);
-
-    // Функция для форматирования даты и времени
-    const formatTime = (date) => {
-        return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    showProjectModal = () => {
+        this.setState({ isModalOpen: true });
     };
 
-    const formatDate = (date) => {
-        return date.toLocaleDateString('ru-RU', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            weekday: 'short'
-        }).replace(',', '').replace('г.', '');
+    handleCancel = () => {
+        this.setState({ isModalOpen: false });
     };
 
-    const showProjectModal = () => {
-        setIsModalOpen(true);
-    };
-
-    const handleCancel = () => {
-        setIsModalOpen(false);
-    };
-
-    const createOrderOnClick = () => {
-        if (projects.length <= 1) {
+    createOrderOnClick = () => {
+        if (this.props.projects.length <= 1) {
             // window.show_page('order')
         } else {
-            showProjectModal();
+            this.showProjectModal();
         }
     };
 
-    return (
-        <>
-            <Row align="middle" gutter={16} style={{ marginBottom: 16 }}>
-                <Col span={18}>
-                    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                        <TableHeader />
-                        <Space size="small" wrap>
-                            {projects.length === 1 ? (
-                                <Button
-                                    type="primary"
-                                    onClick={createOrderOnClick}
-                                    href="#"
-                                    data-button-id={`menu-create-order-project-${projects[0].id}`}
-                                    icon={<PlusOutlined/>}
-                                    size={size}
-                                    style={{
-                                        borderRadius: '8px',
-                                        border: '1px solid #d9d9d9'
-                                    }}
-                                >
-                                    Создать заказ
-                                </Button>
-                            ) : (
-                                <Button
-                                    type="primary"
-                                    onClick={createOrderOnClick}
-                                    icon={<PlusOutlined/>}
-                                    size={size}
-                                    style={{
-                                        borderRadius: '8px',
-                                        border: '1px solid #d9d9d9'
-                                    }}
-                                >
-                                    Создать заказ
-                                </Button>
-                            )}
+    render() {
+        const { projects = [] } = this.props;
+        const { size, isModalOpen, isStopActive } = this.state;
 
-                            <_FunctionsButton/>
-                            <Button href="#"
-                                    data-button-id="menu-info"
-                                    icon={<InfoCircleOutlined/>}
-                                    size={size}
-                                    style={{
-                                borderRadius: '8px',
-                                border: '1px solid #d9d9d9'
-                            }}>
-                                Табло
-                            </Button>
-                            <Button href="#"
-                                    data-button-id="menu-maps"
-                                    icon={<CompassOutlined/>}
-                                    size={size}
-                                    style={{
-                                borderRadius: '8px',
-                                border: '1px solid #d9d9d9'
-                            }}>
-                                Карта
-                            </Button>
-                            <Button href="#"
-                                    data-button-id="menu-stop"
-                                    icon={<StopOutlined/>}
-                                    size={size}
-                                    danger
-                                    style={{
-                                borderRadius: '8px',
-                                border: '1px solid #d9d9d9'
-                            }}>
-                                Стоп
-                            </Button>
+        return (
+            <>
+                <Row align="middle" gutter={16} style={{ marginBottom: 16 }}>
+                    <Col span={18}>
+                        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                            <TableHeader />
+                            <Space size="small" wrap>
+                                {projects.length === 1 ? (
+                                    <Button
+                                        type="primary"
+                                        onClick={this.createOrderOnClick}
+                                        href="#"
+                                        data-button-id={`menu-create-order-project-${projects[0].id}`}
+                                        icon={<PlusOutlined/>}
+                                        size={size}
+                                        style={{
+                                            borderRadius: '8px',
+                                            border: '1px solid #d9d9d9'
+                                        }}
+                                    >
+                                        Создать заказ
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        type="primary"
+                                        onClick={this.createOrderOnClick}
+                                        icon={<PlusOutlined/>}
+                                        size={size}
+                                        style={{
+                                            borderRadius: '8px',
+                                            border: '1px solid #d9d9d9'
+                                        }}
+                                    >
+                                        Создать заказ
+                                    </Button>
+                                )}
+
+                                <_FunctionsButton/>
+                                <Button href="#"
+                                        data-button-id="menu-info"
+                                        icon={<InfoCircleOutlined/>}
+                                        size={size}
+                                        style={{
+                                            borderRadius: '8px',
+                                            border: '1px solid #d9d9d9'
+                                        }}>
+                                    Табло
+                                </Button>
+                                <Button href="#"
+                                        data-button-id="menu-maps"
+                                        icon={<CompassOutlined/>}
+                                        size={size}
+                                        style={{
+                                            borderRadius: '8px',
+                                            border: '1px solid #d9d9d9'
+                                        }}>
+                                    Карта
+                                </Button>
+                                <Button href="#"
+                                        data-button-id="menu-stop"
+                                        icon={<StopOutlined/>}
+                                        size={size}
+                                        type={isStopActive ? "primary" : "default"}
+                                        danger={isStopActive}
+                                        style={{
+                                            borderRadius: '8px',
+                                            border: '1px solid #d9d9d9',
+                                            backgroundColor: isStopActive ? '#ff4d4f' : 'transparent'
+                                        }}>
+                                    Стоп
+                                </Button>
+                            </Space>
                         </Space>
-                    </Space>
-                </Col>
-                <Col span={6}>
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        height: '90px',
-                        width: '100%'
-                    }}>
+                    </Col>
+                    <Col span={6}>
                         <div style={{
-                            marginRight: '16px', // Аналог gap для старых браузеров
                             display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'flex-end', // Выравнивание по нижнему краю
-                            alignItems: 'flex-end',
-                            minWidth: '90px',
-                            borderRadius: 8,
-                            textAlign: 'right'
+                            justifyContent: 'flex-end',
+                            height: '90px',
+                            width: '100%'
                         }}>
-                            <div style={{
-                                fontSize: '24px',
-                                fontWeight: 500,
-                                color: '#1890ff',
-                                lineHeight: 1,
-                                marginBottom: '4px',
-                                display: 'flex',
-                                alignItems: 'flex-end'
-                            }}>
-                                {formatTime(currentDateTime)}
-                            </div>
-                            <div style={{
-                                fontSize: '12px',
-                                color: '#666',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.5px'
-                            }}>
-                                {formatDate(currentDateTime)}
-                            </div>
+                            <a href='#' data-button-id='menu-functions-staff-motivation'>
+                                <Motivation/>
+                            </a>
                         </div>
-                        <a href='#' data-button-id='menu-functions-staff-motivation'>
-                            <Motivation/>
-                        </a>
-                    </div>
-                </Col>
-            </Row>
+                    </Col>
+                </Row>
 
-            {/* Блок с текущей датой и временем */}
-
-            {/* Модальное окно выбора проекта */}
-            <Modal
-                title="Выберите проект"
-                open={isModalOpen}
-                onCancel={handleCancel}
-                footer={[
-                    <Button key="cancel" onClick={handleCancel}>
-                        Отмена
-                    </Button>
-                ]}
-            >
-                <Space direction="vertical" style={{width: '100%'}}>
-                    {projects.map(project => (
-                        <Button
-                            key={project.id}
-                            block
-                            style={{textAlign: 'left'}}
-                            href="#"
-                            data-button-id={`menu-create-order-project-${project.id}`}
-                        >
-                            {project.title}
+                {/* Модальное окно выбора проекта */}
+                <Modal
+                    title="Выберите проект"
+                    open={isModalOpen}
+                    onCancel={this.handleCancel}
+                    footer={[
+                        <Button key="cancel" onClick={this.handleCancel}>
+                            Отмена
                         </Button>
-                    ))}
-                </Space>
-            </Modal>
-        </>
-    )
+                    ]}
+                >
+                    <Space direction="vertical" style={{width: '100%'}}>
+                        {projects.map(project => (
+                            <Button
+                                key={project.id}
+                                block
+                                style={{textAlign: 'left'}}
+                                href="#"
+                                data-button-id={`menu-create-order-project-${project.id}`}
+                            >
+                                {project.title}
+                            </Button>
+                        ))}
+                    </Space>
+                </Modal>
+            </>
+        );
+    }
 }
 
 export default MainMenu;

@@ -93,7 +93,7 @@ class ItemButton extends React.Component {
                 data-button-id={isSuggestion ? null : (isComposite ? `open-composite-form-id-${data.id}` : `product-select-id-${data.id}`)}
                 style={{
                     height: '70px',
-                    width: '120px',
+                    width: '126px',
                     // margin: '4px',
                     padding: '6px 6px 26px 6px', // Увеличиваем нижний padding для места под абсолютный блок
                     border: isStopped ? '1px solid #ffccc7' : (isSuggestion ? '1px solid #95de64' : '1px solid #91d5ff'),

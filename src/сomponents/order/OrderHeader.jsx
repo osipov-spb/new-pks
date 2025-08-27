@@ -1,11 +1,13 @@
 import React from 'react';
-import {Alert, Button, Col, DatePicker, Form, Modal, Row, Select, Space} from "antd";
+import {Alert, Button, Col, DatePicker, Dropdown, Form, Menu, Modal, Row, Select, Space} from "antd";
 import {
+    CarryOutOutlined,
     ClockCircleOutlined,
     CloseSquareOutlined,
     FileTextOutlined,
-    ProfileOutlined,
-    RollbackOutlined
+    ProfileOutlined, RocketOutlined,
+    RollbackOutlined, ShopOutlined,
+    MoreOutlined
 } from "@ant-design/icons";
 import moment from 'moment';
 import OrderTitle from "./OrderTitle";
@@ -171,6 +173,7 @@ class OrderHeader extends React.Component {
         return changes;
     }
 
+
     render() {
         const {
             isTemporaryOrder,
@@ -187,6 +190,68 @@ class OrderHeader extends React.Component {
 
         // Проверяем условия для блокировки кнопки "Отменить"
         const isCancelDisabled = order_data.refund || order_data.paid || order_data.deleted;
+
+        // Создаем меню для Dropdown "Операции"
+        const operationsMenu = (
+            <Menu>
+                <Menu.Item
+                    key="write-down-act"
+                    icon={<ProfileOutlined />}
+                    disabled={!disabled}
+                    style={{
+                        pointerEvents: !disabled ? 'none' : 'auto',
+                        opacity: !disabled ? 0.5 : 1,
+                        cursor: !disabled ? 'not-allowed' : 'default',
+                    }}
+                >
+                    <a href="#" data-button-id="order-write-down-act">
+                        Списание
+                    </a>
+                </Menu.Item>
+
+                <Menu.Item
+                    key="bso"
+                    icon={<FileTextOutlined />}
+                    disabled={order_data.paid || order_data.bsoNumber || !disabled}
+                    style={{
+                        pointerEvents: (order_data.paid || order_data.bsoNumber || !disabled) ? 'none' : 'auto',
+                        opacity: (order_data.paid || order_data.bsoNumber || !disabled) ? 0.5 : 1,
+                        cursor: (order_data.paid || order_data.bsoNumber || !disabled) ? 'not-allowed' : 'default',
+                    }}
+                    onClick={this.showBSOModal}
+                >
+                    {order_data.bsoNumber ? `БСО: ${order_data.bsoNumber}` : 'БСО'}
+                </Menu.Item>
+
+                <Menu.Item
+                    key="cancel"
+                    icon={<CloseSquareOutlined />}
+                    disabled={isCancelDisabled || !disabled}
+                    style={{
+                        pointerEvents: (isCancelDisabled || !disabled) ? 'none' : 'auto',
+                        opacity: (isCancelDisabled || !disabled) ? 0.5 : 1,
+                        cursor: (isCancelDisabled || !disabled) ? 'not-allowed' : 'default',
+                    }}
+                    onClick={this.showCancelConfirm}
+                >
+                    Отмена
+                </Menu.Item>
+
+                <Menu.Item
+                    key="refund"
+                    icon={<RollbackOutlined />}
+                    disabled={order_data.refund || !order_data.paid || !disabled}
+                    style={{
+                        pointerEvents: (order_data.refund || !order_data.paid || !disabled) ? 'none' : 'auto',
+                        opacity: (order_data.refund || !order_data.paid || !disabled) ? 0.5 : 1,
+                        cursor: (order_data.refund || !order_data.paid || !disabled) ? 'not-allowed' : 'default',
+                    }}
+                    onClick={this.showRefundConfirm}
+                >
+                    Возврат
+                </Menu.Item>
+            </Menu>
+        );
 
         return (
             <div data-component="_OrderHeader" style={{
@@ -217,7 +282,11 @@ class OrderHeader extends React.Component {
                             <Button
                                 size="middle"
                                 type={isTemporaryOrder ? 'primary' : 'default'}
-                                icon={<ClockCircleOutlined style={{color: '#1890ff'}}/>}
+                                icon={isTemporaryOrder ? (
+                                    <ClockCircleOutlined/>
+                                ) : (
+                                    <ClockCircleOutlined style={{color: '#1890ff'}}/>
+                                )}
                                 onClick={this.handleOpenDateTimePicker}
                                 style={{
                                     borderRadius: '6px',
@@ -240,76 +309,90 @@ class OrderHeader extends React.Component {
                         </Space>
                     </Col>
 
-                    <Col style={{
-                        pointerEvents: !disabled ? 'none' : 'auto',
-                        opacity: !disabled ? 0.5 : 1,
-                        cursor: !disabled ? 'not-allowed' : 'default',
-                        visibility: hidden ? 'hidden' : 'default',
-                    }}>
-                        <Space size={6}>
-                            <Button
-                                size="middle"
-                                icon={<ProfileOutlined/>}
-                                href="#"
-                                data-button-id="order-write-down-act"
-                                style={{
-                                    borderRadius: '6px',
-                                    border: '1px solid #d9d9d9'
-                                }}
+                    <Col >
+                        {/*<Space size={6}>*/}
+                        {/*    <Button*/}
+                        {/*        size="middle"*/}
+                        {/*        icon={<ProfileOutlined/>}*/}
+                        {/*        href="#"*/}
+                        {/*        data-button-id="order-write-down-act"*/}
+                        {/*        style={{*/}
+                        {/*            borderRadius: '6px',*/}
+                        {/*            border: '1px solid #d9d9d9'*/}
+                        {/*        }}*/}
+                        {/*    >*/}
+                        {/*        Списание*/}
+                        {/*    </Button>*/}
+
+
+                        {/*    <Button*/}
+                        {/*        size="middle"*/}
+                        {/*        type={order_data.bsoNumber ? 'primary' : 'default'}*/}
+                        {/*        icon={<FileTextOutlined/>}*/}
+                        {/*        href='#'*/}
+                        {/*        data-button-id={!order_data.paid ? "bso" : undefined}*/}
+                        {/*        disabled={order_data.paid|| order_data.bsoNumber}*/}
+                        {/*        onClick={this.showBSOModal}*/}
+                        {/*        style={{*/}
+                        {/*            borderRadius: '6px',*/}
+                        {/*            border: '1px solid #d9d9d9'*/}
+                        {/*        }}*/}
+                        {/*    >*/}
+                        {/*        {order_data.bsoNumber || 'БСО'}*/}
+                        {/*    </Button>*/}
+
+
+                        {/*    <Button*/}
+                        {/*        size="middle"*/}
+                        {/*        icon={<CloseSquareOutlined/>}*/}
+                        {/*        onClick={this.showCancelConfirm}*/}
+                        {/*        disabled={isCancelDisabled}*/}
+                        {/*        style={{*/}
+                        {/*            borderRadius: '6px',*/}
+                        {/*            border: '1px solid #d9d9d9'*/}
+                        {/*        }}*/}
+                        {/*    >*/}
+                        {/*        Отмена*/}
+                        {/*    </Button>*/}
+
+                        {/*    <div style={{*/}
+                        {/*        pointerEvents: (order_data.refund || !order_data.paid) ? 'none' : 'auto',*/}
+                        {/*        opacity: (order_data.refund || !order_data.paid) ? 0.5 : 1,*/}
+                        {/*        cursor: (order_data.refund || !order_data.paid) ? 'not-allowed' : 'default',*/}
+                        {/*        visibility: hidden ? 'hidden' : 'default',*/}
+                        {/*    }}>*/}
+                        {/*        <Button*/}
+                        {/*            size="middle"*/}
+                        {/*            icon={<RollbackOutlined/>}*/}
+                        {/*            onClick={this.showRefundConfirm}*/}
+                        {/*            style={{*/}
+                        {/*                borderRadius: '6px',*/}
+                        {/*                border: '1px solid #d9d9d9'*/}
+                        {/*            }}*/}
+                        {/*        >*/}
+                        {/*            Возврат*/}
+                        {/*        </Button>*/}
+                        {/*    </div>*/}
+
+                        {/*    /!* Dropdown "Операции" *!/*/}
+                            <Dropdown
+                                overlay={operationsMenu}
+                                trigger={['click']}
+                                // disabled={!disabled}
                             >
-                                Списание
-                            </Button>
-
-
-                            <Button
-                                size="middle"
-                                type={order_data.bsoNumber ? 'primary' : 'default'}
-                                icon={<FileTextOutlined/>}
-                                href='#'
-                                data-button-id={!order_data.paid ? "bso" : undefined}
-                                disabled={order_data.paid|| order_data.bsoNumber}
-                                onClick={this.showBSOModal}
-                                style={{
-                                    borderRadius: '6px',
-                                    border: '1px solid #d9d9d9'
-                                }}
-                            >
-                                {order_data.bsoNumber || 'БСО'}
-                            </Button>
-
-
-                            <Button
-                                size="middle"
-                                icon={<CloseSquareOutlined/>}
-                                onClick={this.showCancelConfirm}
-                                disabled={isCancelDisabled}
-                                style={{
-                                    borderRadius: '6px',
-                                    border: '1px solid #d9d9d9'
-                                }}
-                            >
-                                Отмена
-                            </Button>
-
-                            <div style={{
-                                pointerEvents: (order_data.refund || !order_data.paid) ? 'none' : 'auto',
-                                opacity: (order_data.refund || !order_data.paid) ? 0.5 : 1,
-                                cursor: (order_data.refund || !order_data.paid) ? 'not-allowed' : 'default',
-                                visibility: hidden ? 'hidden' : 'default',
-                            }}>
                                 <Button
                                     size="middle"
-                                    icon={<RollbackOutlined/>}
-                                    onClick={this.showRefundConfirm}
+                                    icon={<MoreOutlined style={{color: '#1890ff'}}/>}
                                     style={{
-                                        borderRadius: '6px',
-                                        border: '1px solid #d9d9d9'
+                                        borderRadius: '8px',
+                                        border: '1px solid #d9d9d9',
+                                        marginRight: '6px',
                                     }}
                                 >
-                                    Возврат
+                                    Операции
                                 </Button>
-                            </div>
-                        </Space>
+                            </Dropdown>
+                        {/*</Space>*/}
                     </Col>
                 </Row>
 

@@ -169,6 +169,7 @@ class OrdersTable extends React.Component {
                 clientPhone : order.clientPhone || ''
             }));
 
+
             this.setState({ dataSource: formattedOrders, isLoading: false });
         } catch (error) {
             console.error('Ошибка загрузки заказов:', error);
@@ -567,7 +568,19 @@ class OrdersTable extends React.Component {
                 dataIndex: 'clientPhone',
                 key: 'clientPhone',
                 width: 130,
-                render: (text, record) => this.renderCellContent(text, record)
+                render: (text, record) => (
+                    <Popover
+                        content={
+                            <div style={{ padding: '8px', fontSize: '12px' }}>
+                                {record.clientName || 'Имя не указано'}
+                            </div>
+                        }
+                        title="Имя клиента"
+                        trigger="hover"
+                    >
+                        {this.renderCellContent(text, record)}
+                    </Popover>
+                )
             },
             {
                 title: () => {
@@ -705,7 +718,7 @@ class OrdersTable extends React.Component {
                 background: 'white',
                 borderRadius: '12px',
                 border: '1px solid #f0f0f0',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
             }}>
                 <Table
                     size="small"
@@ -732,14 +745,14 @@ class OrdersTable extends React.Component {
                     pagination={false}
                     showSorterTooltip={false}
                     scroll={{
-                        y: tableHeight - 40,
+                        y: tableHeight - 44,
                         x: 'max-content'
                     }}
                     style={{
                         flex: 1,
                         overflowX: 'auto',
                         width: '100%',
-                        tableLayout: 'fixed'
+                        tableLayout: 'fixed',
                     }}
                     onChange={(pagination, filters) => {
                         if (filters.orderStatus) {

@@ -119,27 +119,16 @@ class OrderTitle extends React.Component {
         }
     };
 
+
     render() {
-        const { status, date, deleted } = this.props;
+        const { status, date } = this.props;
         const projectTitle = this.props.project?.title;
 
         return (
             <>
-                {deleted && (
-                    <Alert
-                        message="Заказ удален"
-                        type="error"
-                        showIcon
-                        style={{
-                            margin: '-8px -16px 6px -16px',
-                            borderLeft: 0,
-                            borderRight: 0
-                        }}
-                    />
-                )}
                 <div style={{
                     padding: '8px 16px',
-                    margin: deleted ? '0 -16px 6px -16px' : '-8px -16px 6px -16px',
+                    margin: '-8px -16px 6px -16px',
                     // background: '#f0f9ff',
                     // borderBottom: '1px solid #d9d9d9',
                     boxShadow: '0 2px 0 rgba(0, 0, 0, 0.045)',

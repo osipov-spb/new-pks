@@ -237,7 +237,8 @@ const NumberInputPadModal = ({ clientData, onClientChange }) => {
                     setInputValue('+7');
                     setShowTabs(true);
                 }}
-                icon={<UserOutlined style={{color: '#1890ff'}}/>}
+                type={clientData.phone ? 'primary' : 'default'}
+                icon={clientData.phone ? <UserOutlined/> : <UserOutlined style={{color: '#1890ff'}}/>}
                 style={{
                     borderRadius: '6px',
                     border: '1px solid #d9d9d9'

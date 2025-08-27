@@ -8,7 +8,8 @@ import {
     PlusOutlined,
     ShopOutlined,
     ShoppingCartOutlined,
-    WalletOutlined
+    WalletOutlined,
+    QrcodeOutlined
 } from '@ant-design/icons';
 
 const PaymentForm = () => {
@@ -23,6 +24,7 @@ const PaymentForm = () => {
     const [isOn, setIsOn] = useState(false);
     const [showPayLaterButton, setShowPayLaterButton] = useState(true);
     const [showCombinedWarning, setShowCombinedWarning] = useState(false);
+    const [cardPaymentMethod, setCardPaymentMethod] = useState('card'); // 'card' или 'qr'
 
     useEffect(() => {
         window.payment_form_open = (data) => {
@@ -38,6 +40,7 @@ const PaymentForm = () => {
             setIsOn(true);
             setShowPayLaterButton(parsedData.showPayLater);
             setShowCombinedWarning(false);
+            setCardPaymentMethod('card');
         };
 
         window.payment_form_close = () => {
@@ -55,12 +58,13 @@ const PaymentForm = () => {
                     paymentType === 'combined' ? Math.max(0, cashInput - (total - cardInput)) : 0,
                 terminalType: paymentType === 'card' ? terminalType :
                     paymentType === 'combined' ? 'stationary' : null,
-                proceed: proceed
+                proceed: proceed,
+                qrSbp: paymentType === 'card' && cardPaymentMethod === 'qr'
             };
             setIsOn(false);
             return JSON.stringify(returnData);
         };
-    }, [paymentType, cashInput, cardInput, total, terminalType]);
+    }, [paymentType, cashInput, cardInput, total, terminalType, proceed, cardPaymentMethod]);
 
     const handleCashButtonClick = () => {
         setPaymentType('cash');
@@ -74,6 +78,7 @@ const PaymentForm = () => {
         setChange(0);
         setCardInput(total);
         setShowCombinedWarning(false);
+        setCardPaymentMethod('card');
     };
 
     const handleCombinedButtonClick = () => {
@@ -82,6 +87,20 @@ const PaymentForm = () => {
         setCardInput(0);
         setChange(0);
         setShowCombinedWarning(false);
+    };
+
+    const handleCardMethodChange = (method) => {
+        if (terminalType === 'courier' && method === 'qr') {
+            return; // Запрещаем выбор QR при курьерском терминале
+        }
+        setCardPaymentMethod(method);
+    };
+
+    const handleTerminalTypeChange = (type) => {
+        setTerminalType(type);
+        if (type === 'courier' && cardPaymentMethod === 'qr') {
+            setCardPaymentMethod('card'); // Автоматически переключаем на карту при выборе курьерского терминала
+        }
     };
 
     const handleWithoutChangeClick = () => {
@@ -126,11 +145,13 @@ const PaymentForm = () => {
     const typeCashButton = paymentType === 'cash' ? 'primary' : '';
     const typeCardButton = paymentType === 'card' ? 'primary' : '';
     const typeCombinedButton = paymentType === 'combined' ? 'primary' : '';
+    const typeCardMethodButton = cardPaymentMethod === 'card' ? 'primary' : 'default';
+    const typeQrMethodButton = cardPaymentMethod === 'qr' ? 'primary' : 'default';
 
     const getPaymentTypeText = () => {
         switch(paymentType) {
             case 'cash': return 'Наличные';
-            case 'card': return 'Карта';
+            case 'card': return cardPaymentMethod === 'qr' ? 'QR' : 'Карта';
             case 'combined': return 'Составная';
             default: return '';
         }
@@ -220,7 +241,7 @@ const PaymentForm = () => {
                             block
                             onClick={handleCardButtonClick}
                         >
-                            Карта
+                            Безнал
                         </Button>
                         <Button
                             type={typeCombinedButton}
@@ -241,34 +262,74 @@ const PaymentForm = () => {
                             textAlign: 'center'
                         }}>
                             <div style={{ marginBottom: '16px' }}>
-                                <CreditCardOutlined style={{ fontSize: '48px', color: '#1890ff' }} />
+                                {cardPaymentMethod === 'qr' ? (
+                                    <QrcodeOutlined style={{ fontSize: '48px', color: '#1890ff' }} />
+                                ) : (
+                                    <CreditCardOutlined style={{ fontSize: '48px', color: '#1890ff' }} />
+                                )}
                             </div>
-                            <div style={{ fontSize: '14px', fontWeight: 'bold' }}>
-                                Оплата по карте: {total} ₽
+                            <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '16px' }}>
+                                {cardPaymentMethod === 'qr' ? `Оплата по QR: ${total} ₽` : `Оплата по карте: ${total} ₽`}
                             </div>
 
+                            {/*{cardPaymentMethod === 'qr' ? (*/}
+                            {/*    <div style={{ fontSize: '12px', color: '#666', marginBottom: '16px' }}>*/}
+                            {/*        Будет сгенерирован QR-код для оплаты через СБП*/}
+                            {/*    </div>*/}
+                            {/*) : null}*/}
+
+                            {/* Выбор способа оплаты (всегда отображается) */}
+                            <div style={{ marginBottom: hasCourierTerminal ? '16px' : '0' }}>
+                                <div style={{
+                                    textAlign: 'center',
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    marginBottom: '8px'
+                                }}>
+                                    Способ оплаты:
+                                </div>
+                                <Space>
+                                    <Button
+                                        type={typeCardMethodButton}
+                                        icon={<CreditCardOutlined />}
+                                        onClick={() => handleCardMethodChange('card')}
+                                        disabled={terminalType === 'courier' && cardPaymentMethod === 'qr'}
+                                    >
+                                        Карта
+                                    </Button>
+                                    <Button
+                                        type={typeQrMethodButton}
+                                        icon={<QrcodeOutlined />}
+                                        onClick={() => handleCardMethodChange('qr')}
+                                        disabled={terminalType === 'courier'}
+                                    >
+                                        QR
+                                    </Button>
+                                </Space>
+                            </div>
+
+                            {/* Выбор терминала (только если доступен курьерский терминал) */}
                             {hasCourierTerminal && (
-                                <div style={{ margin: '13px 0', borderTop: '1px solid #f0f0f0' }}>
+                                <div style={{ marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}>
                                     <div style={{
                                         textAlign: 'center',
                                         fontSize: '16px',
                                         fontWeight: 'bold',
-                                        marginBottom: '8px',
-                                        marginTop: '13px'
-                                        }}>
+                                        marginBottom: '8px'
+                                    }}>
                                         Терминал:
                                     </div>
                                     <Space>
                                         <Button
                                             type={terminalType === 'stationary' ? 'primary' : 'default'}
-                                            onClick={() => setTerminalType('stationary')}
+                                            onClick={() => handleTerminalTypeChange('stationary')}
                                             icon={<ShopOutlined />}
                                         >
                                             Стационарный
                                         </Button>
                                         <Button
                                             type={terminalType === 'courier' ? 'primary' : 'default'}
-                                            onClick={() => setTerminalType('courier')}
+                                            onClick={() => handleTerminalTypeChange('courier')}
                                             icon={<CarOutlined />}
                                         >
                                             Курьерский
@@ -447,7 +508,8 @@ const PaymentForm = () => {
                                     change: paymentType === 'cash' ? Math.max(0, cashInput - total) :
                                         paymentType === 'combined' ? Math.max(0, cashInput - (total - cardInput)) : 0,
                                     terminalType: paymentType === 'card' ? terminalType :
-                                        paymentType === 'combined' ? 'stationary' : null
+                                        paymentType === 'combined' ? 'stationary' : null,
+                                    qrSbp: paymentType === 'card' && cardPaymentMethod === 'qr'
                                 };
                                 setIsOn(false);
                                 return JSON.stringify(returnData);

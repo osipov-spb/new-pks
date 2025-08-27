@@ -4,10 +4,10 @@ import {
     ArrowRightOutlined,
     CheckCircleFilled,
     CheckOutlined,
-    CloseOutlined,
+    CloseOutlined, ExperimentOutlined,
     FormOutlined,
     GiftOutlined,
-    SearchOutlined,
+    SearchOutlined, ShopFilled,
     ShoppingCartOutlined
 } from '@ant-design/icons';
 import ProductTable from "./ProductsList";
@@ -708,6 +708,7 @@ class Order extends React.Component {
                                 }}>
                                     {this.state.productsCollapsed && this.state.promoCollapsed && (
                                         <>
+
                                             <div style={{
                                                 padding: '3px 12px',
                                                 background: '#fafafa',
@@ -743,6 +744,7 @@ class Order extends React.Component {
                                                     Изменить
                                                 </Button>
                                             </div>
+
                                             <div style={{
                                                 padding: '3px 12px',
                                                 background: '#fafafa',
@@ -810,6 +812,62 @@ class Order extends React.Component {
                                                             icon={<CloseOutlined style={{ color: '#ff7875' }} />}
                                                             title="Список товаров не заполнен!"
                                                             subTitle="Вернитесь к выбору товаров"
+                                                            style={{ padding: 0 }}
+                                                        />
+                                                    </div>
+                                                )}
+
+                                            {this.state.existingOrder
+                                                && !this.state.order_data.deleted
+                                                && this.state.order_data.status!="6.Деньги сдал" && (
+                                                    <div style={{
+                                                        flex: 1,
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                        padding: '24px'
+                                                    }}>
+                                                        <Result
+                                                            icon={<ShopFilled style={{ color: '#ffc53d' }} />}
+                                                            title="Заказ в работе"
+                                                            subTitle="Завершите приготовление и проведение по статусам"
+                                                            style={{ padding: 0 }}
+                                                        />
+                                                    </div>
+                                                )}
+
+                                            {this.state.existingOrder
+                                                && !this.state.order_data.deleted
+                                                && this.state.order_data.status==="6.Деньги сдал" && (
+                                                    <div style={{
+                                                        flex: 1,
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                        padding: '24px'
+                                                    }}>
+                                                        <Result
+                                                            icon={<CheckOutlined style={{ color: '#52c41a' }} />}
+                                                            title="Заказ завершен"
+                                                            subTitle="Работа с данным заказом завершена"
+                                                            style={{ padding: 0 }}
+                                                        />
+                                                    </div>
+                                                )}
+
+                                            {this.state.existingOrder
+                                                && this.state.order_data.deleted && (
+                                                    <div style={{
+                                                        flex: 1,
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                        padding: '24px'
+                                                    }}>
+                                                        <Result
+                                                            icon={<CloseOutlined style={{ color: '#ff7875' }} />}
+                                                            title="Заказ удален"
+                                                            subTitle="Внимание! Данный заказ был удален"
                                                             style={{ padding: 0 }}
                                                         />
                                                     </div>
