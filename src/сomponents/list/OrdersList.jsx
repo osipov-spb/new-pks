@@ -9,10 +9,10 @@ const OrdersList = ({ projects }) => { // Принимаем projects как п�
     return (
         <Layout className="layout">
             <Content style={{ padding: '20px' }}>
-                <Space direction="vertical" size='small'>
+
                     <MainMenu projects={projects} />
                     <_Table/>
-                </Space>
+
             </Content>
             {/*<Footer style={{ textAlign: 'center' }}></Footer>*/}
         </Layout>

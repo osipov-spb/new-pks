@@ -96,7 +96,7 @@ class MainMenu extends React.Component {
             <>
                 <Row align="middle" gutter={16} style={{ marginBottom: 16 }}>
                     <Col span={18}>
-                        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                        <Space direction="vertical" size="small" style={{ width: '100%' }}>
                             <TableHeader />
                             <Space size="small" wrap>
                                 {projects.length === 1 ? (
@@ -169,6 +169,7 @@ class MainMenu extends React.Component {
                     </Col>
                     <Col span={6}>
                         <div style={{
+                            marginTop: '17px',
                             display: 'flex',
                             justifyContent: 'flex-end',
                             height: '90px',
