@@ -169,7 +169,7 @@ class MainMenu extends React.Component {
                     </Col>
                     <Col span={6}>
                         <div style={{
-                            marginTop: '17px',
+                            marginTop: '15px',
                             display: 'flex',
                             justifyContent: 'flex-end',
                             height: '90px',
